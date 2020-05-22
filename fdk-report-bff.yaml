@@ -1,0 +1,35 @@
+openapi: 3.0.0
+info:
+  title: fdk-organization-bff
+  version: '1.0'
+  description: Backend for Frontend service that provides information about organizations and their published content in Felles Datakatalogs
+  contact:
+    name: Felles Datakatalog
+    url: 'https://fellesdatakatalog.digdir.no/'
+    email: fellesdatakatalog@digdir.no
+  license:
+    url: 'http://data.norge.no/nlod/no/2.0'
+    name: License of API
+servers:
+  - url: 'http://report-bff.data.norge.no'
+    description: production
+  - url: 'https://report-bff.staging.fellesdatakatalog.digdir.no/'
+    description: staging
+paths:
+  /ready:
+    get:
+      summary: check if application is ready to accept requests
+      operationId: get-ready
+      responses:
+        '200':
+          description: OK if service is runnning and can contact other services
+        '503':
+          description: Temporarily unavailable. Returned if fdk-organization-bff can not contact other services
+  /ping:
+    get:
+      summary: ping endpoint for application fidders from ready in that is does not check if other servies are contactable
+      operationId: ping
+      responses:
+        '200':
+          description: OK if service is runnning
+

@@ -1,0 +1,8 @@
+version: "3"
+services:
+  servicesmock:
+    image: rodolpheche/wiremock
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./mock/mappings:/home/wiremock/mappings

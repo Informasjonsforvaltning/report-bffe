@@ -1,0 +1,14 @@
+version: "3"
+services:
+  servicesmock:
+    image: rodolpheche/wiremock
+    ports:
+      - "8080:8080"
+    volumes:
+      - $MOCK_DIR/mock/mappings:/home/wiremock/mappings
+  fdk-organization-bff:
+      image: $TEST_IMAGE
+      ports:
+        - "8000:8000"
+      depends_on:
+        - servicesmock
