@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: fdk-organization-bff
+  title: fdk-reports-bff
   version: '1.0'
   description: Backend for Frontend service that provides information about organizations and their published content in Felles Datakatalogs
   contact:
@@ -32,4 +32,106 @@ paths:
       responses:
         '200':
           description: OK if service is runnning
-
+components:
+  schemas:
+    Report:
+      title: Report
+      type: object
+      properties:
+        totalElements:
+          type: string
+        newElementsLastWeek:
+          type: string
+    InformationModelsReport:
+      title: InformationModelReport
+      allOf:
+        - $ref: '#/components/schemas/Report'
+        - type: object
+          properties:
+            inUseBy:
+              type: object
+              properties:
+                dataset_count:
+                  type: string
+                dataservice_count:
+                  type: string
+    ConceptsReport:
+      title: ConceptReport
+      allOf:
+        - $ref: '#/components/schemas/Report'
+        - type: object
+          properties:
+            datasetRelations:
+              type: integer
+            mostInUse:
+              type: array
+              items: "$ref :'#/components/schemas/References'"
+            organizations:
+              type: array
+              items: "$ref:'#/components/schemas/Organization'"
+    Reference:
+      schemas:
+        title: "$ref '#/components/schemas/LanguageObject'"
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/LanguageObject'
+        uri:
+          type: string
+          format: uri
+    LanguageObject:
+      type: object
+      properties:
+        nb:
+          type: string
+        nn:
+          type: string
+        'no':
+          type: string
+        en:
+          type: string
+    Organization:
+      title: Organizations
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+        uri:
+          type: string
+          format: uri
+    DataSetsReport:
+      title: DataSetsReport
+      allOf:
+        - $ref: '#/components/schemas/Report'
+        - type: object
+          properties:
+            availibility:
+              type: object
+            distributions:
+              type: object
+            usesConceptsCount:
+              type: integer
+            organizations:
+              organizations: null
+              type: array
+              items: "$ref:'#/components/schemas/Organization'"
+    DataServiceReport:
+      title: DataServiceRepor
+      allOf:
+        - properties:
+            avaibility:
+              type: object
+            formats:
+              type: array
+              items: "$ref:'#/components/schemas/Format'"
+      type: object
+    Format:
+      title: Format
+      type: object
+      properties:
+        title:
+          type: string
+        count:
+          type: string
