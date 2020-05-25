@@ -1,4 +1,6 @@
 import os
+import time
+
 import requests
 from invoke import task
 
@@ -68,20 +70,38 @@ def contract_test(ctx, image="digdir/fdk-report-bff:latest", compose=False, buil
 
 
 @task
-def update_organization_catalog(ctx, env=None):
-    if env:
-        publisher_url = "https://www.{0}.fellesdatakatalog.digdir.no/publisher".format(env)
-        org_catalog_url = "https://organization-catalogue.{0}.fellesdatakatalog.digdir.no/organizations/".format(env)
-    else:
-        publisher_url = "https://www.fellesdatakatalog.digdir.no/publisher"
-        org_catalog_url = "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/".format(env)
+def update_mock_data(ctx):
+    start_recording_url = "/__admin/recordin/start"
+    stop_recording_url = "/__admin/recordings/stop"
+    target_url_body = {
+        "targetBaseUrl": "https://www.fellesdatakatalog.digdir.no/api"
+    }
 
-    print(publisher_url)
-    print(org_catalog_url)
+    mock_url = "http://localhost:8080"
+    start_recording_curl = "curl -d '{\"targetBaseUrl\": \"https://www.fellesdatakatalog.digdir.no/api\" }' -H " \
+                           "'Content-Type: application/json' http://localhost:8080/__admin/recordings/start"
+    stop_recording_curl = "curl -I -X POST  http://localhost:8080/__admin/recordings/stop"
 
-    publishers = requests.get(url=publisher_url)
-    for hit in publishers.json()["hits"]["hits"]:
-        update_url = org_catalog_url + (hit["_source"]["id"])
-        print(update_url)
-        x = requests.get(url=update_url, headers={'Accept': 'application/json'})
-        print(x)
+    data_sets_curl = f"curl -I -X GET '{mock_url}/datasets?size=0&aggregations=accessRights,theme,orgPath,provenance," \
+                     f"spatial,los,firstHarvested,withDistribution,publicWithDistribution,nonpublicWithDistribution," \
+                     f"publicWithoutDistribution,nonpublicWithoutDistribution,withSubject,catalog,opendata," \
+                     f"nationalComponent,subject,distributionCountForTypeApi,distributionCountForTypeFeed," \
+                     f"distributionCountForTypeFile' -H 'Accept: application/json'"
+
+    data_services_curl = f"curl -I -X GET {mock_url}/apis?size=0aggregations=formats,orgPath,firstHarvested,publisher," \
+                         f"openAccess,openLicence,freeUsage -H 'Accept: application/json'"
+    concepts_curl = f"curl -I -X GET {mock_url}/concepts?size=5000&returnfields=uri&aggregations=firstHarvested"
+    info_models_curl = f" curl -I -X GET {mock_url}/informationmodels?aggregations=orgPath"
+
+    ctx.run("docker-compose up -d")
+    time.sleep(3)
+    breakpoint()
+    ctx.run(start_recording_curl)
+    breakpoint()
+    ctx.run(data_sets_curl)
+    ctx.run(concepts_curl)
+    ctx.run(data_services_curl)
+    ctx.run(info_models_curl)
+    ctx.run(stop_recording_curl)
+    breakpoint()
+    ctx.run("docker-compose down")
