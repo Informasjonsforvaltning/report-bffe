@@ -32,50 +32,47 @@ paths:
       responses:
         '200':
           description: OK if service is runnning
-  /report/concepts:
+  '/report/{contentType}':
     get:
-      summary: get report for concepts
-      operationId: getConceptsReport
-      responsese:
-        200:
+      operationId: getReportForContentType
+      summary: endpoint for report on specific contentType
+      description: ''
+      responses:
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConceptsReport'
-  /reoprt/informationmodels:
+                anyOf:
+                  - $ref: '#/components/schemas/InformationModelsReport'
+                  - $ref: '#/components/schemas/ConceptsReport'
+                  - $ref: '#/components/schemas/DataSetsReport'
+                  - $ref: '#/components/schemas/DataServicesReport'
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - datasets
+            - concepts
+            - informationmodels
+            - dataservices
+        name: contentType
+        in: path
+        required: true
+  '/report/organization/{orgPath}':
     get:
-      summary: get report for informationmodels
-      operationId: getInformationModelsReport
-      responsese:
-        200:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InformationModelsReport'
-  /report/datasets:
-    get:
-      summary: get report for datasets
-      operationId: getDatasetsReport
-      responsese:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DataSetsReport'
-  report/dataservices:
-    get:
-      summary: get report for concepts
-      operationId: getConcepts
-      responsese:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DataServicesReport'
+      operationId: get-report-organization
+    parameters:
+      - schema:
+          type: string
+        name: orgPath
+        in: path
+        required: true
 components:
   schemas:
     Report:
@@ -88,7 +85,8 @@ components:
           type: string
         organizations:
           type: array
-          items: "$ref:'#/components/schemas/Organization'"
+          items:
+            $ref: '#/components/schemas/Organization'
     InformationModelsReport:
       title: InformationModelReport
       allOf:
@@ -112,10 +110,10 @@ components:
               type: integer
             mostInUse:
               type: array
-              items: "$ref :'#/components/schemas/References'"
+              items:
+                $ref: ''
     Reference:
-      schemas:
-        title: "$ref '#/components/schemas/LanguageObject'"
+      title: Reference
       type: object
       properties:
         name:
@@ -150,7 +148,7 @@ components:
         - type: object
           properties:
             withDistribution:
-              type:number
+              type: number
             publicWihoutDistirbution:
               type: number
             nonPublicWithDistribution:
@@ -171,26 +169,29 @@ components:
             opendata:
               type: number
             catalogs:
-                type: array
-                items: "$ref: #/components/schemas/KeyWithCountObject"
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
             withSubject:
               type: number
             accessRights:
               type: array
-              items: "$ref: #/components/schemas/KeyWithCountObject"
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
     DataServicesReport:
       title: DataServiceRepor
       allOf:
         - properties:
             openLicence:
-              $ref: '$ref: #/components/schemas/PrepositionCountObject'
+              $ref: '#/components/schemas/PrepositionCountObject'
             openAccess:
-              $ref: '$ref: #/components/schemas/PrepositionCountObject'
+              $ref: '#/components/schemas/PrepositionCountObject'
             freeUsage:
-              $ref: '$ref: #/components/schemas/PrepositionCountObject'
+              $ref: '#/components/schemas/PrepositionCountObject'
             formats:
               type: array
-              items: "$ref:'#/components/schemas/Format'"
+              items:
+                $ref: '#/components/schemas/Format'
       type: object
     Format:
       title: Format
@@ -214,4 +215,19 @@ components:
           type: number
         without:
           type: number
-
+    OrganizationReport:
+      title: OrganizationReport
+      type: object
+      properties:
+        orgPath:
+          type: string
+        name:
+          $ref: '#/components/schemas/LanguageObject'
+        concepts:
+          $ref: '#/components/schemas/ConceptsReport'
+        informationmodels:
+          $ref: '#/components/schemas/InformationModelsReport'
+        datasets:
+          $ref: '#/components/schemas/DataSetsReport'
+        dataservices:
+          $ref: '#/components/schemas/DataServicesReport'
