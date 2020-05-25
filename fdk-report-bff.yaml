@@ -94,11 +94,9 @@ components:
       title: Organizations
       type: object
       properties:
-        name:
-          type: string
         count:
           type: integer
-        uri:
+        orgPath:
           type: string
           format: uri
     DataSetsReport:
@@ -107,16 +105,38 @@ components:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            availibility:
+            withDistribution:
+              type:number
+            publicWihoutDistirbution:
+              type: number
+            nonPublicWithDistribution:
+              type: number
+            nonPublicWithoutDistribution:
+              type: number
+            distirbutionCountForType:
               type: object
-            distributions:
-              type: object
-            usesConceptsCount:
-              type: integer
+              properties:
+                api:
+                  type: number
+                feed:
+                  type: number
+                file:
+                  type: number
+            nationalComponent:
+              type: number
             organizations:
-              organizations: null
               type: array
               items: "$ref:'#/components/schemas/Organization'"
+            opendata:
+              type: number
+            catalogs:
+                type: array
+                items: "$ref: #/components/schemas/KeyWithCountObject"
+            withSubject:
+              type: number
+            accessRights:
+              type: array
+              items: "$ref: #/components/schemas/KeyWithCountObject"
     DataServiceReport:
       title: DataServiceRepor
       allOf:
@@ -135,3 +155,11 @@ components:
           type: string
         count:
           type: string
+    KeyWithCountObject:
+      type: object
+      properties:
+        key:
+          type: string
+        count:
+          type: number
+
