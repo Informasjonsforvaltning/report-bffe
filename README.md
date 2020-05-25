@@ -31,11 +31,10 @@ options:
 --compose: start docker compose for testing before run
 --image: name of the image that should be tested. Defaults to digdir/fulltext-search:latest
 ```
-#### Updating mock data
-1. delete data for the url in ./mock/mappings
-2. Start wiremock: `docker-compose up` 
-3. Start [record and playback](http://wiremock.org/docs/record-playback/) with target url 
-4. run the wanted http requests (replace the target url with `localhost:8080`) 
+#### Updatingitg mock data
+``ìnvoke update-mock-data``
+
+input `continue` at points where the execution stops
 
 ### Other invoke tasks
 ```
@@ -52,9 +51,7 @@ options:
 ```
  
 ``` 
-record_harvest_data # record mock_dat from harvesters, prerequisite: wiremock running record and playback on root url
---old                      # wether to record data from old (as opposed to new) harvesters, defaults to false 
---env                      # which environment that should be updated (must be same as target for recordings). Defaults to production  
+update-mock-data            # record mockdata in wiremock 
 ```
 
 ## Troubleshooting
