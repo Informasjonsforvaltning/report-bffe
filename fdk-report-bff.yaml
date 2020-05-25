@@ -32,6 +32,50 @@ paths:
       responses:
         '200':
           description: OK if service is runnning
+  /report/concepts:
+    get:
+      summary: get report for concepts
+      operationId: getConceptsReport
+      responsese:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptsReport'
+  /reoprt/informationmodels:
+    get:
+      summary: get report for informationmodels
+      operationId: getInformationModelsReport
+      responsese:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InformationModelsReport'
+  /report/datasets:
+    get:
+      summary: get report for datasets
+      operationId: getDatasetsReport
+      responsese:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSetsReport'
+  report/dataservices:
+    get:
+      summary: get report for concepts
+      operationId: getConcepts
+      responsese:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataServicesReport'
 components:
   schemas:
     Report:
@@ -134,7 +178,7 @@ components:
             accessRights:
               type: array
               items: "$ref: #/components/schemas/KeyWithCountObject"
-    DataServiceReport:
+    DataServicesReport:
       title: DataServiceRepor
       allOf:
         - properties:
