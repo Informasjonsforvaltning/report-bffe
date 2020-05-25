@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: fdk-organization-bff
+  title: fdk-reports-bff
   version: '1.0'
   description: Backend for Frontend service that provides information about organizations and their published content in Felles Datakatalogs
   contact:
@@ -32,4 +32,202 @@ paths:
       responses:
         '200':
           description: OK if service is runnning
-
+  '/report/{contentType}':
+    get:
+      operationId: getReportForContentType
+      summary: endpoint for report on specific contentType
+      description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/InformationModelsReport'
+                  - $ref: '#/components/schemas/ConceptsReport'
+                  - $ref: '#/components/schemas/DataSetsReport'
+                  - $ref: '#/components/schemas/DataServicesReport'
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - datasets
+            - concepts
+            - informationmodels
+            - dataservices
+        name: contentType
+        in: path
+        required: true
+  '/report/organization/{orgPath}':
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-report-organization
+    parameters:
+      - schema:
+          type: string
+        name: orgPath
+        in: path
+        required: true
+components:
+  schemas:
+    Report:
+      title: Report
+      type: object
+      properties:
+        totalElements:
+          type: string
+        newElementsLastWeek:
+          type: string
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    InformationModelsReport:
+      title: InformationModelReport
+      allOf:
+        - $ref: '#/components/schemas/Report'
+        - type: object
+          properties:
+            usedIn:
+              type: object
+              properties:
+                dataset_count:
+                  type: string
+                dataservice_count:
+                  type: string
+    ConceptsReport:
+      title: ConceptReport
+      allOf:
+        - $ref: '#/components/schemas/Report'
+        - type: object
+          properties:
+            datasetRelations:
+              type: integer
+            mostInUse:
+              type: array
+              items:
+                $ref: ''
+    Reference:
+      title: Reference
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/LanguageObject'
+        uri:
+          type: string
+          format: uri
+    LanguageObject:
+      type: object
+      properties:
+        nb:
+          type: string
+        nn:
+          type: string
+        'no':
+          type: string
+        en:
+          type: string
+    Organization:
+      title: Organizations
+      type: object
+      properties:
+        count:
+          type: integer
+        orgPath:
+          type: string
+          format: uri
+    DataSetsReport:
+      title: DataSetsReport
+      allOf:
+        - $ref: '#/components/schemas/Report'
+        - type: object
+          properties:
+            withDistribution:
+              type: number
+            publicWihoutDistirbution:
+              type: number
+            nonPublicWithDistribution:
+              type: number
+            nonPublicWithoutDistribution:
+              type: number
+            distirbutionCountForType:
+              type: object
+              properties:
+                api:
+                  type: number
+                feed:
+                  type: number
+                file:
+                  type: number
+            nationalComponent:
+              type: number
+            opendata:
+              type: number
+            catalogs:
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
+            withSubject:
+              type: number
+            accessRights:
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
+    DataServicesReport:
+      title: DataServiceRepor
+      allOf:
+        - properties:
+            openLicence:
+              $ref: '#/components/schemas/PrepositionCountObject'
+            openAccess:
+              $ref: '#/components/schemas/PrepositionCountObject'
+            freeUsage:
+              $ref: '#/components/schemas/PrepositionCountObject'
+            formats:
+              type: array
+              items:
+                $ref: '#/components/schemas/Format'
+      type: object
+    Format:
+      title: Format
+      type: object
+      properties:
+        title:
+          type: string
+        count:
+          type: string
+    KeyWithCountObject:
+      type: object
+      properties:
+        key:
+          type: string
+        count:
+          type: number
+    PrepositionCountObject:
+      type: object
+      properties:
+        with:
+          type: number
+        without:
+          type: number
+    OrganizationReport:
+      title: OrganizationReport
+      type: object
+      properties:
+        orgPath:
+          type: string
+        name:
+          $ref: '#/components/schemas/LanguageObject'
+        concepts:
+          $ref: '#/components/schemas/ConceptsReport'
+        informationmodels:
+          $ref: '#/components/schemas/InformationModelsReport'
+        datasets:
+          $ref: '#/components/schemas/DataSetsReport'
+        dataservices:
+          $ref: '#/components/schemas/DataServicesReport'
