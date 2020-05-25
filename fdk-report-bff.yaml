@@ -42,13 +42,16 @@ components:
           type: string
         newElementsLastWeek:
           type: string
+        organizations:
+          type: array
+          items: "$ref:'#/components/schemas/Organization'"
     InformationModelsReport:
       title: InformationModelReport
       allOf:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            inUseBy:
+            usedIn:
               type: object
               properties:
                 dataset_count:
@@ -66,9 +69,6 @@ components:
             mostInUse:
               type: array
               items: "$ref :'#/components/schemas/References'"
-            organizations:
-              type: array
-              items: "$ref:'#/components/schemas/Organization'"
     Reference:
       schemas:
         title: "$ref '#/components/schemas/LanguageObject'"
@@ -124,9 +124,6 @@ components:
                   type: number
             nationalComponent:
               type: number
-            organizations:
-              type: array
-              items: "$ref:'#/components/schemas/Organization'"
             opendata:
               type: number
             catalogs:
@@ -141,8 +138,12 @@ components:
       title: DataServiceRepor
       allOf:
         - properties:
-            avaibility:
-              type: object
+            openLicence:
+              $ref: '$ref: #/components/schemas/PrepositionCountObject'
+            openAccess:
+              $ref: '$ref: #/components/schemas/PrepositionCountObject'
+            freeUsage:
+              $ref: '$ref: #/components/schemas/PrepositionCountObject'
             formats:
               type: array
               items: "$ref:'#/components/schemas/Format'"
@@ -161,5 +162,12 @@ components:
         key:
           type: string
         count:
+          type: number
+    PrepositionCountObject:
+      type: object
+      properties:
+        with:
+          type: number
+        without:
           type: number
 
