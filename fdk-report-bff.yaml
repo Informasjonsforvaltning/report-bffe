@@ -93,25 +93,38 @@ components:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            usedIn:
-              type: object
-              properties:
-                dataset_count:
-                  type: string
-                dataservice_count:
-                  type: string
+            totalObjects:
+              type: number
+              format: float
+            newLastWeek:
+              type: number
+              format: float
+            catalogs:
+              description: Count objects of each catalog
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
     ConceptsReport:
       title: ConceptReport
       allOf:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            datasetRelations:
-              type: integer
+            totalObjects:
+              type: number
+              format: float
+            newLastWeek:
+              type: number
+              format: float
             mostInUse:
               type: array
               items:
                 $ref: ''
+            catalogs:
+              description: Count objects of each catalog
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
     Reference:
       title: Reference
       type: object
@@ -147,34 +160,37 @@ components:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            withDistribution:
+            totalObjects:
               type: number
-            publicWihoutDistirbution:
+              example: 5233
+              format: float
+            newLastWeek:
               type: number
-            nonPublicWithDistribution:
-              type: number
-            nonPublicWithoutDistribution:
-              type: number
+              format: float
             distirbutionCountForType:
-              type: object
-              properties:
-                api:
-                  type: number
-                feed:
-                  type: number
-                file:
-                  type: number
+              type: array
+              item:
+                $ref: '#/components/schemas/KeyWithCountObject'
+              items: {}
             nationalComponent:
               type: number
+              format: float
             opendata:
               type: number
+              format: float
             catalogs:
+              description: Count objects of each catalog
               type: array
               items:
                 $ref: '#/components/schemas/KeyWithCountObject'
             withSubject:
               type: number
+              format: float
             accessRights:
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
+            themesAndTopicsCount:
               type: array
               items:
                 $ref: '#/components/schemas/KeyWithCountObject'
@@ -182,6 +198,15 @@ components:
       title: DataServiceRepor
       allOf:
         - properties:
+            totalObjects:
+              type: number
+              format: float
+            newLastWeek:
+              type: number
+              format: float
+            nationalComponent:
+              type: number
+              format: float
             openLicence:
               $ref: '#/components/schemas/PrepositionCountObject'
             openAccess:
@@ -192,6 +217,12 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Format'
+            catalogs:
+              description: Count objects of each catalog
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
+      description: ''
       type: object
     Format:
       title: Format
@@ -200,7 +231,8 @@ components:
         title:
           type: string
         count:
-          type: string
+          type: number
+          format: float
     KeyWithCountObject:
       type: object
       properties:
@@ -208,13 +240,16 @@ components:
           type: string
         count:
           type: number
+          format: float
     PrepositionCountObject:
       type: object
       properties:
         with:
           type: number
+          format: float
         without:
           type: number
+          format: float
     OrganizationReport:
       title: OrganizationReport
       type: object
