@@ -37,10 +37,10 @@ def start_docker(ctx, image="digdir/fdk-report-bff:latest", attach=False):
     print("starting docker network..")
     host_dir = os.getcwd()
     if attach:
-        start_compose = "TEST_IMAGE={0} MOCK_DIR={1} docker-compose -f  tests/docker-compose.contract.yml up".format(
+        start_compose = "TEST_IMAGE={0} MOCK_DIR={1} docker-compose -f  test/docker-compose.contract.yml up".format(
             image, host_dir)
     else:
-        start_compose = "TEST_IMAGE={0} MOCK_DIR={1} docker-compose -f  tests/docker-compose.contract.yml up -d".format(
+        start_compose = "TEST_IMAGE={0} MOCK_DIR={1} docker-compose -f  test/docker-compose.contract.yml up -d".format(
             image, host_dir)
     ctx.run(start_compose)
 
@@ -49,7 +49,7 @@ def start_docker(ctx, image="digdir/fdk-report-bff:latest", attach=False):
 @task
 def stop_docker(ctx, clean=False, remove=False):
     print("stopping docker network..")
-    kill = "docker-compose -f tests/docker-compose.contract.yml kill"
+    kill = "docker-compose -f test/docker-compose.contract.yml kill"
     docker_clean = "docker system prune"
     ctx.run(kill)
     if remove:
