@@ -83,10 +83,6 @@ components:
           type: string
         newLastWeek:
           type: string
-        organizations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Organization'
         catalogs:
           description: Count objects of each catalog
           type: array
@@ -127,7 +123,7 @@ components:
           type: string
         en:
           type: string
-    Organization:
+    Catalog:
       title: Organizations
       type: object
       properties:
@@ -135,7 +131,6 @@ components:
           type: integer
         orgPath:
           type: string
-          format: uri
     DataSetsReport:
       title: DataSetsReport
       allOf:

@@ -1,5 +1,8 @@
 from flask_restful import Resource, abort
 
+from src.aggregation import get_report
+from src.utils import ServiceKey, NotAServiceKeyException
+
 
 class Ping(Resource):
     def get(self):
@@ -13,4 +16,8 @@ class Ready(Resource):
 
 class Report(Resource):
     def get(self, content_type):
-        abort(501)
+        try:
+            result = get_report(content_type = ServiceKey.get_key(content_type))
+            abort(501)
+        except NotAServiceKeyException:
+            abort(400)
