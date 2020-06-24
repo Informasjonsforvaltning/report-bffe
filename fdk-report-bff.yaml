@@ -59,20 +59,13 @@ paths:
         name: contentType
         in: path
         required: true
-  '/report/organization/{orgPath}':
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-      operationId: get-report-organization
-    parameters:
       - schema:
           type: string
-        name: orgPath
-        in: path
-        required: true
+          enum:
+            - orgPath
+            - theme
+          name: filters
+          in: query
 components:
   schemas:
     Report:
