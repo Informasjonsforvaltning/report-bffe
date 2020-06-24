@@ -30,13 +30,13 @@ def test_resolve_id():
 def test_eq():
     org_name_some_name = ParsedOrganization(name="Some Name")
     org_national_reg_971040238_some_name = ParsedOrganization(name="Some Name",
-                                                    uri="https://data.brreg.no/enhetsregisteret/api/enheter/971040238")
+                                                              uri="https://data.brreg.no/enhetsregisteret/api/enheter/971040238")
     org_national_reg_971040238_other_name = ParsedOrganization(name="Other Name",
-                                                    uri="https://data.brreg.no/enhetsregisteret/api/enheter/971040238")
+                                                               uri="https://data.brreg.no/enhetsregisteret/api/enheter/971040238")
     org_not_national_reg_971040238_some_name = ParsedOrganization(name="Some Name",
-                                                        uri="https://dat.no/enhetsregisteret/api/enheter/971040238")
+                                                                  uri="https://dat.no/enhetsregisteret/api/enheter/971040238")
     org_not_national_reg_971040238_other_name = ParsedOrganization(name="Other Name",
-                                                        uri="https://dat.no/enhetsregisteret/api/enheter/971040238")
+                                                                   uri="https://dat.no/enhetsregisteret/api/enheter/971040238")
     org_with_id_971040238_some_name = ParsedOrganization(name="Some Name", org_id="971040238")
     org_with_id_971040238_other_name = ParsedOrganization(name="Name, name", org_id="971040238")
     org_with_id_971040555_some_name = ParsedOrganization(name="Some Name", org_id="971040555")
@@ -54,3 +54,49 @@ def test_eq():
     assert org_national_reg_971040238_some_name == org_with_id_971040238_other_name
     assert org_not_national_reg_971040238_other_name != org_national_reg_971040238_some_name
     assert org_not_national_reg_971040238_other_name == org_not_national_reg_971040238_other_name
+
+
+@pytest.mark.unit
+def test_eq_org_path():
+    org_path_from_catalog = ParsedOrganization.from_organizations_catalog_json({
+        "organizationId": "974760673",
+        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
+        "name": "REGISTERENHETEN I BRØNNØYSUND",
+        "orgType": "ORGL",
+        "orgPath": "STAT/912660680/974760673",
+        "subOrganizationOf": "912660680",
+        "issued": "1995-08-09",
+        "municipalityNumber": "1813",
+        "industryCode": "84.110",
+        "sectorCode": "6100"
+    })
+
+    assert org_path_from_catalog == ['STAT']
+    assert org_path_from_catalog == ['STAT', '912660680']
+    assert org_path_from_catalog == ['STAT', '912660680', '974760673']
+    assert org_path_from_catalog != ['STAT', '912660681']
+    assert org_path_from_catalog != ['STAT', '92660681']
+    assert org_path_from_catalog != ['STAT', '912660680', '974760673', '776655']
+
+
+@pytest.mark.unit
+def test_eq_old_org_path():
+    org_path_from_catalog = ParsedOrganization.from_organizations_catalog_json({
+        "organizationId": "974760673",
+        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
+        "name": "REGISTERENHETEN I BRØNNØYSUND",
+        "orgType": "ORGL",
+        "orgPath": "/STAT/912660680/974760673",
+        "subOrganizationOf": "912660680",
+        "issued": "1995-08-09",
+        "municipalityNumber": "1813",
+        "industryCode": "84.110",
+        "sectorCode": "6100"
+    })
+
+    assert org_path_from_catalog == ['STAT']
+    assert org_path_from_catalog == ['STAT', '912660680']
+    assert org_path_from_catalog != ['STAT', '912660681']
+    assert org_path_from_catalog != ['STAT', '912660680', '974760673']
+    assert org_path_from_catalog != ['STAT', '92660681']
+    assert org_path_from_catalog != ['STAT', '912660680', '974760673', '776655']

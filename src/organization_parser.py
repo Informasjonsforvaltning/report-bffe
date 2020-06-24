@@ -27,8 +27,19 @@ class ParsedOrganization:
                 return True
             else:
                 return other.name == self.name
+        elif isinstance(other, list):
+            return self.__eq_on_org_path(other)
         else:
             return False
+
+    def __eq_on_org_path(self, other_org_path: list):
+        self_org_path_list = self.orgPath.split("/")
+        if self_org_path_list.__len__() < other_org_path.__len__():
+            return False
+        for i in range(0, len(other_org_path)):
+            if other_org_path[i] != self_org_path_list[i]:
+                return False
+        return True
 
     def get_comparator(self):
         try:
@@ -39,9 +50,12 @@ class ParsedOrganization:
         except AttributeError:
             return self.name
 
-    def resolve_org_path(self, org_path):
+    def resolve_org_path(self, org_path:str):
         if org_path:
-            return org_path
+            if org_path.startswith("/"):
+                return org_path[1:org_path.__len__()-1]
+            else:
+                return org_path
         return f"ANNET/{self.name}"
 
     @staticmethod
@@ -64,3 +78,7 @@ class ParsedOrganization:
                                   orgPath=json["orgPath"],
                                   uri=json["norwegianRegistry"],
                                   org_id=json["organizationId"])
+
+    @staticmethod
+    def from_harvester_elastic_result(param):
+        pass
