@@ -66,6 +66,38 @@ paths:
             - theme
           name: filters
           in: query
+
+  '/timeseries/{contentType}':
+    get:
+      operationId: getTimeSeriesReportForContentType
+      summary: endpoint for timeSeries report on specific contentType
+      description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/TimeSeriesReport'
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - datasets
+            - concepts
+            - informationmodels
+            - dataservices
+        name: contentType
+        in: path
+        required: true
+      - schema:
+          type: string
+          enum:
+            - orgPath
+            - theme
+          name: filters
+          in: query
 components:
   schemas:
     Report:
@@ -130,7 +162,7 @@ components:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            distirbutionCountForType:
+            formats:
               type: array
               item:
                 $ref: '#/components/schemas/KeyWithCountObject'
@@ -169,18 +201,18 @@ components:
             formats:
               type: array
               items:
-                $ref: '#/components/schemas/Format'
+                $ref: '#/components/schemas/KeyWithCountObject'
       description: ''
       type: object
-    Format:
-      title: Format
-      type: object
+    TimeSeriesReport:
+      title: TimeSeriesReport
       properties:
-        title:
-          type: string
-        count:
-          type: number
-          format: float
+        timeSeries:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataPoint'
+      description: ''
+      type: object
     KeyWithCountObject:
       type: object
       properties:
@@ -214,3 +246,11 @@ components:
           $ref: '#/components/schemas/DataSetsReport'
         dataservices:
           $ref: '#/components/schemas/DataServicesReport'
+    DataPoint:
+      type: object
+      properties:
+        xAxis:
+          type: string
+        yAxis:
+          type: number
+          format: float
