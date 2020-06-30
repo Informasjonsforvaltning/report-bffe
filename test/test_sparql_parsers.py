@@ -4,7 +4,8 @@ from src.sparql_parsers import parse_sparql_formats_count, parse_sparql_single_r
     parse_sparql_catalogs_count, parse_sparql_access_rights_count, parse_sparql_time_series, \
     parse_sparql_themes_and_topics
 from test.unit_mock_data import datasets_format_count, datasets_simple_aggs_response, datasets_catalogs, \
-    datasets_access_rights, mocked_org_paths, mocked_access_rights, time_series
+    datasets_access_rights, mocked_org_paths, mocked_access_rights, time_series, datasets_themes_and_topics, \
+    mocked_los_paths
 
 
 @pytest.mark.unit
@@ -59,8 +60,16 @@ def test_parse_sparql_access_rights_count(mock_get_ar_code):
 
 
 @pytest.mark.unit
-def test_parse_sparql_themes_and_topics():
-    pass
+def test_parse_sparql_themes_and_topics(mock_get_los_path):
+    result = parse_sparql_themes_and_topics(datasets_themes_and_topics)
+    assert result.__len__() == 6
+    assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom"][0] == 10 + 1 + 32
+    assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"][0] == 1 + 32
+    assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom" \
+                                                      "/renovasjonsavgift"][0] == 32
+    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo/avfallshandtering/kompostering"][0] == 1
+    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo/avfallshandtering"][0] == 1
+    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo"][0] == 1
 
 
 @pytest.fixture
@@ -74,5 +83,5 @@ def mock_get_ar_code(mocker):
 
 
 @pytest.fixture
-def mock_get_themes_and_topics():
-    result = None
+def mock_get_los_path(mocker):
+    mocker.patch('src.sparql_parsers.get_los_path', side_effect=mocked_los_paths)

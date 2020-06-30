@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from src.referenced_data_store import get_organizations, get_org_path, get_access_rights_code
+from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
 
 
 class ContentKeys:
@@ -17,11 +17,13 @@ class ContentKeys:
     ACCESS_RIGHTS_CODE = "code"
     TIME_SERIES_X_AXIS = "date"
     TIME_SERIES_Y_AXIS = "count"
+    THEME = "theme"
 
 
 def parse_sparql_formats_count(sparql_result: dict) -> list:
     bindings = sparql_result["results"]["bindings"]
-    format_list = [KeyCountObject.from_sparql(ContentKeys.FORMAT, x) for x in bindings]
+    format_list = [KeyCountObject.from_sparql(key=ContentKeys.FORMAT,
+                                              sparql_result=x) for x in bindings]
     return KeyCountObject.reduce_to_dicts(format_list)
 
 
@@ -55,7 +57,13 @@ def parse_sparql_access_rights_count(sparql_result: dict) -> list:
 
 
 def parse_sparql_themes_and_topics(sparql_results: dict) -> list:
-    pass
+    bindings = sparql_results["results"]["bindings"]
+    themes_list = [KeyCountObject.with_reference_key(reference_function=get_los_path,
+                                                     key=ContentKeys.THEME,
+                                                     sparql_result=x
+                                                     )
+                   for x in bindings]
+    return KeyCountObject.expand_with_hierarchy(themes_list)
 
 
 def parse_sparql_time_series(sparql_result: dict) -> list:
@@ -66,8 +74,11 @@ def parse_sparql_time_series(sparql_result: dict) -> list:
 
 
 class KeyCountObject:
-    def __init__(self, key: str, count: str):
-        self.key = key.upper()
+    def __init__(self, key: str, count: str, normalize=False):
+        if normalize:
+            self.key = key.upper()
+        else:
+            self.key = key
         self.count = int(count)
 
     def __eq__(self, other):
@@ -82,7 +93,7 @@ class KeyCountObject:
         hierarchy_parts = [x for x in self.key.split("/")]
         hierarchy_list = []
         for i, v in enumerate(hierarchy_parts):
-            hierarchy_key = '/'.join(hierarchy_parts[0: i+1])
+            hierarchy_key = '/'.join(hierarchy_parts[0: i + 1])
             hierarchy_list.append(KeyCountObject(key=hierarchy_key, count=self.count))
 
         return hierarchy_list
@@ -117,7 +128,8 @@ class KeyCountObject:
     @staticmethod
     def from_sparql(key: str, sparql_result: dict):
         return KeyCountObject(key=sparql_result[key]["value"],
-                              count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE])
+                              count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE],
+                              normalize=True)
 
     @staticmethod
     def with_reference_key(reference_function, key, sparql_result):
