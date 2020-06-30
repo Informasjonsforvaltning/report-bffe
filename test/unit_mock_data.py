@@ -753,7 +753,6 @@ datasets_themes_and_topics = {
         }
     }
 }
-
 time_series = {
     "head": {
         "vars": ["date", "count"]
