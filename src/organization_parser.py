@@ -50,10 +50,10 @@ class ParsedOrganization:
         except AttributeError:
             return self.name
 
-    def resolve_org_path(self, org_path:str):
+    def resolve_org_path(self, org_path: str):
         if org_path:
             if org_path.startswith("/"):
-                return org_path[1:org_path.__len__()-1]
+                return org_path[1:org_path.__len__() - 1]
             else:
                 return org_path
         return f"ANNET/{self.name}"
@@ -82,3 +82,9 @@ class ParsedOrganization:
     @staticmethod
     def from_harvester_elastic_result(param):
         pass
+
+    @staticmethod
+    def parse_list(org_list: list):
+        parsed_list = []
+        for org in org_list:
+            parsed_list.append(ParsedOrganization.from_organizations_catalog_json(org))
