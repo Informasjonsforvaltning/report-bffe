@@ -6,9 +6,9 @@ services:
       - "8080:8080"
     volumes:
       - $MOCK_DIR/mock/mappings:/home/wiremock/mappings
-  fdk-organization-bff:
+  fdk-reports-bff:
       image: $TEST_IMAGE
       ports:
-        - "8000:8000"
+        - "8000:8080"
       depends_on:
         - servicesmock

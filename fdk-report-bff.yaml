@@ -79,52 +79,34 @@ components:
       title: Report
       type: object
       properties:
-        totalElements:
+        totalObjects:
           type: string
-        newElementsLastWeek:
+        newLastWeek:
           type: string
         organizations:
           type: array
           items:
             $ref: '#/components/schemas/Organization'
+        catalogs:
+          description: Count objects of each catalog
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyWithCountObject'
+
     InformationModelsReport:
       title: InformationModelReport
       allOf:
         - $ref: '#/components/schemas/Report'
-        - type: object
-          properties:
-            totalObjects:
-              type: number
-              format: float
-            newLastWeek:
-              type: number
-              format: float
-            catalogs:
-              description: Count objects of each catalog
-              type: array
-              items:
-                $ref: '#/components/schemas/KeyWithCountObject'
     ConceptsReport:
       title: ConceptReport
       allOf:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            totalObjects:
-              type: number
-              format: float
-            newLastWeek:
-              type: number
-              format: float
             mostInUse:
               type: array
               items:
                 $ref: ''
-            catalogs:
-              description: Count objects of each catalog
-              type: array
-              items:
-                $ref: '#/components/schemas/KeyWithCountObject'
     Reference:
       title: Reference
       type: object
@@ -160,13 +142,6 @@ components:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            totalObjects:
-              type: number
-              example: 5233
-              format: float
-            newLastWeek:
-              type: number
-              format: float
             distirbutionCountForType:
               type: array
               item:
@@ -178,11 +153,6 @@ components:
             opendata:
               type: number
               format: float
-            catalogs:
-              description: Count objects of each catalog
-              type: array
-              items:
-                $ref: '#/components/schemas/KeyWithCountObject'
             withSubject:
               type: number
               format: float
@@ -195,15 +165,10 @@ components:
               items:
                 $ref: '#/components/schemas/KeyWithCountObject'
     DataServicesReport:
-      title: DataServiceRepor
+      title: DataServiceReport
       allOf:
+        - $ref: '#/components/schemas/Report'
         - properties:
-            totalObjects:
-              type: number
-              format: float
-            newLastWeek:
-              type: number
-              format: float
             nationalComponent:
               type: number
               format: float
@@ -217,11 +182,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Format'
-            catalogs:
-              description: Count objects of each catalog
-              type: array
-              items:
-                $ref: '#/components/schemas/KeyWithCountObject'
       description: ''
       type: object
     Format:
