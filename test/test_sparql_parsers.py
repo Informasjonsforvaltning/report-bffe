@@ -29,7 +29,10 @@ def test_parse_sparql_single_result():
 @pytest.mark.unit
 def test_parse_sparql_catalogs_count(mock_get_org_path):
     result = parse_sparql_catalogs_count(sparql_result=datasets_catalogs)
-    assert (result.__len__()) == 3
+    assert (result.__len__()) == 6
+    assert [x["count"] for x in result if x["key"] == "STAT"][0] == 6+7+103
+    assert [x["count"] for x in result if x["key"] == "STAT/912660680"][0] == 103 + 6
+    assert [x["count"] for x in result if x["key"] == "STAT/972417858"][0] == 7
     assert [x["count"] for x in result if x["key"] == "STAT/912660680/974760673"][0] == 6
     assert [x["count"] for x in result if x["key"] == "STAT/972417858/991825827"][0] == 7
     assert [x["count"] for x in result if x["key"] == "STAT/912660680/917422575"][0] == 103

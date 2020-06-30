@@ -1,3 +1,6 @@
+import re
+from typing import List
+
 from src.referenced_data_store import get_organizations, get_org_path, get_access_rights_code
 
 
@@ -39,7 +42,7 @@ def parse_sparql_catalogs_count(sparql_result: dict) -> list:
                                                       key=ContentKeys.ORGANIZATION,
                                                       sparql_result=x)
                     for x in bindings]
-    return KeyCountObject.reduce_to_dicts(catalog_list)
+    return KeyCountObject.expand_with_hierarchy(catalog_list)
 
 
 def parse_sparql_access_rights_count(sparql_result: dict) -> list:
@@ -70,8 +73,19 @@ class KeyCountObject:
     def __eq__(self, other):
         if other is None:
             return False
+        elif isinstance(other, str):
+            return re.findall(other, self.key).__len__() > 0
         else:
             return other.key == self.key
+
+    def get_count_with_hierarchy(self) -> List['KeyCountObject']:
+        hierarchy_parts = [x for x in self.key.split("/")]
+        hierarchy_list = []
+        for i, v in enumerate(hierarchy_parts):
+            hierarchy_key = '/'.join(hierarchy_parts[0: i+1])
+            hierarchy_list.append(KeyCountObject(key=hierarchy_key, count=self.count))
+
+        return hierarchy_list
 
     @staticmethod
     def reduce_to_dicts(objects: list):
@@ -83,8 +97,22 @@ class KeyCountObject:
                 existing.count += current.count
             else:
                 reduced_list.append(current)
-
         return [x.__dict__ for x in reduced_list if x]
+
+    @staticmethod
+    def expand_with_hierarchy(objects: List['KeyCountObject']):
+        hierarchies = []
+        aggregated_hierarchies = []
+        for obj in objects:
+            if obj:
+                hierarchies.extend(obj.get_count_with_hierarchy())
+        for part in hierarchies:
+            try:
+                idx = aggregated_hierarchies.index(part.key)
+                aggregated_hierarchies[idx].count += part.count
+            except ValueError:
+                aggregated_hierarchies.append(part)
+        return [x.__dict__ for x in aggregated_hierarchies]
 
     @staticmethod
     def from_sparql(key: str, sparql_result: dict):
