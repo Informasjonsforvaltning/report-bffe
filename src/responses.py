@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Response:
     def __init__(self, totalObjects: int = None, newLastWeek: int = None, catalogs: list = None):
         if totalObjects:
@@ -53,7 +56,7 @@ class ConceptResponse(Response):
 
 
 class DataSetResponse(Response):
-    def __init__(self, dist_formats: dict, single_aggregations: dict, catalogs: dict, themes: dict):
+    def __init__(self, dist_formats: List[dict], single_aggregations: dict, catalogs: List[dict], themes: List[dict]):
         super().__init__(totalObjects=single_aggregations["total"],
                          newLastWeek=single_aggregations["new_last_week"],
                          catalogs=catalogs
@@ -61,4 +64,6 @@ class DataSetResponse(Response):
         self.nationalComponent = single_aggregations["nationalComponent"]
         self.withSubject = single_aggregations["withSubject"]
         self.themesAndTopicsCount = themes
-        self.dist_format = format
+        self.formats = dist_formats
+
+

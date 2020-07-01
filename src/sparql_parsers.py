@@ -40,27 +40,27 @@ def parse_sparql_single_results(sparql_results: dict) -> dict:
     return parsed_content
 
 
-def parse_sparql_catalogs_count(sparql_result: dict) -> list:
+async def parse_sparql_catalogs_count(sparql_result: dict) -> list:
     bindings = sparql_result["results"]["bindings"]
-    catalog_list = [KeyCountObject.with_reference_key(reference_function=get_org_path,
-                                                      key=ContentKeys.ORGANIZATION,
-                                                      sparql_result=x)
+    catalog_list = [await KeyCountObject.with_reference_key(reference_function=get_org_path,
+                                                            key=ContentKeys.ORGANIZATION,
+                                                            sparql_result=x)
                     for x in bindings]
     return KeyCountObject.expand_with_hierarchy(catalog_list)
 
 
-def parse_sparql_access_rights_count(sparql_result: dict) -> list:
+async def parse_sparql_access_rights_count(sparql_result: dict) -> list:
     bindings = sparql_result["results"]["bindings"]
-    access_rights_list = [KeyCountObject.with_reference_key(reference_function=get_access_rights_code,
+    access_rights_list = [await KeyCountObject.with_reference_key(reference_function=get_access_rights_code,
                                                             key=ContentKeys.ACCESS_RIGHTS_CODE,
                                                             sparql_result=x)
                           for x in bindings]
     return KeyCountObject.to_dicts(access_rights_list)
 
 
-def parse_sparql_themes_and_topics(sparql_results: dict) -> list:
+async def parse_sparql_themes_and_topics(sparql_results: dict) -> list:
     bindings = sparql_results["results"]["bindings"]
-    themes_list = [KeyCountObject.with_reference_list_key(reference_function=get_los_path,
+    themes_list = [await KeyCountObject.with_reference_list_key(reference_function=get_los_path,
                                                           key=ContentKeys.THEME,
                                                           sparql_result=x
                                                           )
@@ -135,20 +135,21 @@ class KeyCountObject:
                               normalize=True)
 
     @staticmethod
-    def with_reference_key(reference_function, key, sparql_result):
-        reference = reference_function(sparql_result[key][ContentKeys.VALUE])
+    async def with_reference_key(reference_function, key, sparql_result):
+        reference = await reference_function(sparql_result[key][ContentKeys.VALUE])
         if reference:
             return KeyCountObject(key=reference, count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE])
         else:
             return None
 
     @staticmethod
-    def with_reference_list_key(reference_function, key, sparql_result):
-        references = reference_function(sparql_result[key][ContentKeys.VALUE])
+    async def with_reference_list_key(reference_function, key, sparql_result):
+        references = await reference_function(sparql_result[key][ContentKeys.VALUE])
         key_count_objects = []
         if references:
             for ref in references:
-                key_count_objects.append(KeyCountObject(key=ref, count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE]))
+                key_count_objects.append(
+                    KeyCountObject(key=ref, count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE]))
             return key_count_objects
         else:
             return None

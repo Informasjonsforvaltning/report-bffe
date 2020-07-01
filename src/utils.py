@@ -24,5 +24,3 @@ class ServiceKey:
             return ServiceKey.CONCEPTS
         else:
             raise NotAServiceKeyException(string_key)
-
-

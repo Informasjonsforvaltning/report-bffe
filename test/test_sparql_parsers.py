@@ -9,8 +9,8 @@ from test.unit_mock_data import datasets_format_count, datasets_simple_aggs_resp
 
 
 @pytest.mark.unit
-def test_parse_formats_json_sparql_for_datasets():
-    result = parse_sparql_formats_count(sparql_result=datasets_format_count)
+def test_parse_formats_json_sparql_for_datasets(event_loop):
+    result =  parse_sparql_formats_count(sparql_result=datasets_format_count)
     assert len(result) == 6
     assert [x["count"] for x in result if x["key"] == "JSON"][0] == 20
     assert [x["count"] for x in result if x["key"] == "CSV"][0] == 20
@@ -28,8 +28,8 @@ def test_parse_sparql_single_result():
 
 
 @pytest.mark.unit
-def test_parse_sparql_catalogs_count(mock_get_org_path):
-    result = parse_sparql_catalogs_count(sparql_result=datasets_catalogs)
+def test_parse_sparql_catalogs_count(event_loop, mock_get_org_path):
+    result = event_loop.run_until_complete(parse_sparql_catalogs_count(sparql_result=datasets_catalogs))
     assert (result.__len__()) == 6
     assert [x["count"] for x in result if x["key"] == "STAT"][0] == 6+7+103
     assert [x["count"] for x in result if x["key"] == "STAT/912660680"][0] == 103 + 6
@@ -51,8 +51,8 @@ def test_parse_sparql_time_series():
 
 
 @pytest.mark.unit
-def test_parse_sparql_access_rights_count(mock_get_ar_code):
-    result = parse_sparql_access_rights_count(datasets_access_rights)
+def test_parse_sparql_access_rights_count(event_loop,mock_get_ar_code):
+    result = event_loop.run_until_complete(parse_sparql_access_rights_count(datasets_access_rights))
     assert result.__len__() == 3
     assert [x["count"] for x in result if x["key"] == "PUBLIC"][0] == 88
     assert [x["count"] for x in result if x["key"] == "NON_PUBLIC"][0] == 76
@@ -60,8 +60,8 @@ def test_parse_sparql_access_rights_count(mock_get_ar_code):
 
 
 @pytest.mark.unit
-def test_parse_sparql_themes_and_topics(mock_get_los_path):
-    result = parse_sparql_themes_and_topics(datasets_themes_and_topics)
+def test_parse_sparql_themes_and_topics(event_loop,mock_get_los_path):
+    result = event_loop.run_until_complete(parse_sparql_themes_and_topics(datasets_themes_and_topics))
     assert result.__len__() == 6
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom"][0] == 10 + 1 + 32
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"][0] == 1 + 32

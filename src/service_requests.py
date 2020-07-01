@@ -16,7 +16,7 @@ async def get_organizations_from_catalog() -> list:
     pass
 
 
-async def get_organization(id: str) -> dict:
+async def get_organization_from_catalog(national_reg_id: str) -> dict:
     pass
 
 

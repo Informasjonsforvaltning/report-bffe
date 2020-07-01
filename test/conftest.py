@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 import pytest
@@ -20,3 +21,9 @@ def wait_for_ready():
             time.sleep(1)
     except (requests.exceptions.ConnectionError, ConnectionRefusedError, MaxRetryError, NewConnectionError):
         pytest.fail('Test function setup: could not contact fdk-organization-bff')
+
+
+@pytest.fixture
+def event_loop():
+    loop = asyncio.get_event_loop()
+    yield loop
