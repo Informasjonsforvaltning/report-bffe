@@ -67,9 +67,9 @@ def test_parse_sparql_themes_and_topics(mock_get_los_path):
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"][0] == 1 + 32
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom" \
                                                       "/renovasjonsavgift"][0] == 32
-    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo/avfallshandtering/kompostering"][0] == 1
-    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo/avfallshandtering"][0] == 1
-    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo"][0] == 1
+    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo/avfallshandtering/kompostering"][0] == 2
+    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo/avfallshandtering"][0] == 2
+    assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo"][0] == 2
 
 
 @pytest.fixture

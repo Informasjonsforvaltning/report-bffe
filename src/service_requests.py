@@ -12,7 +12,7 @@ service_urls = {
 
 
 # from organization catalog !important
-async def get_organizations() -> list:
+async def get_organizations_from_catalog() -> list:
     pass
 
 
@@ -21,11 +21,15 @@ async def get_organization(id: str) -> dict:
 
 
 # from reference data (called seldom, not a crisis if they're slow) !important
-async def get_themes_and_topics():
+async def get_themes_and_topics_from_service():
     pass
 
 
 async def get_access_rights():
+    pass
+
+
+async def get_los_paths():
     pass
 
 

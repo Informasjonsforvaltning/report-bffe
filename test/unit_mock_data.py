@@ -766,56 +766,61 @@ time_series = {
     }
 
 }
-parsed_org_catalog_mock = ParsedOrganization.parse_list([
-    {
-        "organizationId": "974760673",
-        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
-        "internationalRegistry": None,
-        "name": "REGISTERENHETEN I BRØNNØYSUND",
-        "orgType": "ORGL",
-        "orgPath": "STAT/912660680/974760673",
-        "subOrganizationOf": "912660680",
-        "issued": "1995-08-09",
-        "municipalityNumber": "1813",
-        "industryCode": "84.110",
-        "sectorCode": "6100",
-        "prefLabel": None,
-        "allowDelegatedRegistration": None
-    },
-    {
-        "organizationId": "991825827",
-        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/991825827",
-        "internationalRegistry": None,
-        "name": "Digitaliseringsdirektoratet",
-        "orgType": "ORGL",
-        "orgPath": "STAT/972417858/991825827",
-        "subOrganizationOf": "972417858",
-        "issued": "2007-10-15",
-        "municipalityNumber": "0301",
-        "industryCode": "84.110",
-        "sectorCode": "6100",
-        "prefLabel": {
-            "nb": "Digitaliseringsdirektoratet",
-            "nn": "Digitaliseringsdirektoratet",
-            "en": "Norwegian Digitalisation Agency"
+
+
+def parsed_org_catalog_mock():
+    return ParsedOrganization.parse_list([
+        {
+            "organizationId": "974760673",
+            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
+            "internationalRegistry": None,
+            "name": "REGISTERENHETEN I BRØNNØYSUND",
+            "orgType": "ORGL",
+            "orgPath": "STAT/912660680/974760673",
+            "subOrganizationOf": "912660680",
+            "issued": "1995-08-09",
+            "municipalityNumber": "1813",
+            "industryCode": "84.110",
+            "sectorCode": "6100",
+            "prefLabel": None,
+            "allowDelegatedRegistration": None
         },
-        "allowDelegatedRegistration": None
-    },
-    {
-        "organizationId": "917422575",
-        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/917422575",
-        "internationalRegistry": None,
-        "name": "ENTUR AS",
-        "orgType": "AS",
-        "orgPath": "PRIVAT/917422575",
-        "subOrganizationOf": None,
-        "issued": "2016-07-04",
-        "municipalityNumber": "0301",
-        "industryCode": "62.010",
-        "sectorCode": "1120",
-        "prefLabel": None,
-        "allowDelegatedRegistration": None
-    }])
+        {
+            "organizationId": "991825827",
+            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/991825827",
+            "internationalRegistry": None,
+            "name": "Digitaliseringsdirektoratet",
+            "orgType": "ORGL",
+            "orgPath": "STAT/972417858/991825827",
+            "subOrganizationOf": "972417858",
+            "issued": "2007-10-15",
+            "municipalityNumber": "0301",
+            "industryCode": "84.110",
+            "sectorCode": "6100",
+            "prefLabel": {
+                "nb": "Digitaliseringsdirektoratet",
+                "nn": "Digitaliseringsdirektoratet",
+                "en": "Norwegian Digitalisation Agency"
+            },
+            "allowDelegatedRegistration": None
+        },
+        {
+            "organizationId": "917422575",
+            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/917422575",
+            "internationalRegistry": None,
+            "name": "ENTUR AS",
+            "orgType": "AS",
+            "orgPath": "PRIVAT/917422575",
+            "subOrganizationOf": None,
+            "issued": "2016-07-04",
+            "municipalityNumber": "0301",
+            "industryCode": "62.010",
+            "sectorCode": "1120",
+            "prefLabel": None,
+            "allowDelegatedRegistration": None
+        }])
+
+
 datasets_themes_and_topics = {
     "head": {
         "vars": ["theme", "count"]
@@ -856,6 +861,25 @@ datasets_themes_and_topics = {
 }
 
 
+def single_parsed_org_mock(uri: str) -> ParsedOrganization:
+    if uri == '971040238':
+        return ParsedOrganization.from_organizations_catalog_json({
+            "organizationId": "971040238",
+            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
+            "name": "STATENS KARTVERK",
+            "orgType": "ORGL",
+            "orgPath": "STAT/972417858/971040238",
+            "subOrganizationOf": "972417858",
+            "issued": "1995-03-12",
+            "municipalityNumber": "3007",
+            "industryCode": "71.123",
+            "sectorCode": "6100"
+        }
+        )
+    else:
+        return None
+
+
 def mocked_access_rights(uri: str) -> str:
     if uri == "<http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC>":
         return 'NON_PUBLIC'
@@ -880,9 +904,195 @@ def mocked_org_paths(uri: str):
 
 def mocked_los_paths(uri: str) -> str:
     paths = {
-        "https://psi.norge.no/los/tema/bygg-og-eiendom": "bygg-og-eiendom",
-        "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom": "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom",
-        "https://psi.norge.no/los/ord/renovasjonsavgift": "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom/renovasjonsavgift",
-        "https://psi.norge.no/los/ord/kompostering": "natur-klima-og-miljo/avfallshandtering/kompostering"
+        "https://psi.norge.no/los/tema/bygg-og-eiendom": ["bygg-og-eiendom"],
+        "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom": ["bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom","natur-klima-og-miljo/avfallshandtering/kompostering"],
+        "https://psi.norge.no/los/ord/renovasjonsavgift": ["bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom/renovasjonsavgift"],
+        "https://psi.norge.no/los/ord/kompostering": ["natur-klima-og-miljo/avfallshandtering/kompostering"]
     }
     return paths[uri]
+
+
+def mock_access_rights_catalog_response():
+    return [
+        {
+            "uri": "http://publications.europa.eu/resource/authority/access-right",
+            "prefLabel": {
+                "en": "Access right Named Authority List"
+            }
+        },
+        {
+            "uri": "http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC",
+            "code": "NON_PUBLIC",
+            "prefLabel": {
+                "nn": "Ikke-offentlig",
+                "nb": "Ikke-offentlig",
+                "en": "Non-public"
+            }
+        },
+        {
+            "uri": "http://publications.europa.eu/resource/authority/access-right/PUBLIC",
+            "code": "PUBLIC",
+            "prefLabel": {
+                "en": "Public",
+                "nb": "Offentlig",
+                "nn": "Offentlig"
+            }
+        },
+        {
+            "uri": "http://publications.europa.eu/resource/authority/access-right/RESTRICTED",
+            "code": "RESTRICTED",
+            "prefLabel": {
+                "nb": "Begrenset",
+                "nn": "Begrenset",
+                "en": "Restricted"
+            }
+        }
+    ]
+
+
+def mock_los_path_reference_response():
+    return [{
+        "internalId": None,
+        "children": None,
+        "parents": [
+            "https://psi.norge.no/los/tema/kultur"
+        ],
+        "isTema": False,
+        "losPaths": [
+            "kultur-idrett-og-fritid/kultur/festival"
+        ],
+        "name": {
+            "nn": "Festival",
+            "nb": "Festival",
+            "en": "Festivals"
+        },
+        "definition": None,
+        "uri": "https://psi.norge.no/los/ord/festival",
+        "synonyms": [
+            "Billettbestilling",
+            "Festivalpass"
+        ],
+        "relatedTerms": None,
+        "tema": False
+    },
+        {
+            "internalId": None,
+            "children": [
+                "https://psi.norge.no/los/ord/renovasjonsavgift",
+                "https://psi.norge.no/los/ord/eiendomsskatt",
+                "https://psi.norge.no/los/ord/gebyr-for-byggesak",
+                "https://psi.norge.no/los/ord/betalingssatser-for-kommunale-tjenester"
+            ],
+            "parents": [
+                "https://psi.norge.no/los/tema/bygg-og-eiendom"
+            ],
+            "isTema": True,
+            "losPaths": [
+                "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"
+            ],
+            "name": {
+                "nn": "Prisar og gebyr for bygg og eigedom",
+                "nb": "Priser og gebyr for bygg og eiendom",
+                "en": "Prices and fees for construction and property"
+            },
+            "definition": None,
+            "uri": "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom",
+            "synonyms": [],
+            "relatedTerms": None,
+            "tema": True
+        },
+        {
+            "internalId": None,
+            "children": None,
+            "parents": [
+                "https://psi.norge.no/los/tema/kjop-og-salg",
+                "https://psi.norge.no/los/tema/okonomiske-ytelser-og-radgivning"
+            ],
+            "isTema": False,
+            "losPaths": [
+                "bygg-og-eiendom/kjop-og-salg/boligfinansiering",
+                "sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering"
+            ],
+            "name": {
+                "nn": "Bustadfinansiering",
+                "nb": "Boligfinansiering",
+                "en": "Home financing"
+            },
+            "definition": None,
+            "uri": "https://psi.norge.no/los/ord/boligfinansiering",
+            "synonyms": [
+                "Startlån",
+                "Etableringstilskot",
+                "Grunnlån",
+                "Huslån",
+                "Bustadlån",
+                "Husbanken",
+                "Utbetringslån",
+                "Utbedringslån",
+                "Boligtilskudd",
+                "Etableringstilskudd",
+                "Byggelån",
+                "Bustadtilskot",
+                "Boliglån"
+            ],
+            "relatedTerms": [
+                "https://psi.norge.no/los/ord/eiendomsomsetning",
+                "https://psi.norge.no/los/ord/forhandskonferanse",
+                "https://psi.norge.no/los/ord/bostotte",
+                "https://psi.norge.no/los/ord/okonomisk-radgiving",
+                "https://psi.norge.no/los/ord/byggesak"
+            ],
+            "tema": False
+        },
+        {
+            "internalId": None,
+            "children": None,
+            "parents": [
+                "https://psi.norge.no/los/tema/barnevern-og-foreldrestotte"
+            ],
+            "isTema": False,
+            "losPaths": [
+                "familie-og-barn/barnevern-og-foreldrestotte/bekymringsmelding-til-barnevernet"
+            ],
+            "name": {
+                "nn": "Melding til barnevernstenesta",
+                "nb": "Bekymringsmelding til barnevernet",
+                "en": "Reports to the child welfare service"
+            },
+            "definition": None,
+            "uri": "https://psi.norge.no/los/ord/bekymringsmelding-til-barnevernet",
+            "synonyms": [],
+            "relatedTerms": None,
+            "tema": False
+        },
+        {
+            "internalId": None,
+            "children": None,
+            "parents": [
+                "https://psi.norge.no/los/tema/innbyggerrettigheter"
+            ],
+            "isTema": False,
+            "losPaths": [
+                "demokrati-og-innbyggerrettigheter/innbyggerrettigheter/pass-og-visum"
+            ],
+            "name": {
+                "nn": "Pass og visum",
+                "nb": "Pass og visum",
+                "en": "Passports and visa"
+            },
+            "definition": None,
+            "uri": "https://psi.norge.no/los/ord/pass-og-visum",
+            "synonyms": [
+                "Legitimasjon",
+                "Reisedokument",
+                "Reisebevis",
+                "Schengen-avtalen",
+                "Utlendingspass",
+                "Reiseløyve"
+            ],
+            "relatedTerms": [
+                "https://psi.norge.no/los/hendelse/fa-barn"
+            ],
+            "tema": False
+        }
+    ]

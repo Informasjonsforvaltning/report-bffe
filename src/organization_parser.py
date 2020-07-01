@@ -20,6 +20,8 @@ class ParsedOrganization:
         if isinstance(other, str):
             if other == self.get_comparator():
                 return True
+            elif ParsedOrganization.is_national_registry_uri(other):
+                return ParsedOrganization.resolve_id(uri=other) == self.get_comparator()
             else:
                 return other == self.name
         elif isinstance(other, ParsedOrganization):
@@ -88,3 +90,4 @@ class ParsedOrganization:
         parsed_list = []
         for org in org_list:
             parsed_list.append(ParsedOrganization.from_organizations_catalog_json(org))
+        return parsed_list

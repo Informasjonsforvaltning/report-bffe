@@ -1,4 +1,6 @@
+import itertools
 import re
+from itertools import chain
 from typing import List
 
 from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
@@ -58,12 +60,13 @@ def parse_sparql_access_rights_count(sparql_result: dict) -> list:
 
 def parse_sparql_themes_and_topics(sparql_results: dict) -> list:
     bindings = sparql_results["results"]["bindings"]
-    themes_list = [KeyCountObject.with_reference_key(reference_function=get_los_path,
-                                                     key=ContentKeys.THEME,
-                                                     sparql_result=x
-                                                     )
+    themes_list = [KeyCountObject.with_reference_list_key(reference_function=get_los_path,
+                                                          key=ContentKeys.THEME,
+                                                          sparql_result=x
+                                                          )
                    for x in bindings]
-    return KeyCountObject.expand_with_hierarchy(themes_list)
+    flattened_list = itertools.chain.from_iterable(themes_list)
+    return KeyCountObject.expand_with_hierarchy(flattened_list)
 
 
 def parse_sparql_time_series(sparql_result: dict) -> list:
@@ -136,6 +139,17 @@ class KeyCountObject:
         reference = reference_function(sparql_result[key][ContentKeys.VALUE])
         if reference:
             return KeyCountObject(key=reference, count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE])
+        else:
+            return None
+
+    @staticmethod
+    def with_reference_list_key(reference_function, key, sparql_result):
+        references = reference_function(sparql_result[key][ContentKeys.VALUE])
+        key_count_objects = []
+        if references:
+            for ref in references:
+                key_count_objects.append(KeyCountObject(key=ref, count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE]))
+            return key_count_objects
         else:
             return None
 
