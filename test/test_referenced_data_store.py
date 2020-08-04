@@ -1,10 +1,6 @@
 import asyncio
-
 import pytest
-
 from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
-from test.unit_mock_data import parsed_org_catalog_mock, single_parsed_org_mock, mock_access_rights_catalog_response, \
-    mock_los_path_reference_response
 
 
 @pytest.mark.unit
@@ -49,24 +45,3 @@ def test_get_los_path(event_loop, get_los_paths_mock):
     assert several_paths_result.__len__() == 2
     assert several_paths_result.__contains__("bygg-og-eiendom/kjop-og-salg/boligfinansiering")
     assert several_paths_result.__contains__("sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering")
-
-
-@pytest.fixture
-def get_organization_from_service_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_organization_from_service', side_effect=single_parsed_org_mock)
-
-
-@pytest.fixture
-def get_organizations_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_organizations', side_effect=parsed_org_catalog_mock)
-
-
-@pytest.fixture
-def get_access_rights_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_access_rights', side_effect=mock_access_rights_catalog_response)
-
-
-@pytest.fixture
-def get_los_paths_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_themes_and_topics_from_service',
-                 side_effect=mock_los_path_reference_response)

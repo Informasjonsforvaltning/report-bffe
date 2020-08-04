@@ -5,6 +5,9 @@ import pytest
 import requests
 from urllib3.exceptions import MaxRetryError, NewConnectionError
 
+from test.unit_mock_data import mock_los_path_reference_response, mock_access_rights_catalog_response, \
+    parsed_org_catalog_mock, single_parsed_org_mock
+
 
 @pytest.fixture(scope="session")
 def wait_for_ready():
@@ -27,3 +30,24 @@ def wait_for_ready():
 def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
+
+
+@pytest.fixture
+def get_organization_from_service_mock(mocker):
+    mocker.patch('src.referenced_data_store.get_organization_from_service', side_effect=single_parsed_org_mock)
+
+
+@pytest.fixture
+def get_organizations_mock(mocker):
+    mocker.patch('src.referenced_data_store.get_organizations', side_effect=parsed_org_catalog_mock)
+
+
+@pytest.fixture
+def get_access_rights_mock(mocker):
+    mocker.patch('src.referenced_data_store.get_access_rights', side_effect=mock_access_rights_catalog_response)
+
+
+@pytest.fixture
+def get_los_paths_mock(mocker):
+    mocker.patch('src.referenced_data_store.get_themes_and_topics_from_service',
+                 side_effect=mock_los_path_reference_response)

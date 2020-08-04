@@ -1,8 +1,3 @@
-class NotAServiceKeyException(Exception):
-    def __init__(self, string_key: str):
-        self.reason = f"service not recognized: {string_key}"
-
-
 class ServiceKey:
     ORGANIZATIONS = "organizations"
     INFO_MODELS = "informationmodels"
@@ -24,3 +19,15 @@ class ServiceKey:
             return ServiceKey.CONCEPTS
         else:
             raise NotAServiceKeyException(string_key)
+
+
+class NotAServiceKeyException(Exception):
+    def __init__(self, string_key: str):
+        self.status = 400
+        self.reason = f"service not recognized: {string_key}"
+
+
+class FetchFromServiceException(Exception):
+    def __init__(self, execution_point: str, url: str = None):
+        self.status = 500
+        self.reason = f"Connection error when attempting to fetch {execution_point} from {url}"

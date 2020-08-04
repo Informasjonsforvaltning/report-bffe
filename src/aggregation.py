@@ -17,6 +17,8 @@ def create_dataset_report():
     )
     simple_stats, access_rights, themes = loop.run_until_complete(dataset_content_requests)
 
+    x = 0
+
 
 report_functions = {
     ServiceKey.DATA_SETS: create_dataset_report

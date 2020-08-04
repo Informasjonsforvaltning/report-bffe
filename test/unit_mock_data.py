@@ -905,8 +905,11 @@ def mocked_org_paths(uri: str):
 def mocked_los_paths(uri: str) -> str:
     paths = {
         "https://psi.norge.no/los/tema/bygg-og-eiendom": ["bygg-og-eiendom"],
-        "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom": ["bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom","natur-klima-og-miljo/avfallshandtering/kompostering"],
-        "https://psi.norge.no/los/ord/renovasjonsavgift": ["bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom/renovasjonsavgift"],
+        "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom": [
+            "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom",
+            "natur-klima-og-miljo/avfallshandtering/kompostering"],
+        "https://psi.norge.no/los/ord/renovasjonsavgift": [
+            "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom/renovasjonsavgift"],
         "https://psi.norge.no/los/ord/kompostering": ["natur-klima-og-miljo/avfallshandtering/kompostering"]
     }
     return paths[uri]

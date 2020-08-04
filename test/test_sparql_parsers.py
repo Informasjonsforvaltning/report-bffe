@@ -1,8 +1,8 @@
 import pytest
 
-from src.sparql_parsers import parse_sparql_formats_count, parse_sparql_single_results, ContentKeys, \
-    parse_sparql_catalogs_count, parse_sparql_access_rights_count, parse_sparql_time_series, \
-    parse_sparql_themes_and_topics
+from src.sparql_utils.sparql_parsers import parse_sparql_formats_count, parse_sparql_catalogs_count, \
+    parse_sparql_time_series, parse_sparql_themes_and_topics, \
+    parse_sparql_single_results, ContentKeys, parse_sparql_access_rights_count
 from test.unit_mock_data import datasets_format_count, datasets_simple_aggs_response, datasets_catalogs, \
     datasets_access_rights, mocked_org_paths, mocked_access_rights, time_series, datasets_themes_and_topics, \
     mocked_los_paths
@@ -10,7 +10,7 @@ from test.unit_mock_data import datasets_format_count, datasets_simple_aggs_resp
 
 @pytest.mark.unit
 def test_parse_formats_json_sparql_for_datasets(event_loop):
-    result =  parse_sparql_formats_count(sparql_result=datasets_format_count)
+    result = parse_sparql_formats_count(sparql_result=datasets_format_count)
     assert len(result) == 6
     assert [x["count"] for x in result if x["key"] == "JSON"][0] == 20
     assert [x["count"] for x in result if x["key"] == "CSV"][0] == 20
@@ -31,7 +31,7 @@ def test_parse_sparql_single_result():
 def test_parse_sparql_catalogs_count(event_loop, mock_get_org_path):
     result = event_loop.run_until_complete(parse_sparql_catalogs_count(sparql_result=datasets_catalogs))
     assert (result.__len__()) == 6
-    assert [x["count"] for x in result if x["key"] == "STAT"][0] == 6+7+103
+    assert [x["count"] for x in result if x["key"] == "STAT"][0] == 6 + 7 + 103
     assert [x["count"] for x in result if x["key"] == "STAT/912660680"][0] == 103 + 6
     assert [x["count"] for x in result if x["key"] == "STAT/972417858"][0] == 7
     assert [x["count"] for x in result if x["key"] == "STAT/912660680/974760673"][0] == 6
@@ -51,7 +51,7 @@ def test_parse_sparql_time_series():
 
 
 @pytest.mark.unit
-def test_parse_sparql_access_rights_count(event_loop,mock_get_ar_code):
+def test_parse_sparql_access_rights_count(event_loop, mock_get_ar_code):
     result = event_loop.run_until_complete(parse_sparql_access_rights_count(datasets_access_rights))
     assert result.__len__() == 3
     assert [x["count"] for x in result if x["key"] == "PUBLIC"][0] == 88
@@ -60,11 +60,12 @@ def test_parse_sparql_access_rights_count(event_loop,mock_get_ar_code):
 
 
 @pytest.mark.unit
-def test_parse_sparql_themes_and_topics(event_loop,mock_get_los_path):
+def test_parse_sparql_themes_and_topics(event_loop, mock_get_los_path):
     result = event_loop.run_until_complete(parse_sparql_themes_and_topics(datasets_themes_and_topics))
     assert result.__len__() == 6
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom"][0] == 10 + 1 + 32
-    assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"][0] == 1 + 32
+    assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"][
+               0] == 1 + 32
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom" \
                                                       "/renovasjonsavgift"][0] == 32
     assert [x["count"] for x in result if x["key"] == "natur-klima-og-miljo/avfallshandtering/kompostering"][0] == 2
@@ -79,7 +80,7 @@ def mock_get_org_path(mocker):
 
 @pytest.fixture
 def mock_get_ar_code(mocker):
-    mocker.patch('src.sparql_parsers.get_access_rights_code', side_effect=mocked_access_rights)
+    mocker.patch('src.sparql_utils.sparql_parsers.get_access_rights_code', side_effect=mocked_access_rights)
 
 
 @pytest.fixture

@@ -15,6 +15,7 @@ python-dotenv = "*"
 requests = "*"
 gunicorn = "*"
 asyncstdlib = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.8"

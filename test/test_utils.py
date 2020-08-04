@@ -12,3 +12,4 @@ def test_get_key():
     assert ServiceKey.get_key("dataservices") == ServiceKey.DATA_SERVICES
     with pytest.raises(NotAServiceKeyException):
         ServiceKey.get_key("notakey")
+

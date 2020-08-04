@@ -1,6 +1,9 @@
 import os
 
-from src.utils import ServiceKey
+from httpcore import ConnectError
+from httpx import AsyncClient, ConnectTimeout, HTTPError
+
+from src.utils import ServiceKey, FetchFromServiceException
 
 service_urls = {
     ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080/organizations",
@@ -10,14 +13,38 @@ service_urls = {
     ServiceKey.CONCEPTS: os.getenv('CONCEPT_HARVESTER_URL') or "http://localhost:8080/concepts"
 }
 
+default_headers = {
+    'accept': 'application/json'
+}
+
 
 # from organization catalog !important
 async def get_organizations_from_catalog() -> list:
-    pass
+    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
+            raise FetchFromServiceException(
+                execution_point="organizations",
+                url=url
+            )
 
 
 async def get_organization_from_catalog(national_reg_id: str) -> dict:
-    pass
+    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/{national_reg_id}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
+            raise FetchFromServiceException(
+                execution_point="organization",
+                url=url
+            )
 
 
 # from reference data (called seldom, not a crisis if they're slow) !important
