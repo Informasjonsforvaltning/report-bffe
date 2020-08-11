@@ -677,20 +677,20 @@ datasets_access_rights = {
     },
     "results": {
         "bindings": [{
-            "code": {"code": "litteral",
+            "code": {"type": "litteral",
                      "value": "<http://publications.europa.eu/resource/authority/access-right/PUBLIC>"},
             "count": {
                 "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "88"
             }
         },
             {
-                "code": {"code": "litteral",
+                "code": {"type": "litteral",
                          "value": "<http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC>"},
                 "count": {
                     "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "76"
                 }
             }, {
-                "code": {"code": "litteral",
+                "code": {"type": "litteral",
                          "value": "<http://publications.europa.eu/resource/authority/access-right/RESTRICTED>"},
                 "count": {
                     "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "35"
@@ -731,6 +731,44 @@ datasets_catalogs = {
             }
         ]
 
+    }
+}
+datasets_themes_and_topics = {
+    "head": {
+        "vars": ["theme", "count"]
+    },
+    "results": {
+        "bindings": [
+            {
+                "theme": {"type": "literal", "value": "https://psi.norge.no/los/tema/bygg-og-eiendom"},
+                "count": {
+                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "10"
+                }
+            },
+            {
+                "theme": {"type": "literal",
+                          "value": "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom"},
+                "count": {
+                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "1"
+                }
+
+            },
+            {
+                "theme": {"type": "literal",
+                          "value": "https://psi.norge.no/los/ord/renovasjonsavgift"},
+                "count": {
+                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "32"
+                }
+            },
+            {
+                "theme": {"type": "literal",
+                          "value": "https://psi.norge.no/los/ord/kompostering"},
+                "count": {
+                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "1"
+                }
+
+            }
+        ]
     }
 }
 time_series = {
@@ -819,46 +857,6 @@ def parsed_org_catalog_mock():
             "prefLabel": None,
             "allowDelegatedRegistration": None
         }])
-
-
-datasets_themes_and_topics = {
-    "head": {
-        "vars": ["theme", "count"]
-    },
-    "results": {
-        "bindings": [
-            {
-                "theme": {"type": "literal", "value": "https://psi.norge.no/los/tema/bygg-og-eiendom"},
-                "count": {
-                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "10"
-                }
-            },
-            {
-                "theme": {"type": "literal",
-                          "value": "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom"},
-                "count": {
-                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "1"
-                }
-
-            },
-            {
-                "theme": {"type": "literal",
-                          "value": "https://psi.norge.no/los/ord/renovasjonsavgift"},
-                "count": {
-                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "32"
-                }
-            },
-            {
-                "theme": {"type": "literal",
-                          "value": "https://psi.norge.no/los/ord/kompostering"},
-                "count": {
-                    "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "1"
-                }
-
-            }
-        ]
-    }
-}
 
 
 def single_parsed_org_mock(uri: str) -> ParsedOrganization:

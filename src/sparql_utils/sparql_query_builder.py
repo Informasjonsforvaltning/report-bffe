@@ -13,7 +13,8 @@ class SparqlCount:
 
 
 class SparqlFunction:
-    def __init__(self, fun: SparqlFunctionString, variable: str = None, as_name: str = None, args: List[str] = None):
+    def __init__(self, fun: SparqlFunctionString, variable: str = None, as_name: str = None, args: List[str] = None,
+                 parent=None):
         self.fun = fun
         if variable:
             self.var = variable
@@ -27,6 +28,8 @@ class SparqlFunction:
             self.args = args
         else:
             self.args = False
+        self.parent = parent
+        self.is_root = parent is None
 
     def str_with_inner_function(self, inner_fun: str):
         nested_str = f"{self.fun}({inner_fun}"
@@ -55,41 +58,21 @@ class SparqlFunction:
         return fun_str
 
     @staticmethod
-    def build_nested(functions) -> str:
-        pass
-
-
-class SparqlNestedFunction:
-    def __init__(self, node: SparqlFunction, is_leaf: bool = False, parent: 'SparqlNestedFunction' = None):
-        self.is_root = parent is None
-        self.is_leaf = is_leaf
-        self.parent = parent
-        self.node = node
-
-    @staticmethod
-    def str_from_hierarchy(leaf_node: 'SparqlNestedFunction') -> str:
+    def str_from_hierarchy(leaf_node: 'SparqlFunction') -> str:
         current_node = leaf_node
-        func_str = leaf_node.node.__str__()
+        func_str = str(leaf_node)
         while True:
             if current_node.is_root:
                 break
             else:
                 current_node = current_node.parent
-                function_node: SparqlFunction = current_node.node
+                function_node: SparqlFunction = current_node
                 func_str = function_node.str_with_inner_function(inner_fun=func_str)
-
         return func_str
-
-    @staticmethod
-    def get_leaf(functions: List['SparqlNestedFunction']) -> 'SparqlNestedFunction':
-        for function in functions:
-            if function.is_leaf:
-                return function
-        raise NoLeafError(functions)
 
 
 class SparqlGraphPatternTerm:
-    def __init__(self, var: str = None, namespace_property: NamespaceProperty = None):
+    def __init__(self, var: str = None, namespace_property: str = None):
         if var:
             self.value = f"?{var}"
         if namespace_property:
@@ -106,9 +89,14 @@ class SparqlGraphPatternTerm:
         return graph_pattern
 
 
-class SparqlBuilder:
-    PREFIX_XSD = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
-    PREFIX_DCAT = "PREFIX dcat: <http://www.w3.org/ns/dcat#>"
+class SparqlSelect:
+
+    def __init__(self, variable_names: List[str] = None, count_variables: List[SparqlCount] = None):
+        self.variable_names = variable_names
+        self.count_variables = count_variables
+
+    def __str__(self):
+        return SparqlSelect.select(self.variable_names, self.count_variables)
 
     @staticmethod
     def select(variable_names: List[str] = None, count_variables: List[SparqlCount] = None) -> str:
@@ -121,13 +109,50 @@ class SparqlBuilder:
                 sparql_vars = [SparqlBuilder.__make_var__(x) for x in variable_names]
                 select += separator + separator.join(sparql_vars)
             if count_variables:
-                count_strings = [x.__str__() for x in count_variables]
+                count_strings = [str(x) for x in count_variables]
                 select += separator + separator.join(count_strings)
             return select
 
+
+class SparqlWhere:
+    def __init__(self, graphs: List[str] = None,
+                 functions: [SparqlFunction] = None,
+                 parent: 'SparqlWhere' = None):
+        self.graph_patterns = graphs
+        self.functions = functions
+        self.parent = parent
+        self.is_root = parent is None
+
+    def __str__(self) -> str:
+        if self.is_root:
+            return SparqlWhere.build(graphs=self.graph_patterns, functions=self.functions)
+
     @staticmethod
-    def assemble_where_clause():
-        pass
+    def build(graphs: List[str] = None,
+              functions: [SparqlFunction] = None) -> str:
+        where_str = "WHERE { "
+        if graphs:
+            for pattern in graphs:
+                where_str += f"{pattern} "
+        if functions:
+            for func in functions:
+                if func.is_root:
+                    where_str += f"{str(func)} "
+                else:
+                    where_str += f"{SparqlFunction.str_from_hierarchy(func)} "
+        where_str += "} "
+        return where_str
+
+
+class SparqlBuilder:
+
+    def __init__(self, prefix: List[NamespaceProperty], select: SparqlSelect, where: SparqlWhere,
+                 group_by_var: str = None, order_by_var: str = None):
+        self.prefix = prefix
+        self.select = select
+        self.where = where
+        self.group_by_var = group_by_var
+        self.order_by_var = order_by_var
 
     @staticmethod
     def __make_var__(var_str: str) -> str:
@@ -141,7 +166,3 @@ def encode_for_sparql(string: str):
         .replace(">", "%3E") \
         .replace("(", "%28") \
         .replace(")", "%29")
-
-
-def build_sparql_query(prefix, select, group_by):
-    pass

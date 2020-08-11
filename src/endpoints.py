@@ -17,7 +17,10 @@ class Ready(Resource):
 class Report(Resource):
     def get(self, content_type):
         try:
-            result = get_report()
-            abort(501)
+            result = get_report(ServiceKey.get_key(content_type))
+            return result
         except NotAServiceKeyException:
             abort(400)
+        except KeyError:
+            abort(501)
+

@@ -1,7 +1,5 @@
 import os
 import time
-
-import requests
 from invoke import task
 
 pipenv_install = "pipenv install --dev"

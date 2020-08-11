@@ -1,7 +1,7 @@
 import pytest
 
 from src.sparql_utils.sparql_parsers import parse_sparql_formats_count, parse_sparql_catalogs_count, \
-    parse_sparql_time_series, parse_sparql_themes_and_topics, \
+    parse_sparql_time_series, parse_sparql_themes_and_topics_count, \
     parse_sparql_single_results, ContentKeys, parse_sparql_access_rights_count
 from test.unit_mock_data import datasets_format_count, datasets_simple_aggs_response, datasets_catalogs, \
     datasets_access_rights, mocked_org_paths, mocked_access_rights, time_series, datasets_themes_and_topics, \
@@ -61,7 +61,7 @@ def test_parse_sparql_access_rights_count(event_loop, mock_get_ar_code):
 
 @pytest.mark.unit
 def test_parse_sparql_themes_and_topics(event_loop, mock_get_los_path):
-    result = event_loop.run_until_complete(parse_sparql_themes_and_topics(datasets_themes_and_topics))
+    result = event_loop.run_until_complete(parse_sparql_themes_and_topics_count(datasets_themes_and_topics))
     assert result.__len__() == 6
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom"][0] == 10 + 1 + 32
     assert [x["count"] for x in result if x["key"] == "bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"][
@@ -75,7 +75,7 @@ def test_parse_sparql_themes_and_topics(event_loop, mock_get_los_path):
 
 @pytest.fixture
 def mock_get_org_path(mocker):
-    mocker.patch('src.sparql_parsers.get_org_path', side_effect=mocked_org_paths)
+    mocker.patch('src.sparql_utils.sparql_parsers.get_org_path', side_effect=mocked_org_paths)
 
 
 @pytest.fixture
@@ -85,4 +85,4 @@ def mock_get_ar_code(mocker):
 
 @pytest.fixture
 def mock_get_los_path(mocker):
-    mocker.patch('src.sparql_parsers.get_los_path', side_effect=mocked_los_paths)
+    mocker.patch('src.sparql_utils.sparql_parsers.get_los_path', side_effect=mocked_los_paths)

@@ -1,8 +1,8 @@
 from typing import List
 from src.organization_parser import ParsedOrganization
 from asyncstdlib.functools import lru_cache as alru_cache
-from src.service_requests import get_organizations_from_catalog, get_access_rights, get_themes_and_topics_from_service, \
-    get_organization_from_catalog
+from src.service_requests import get_access_rights, get_themes_and_topics_from_service, \
+    get_organization_from_catalog, get_organizations_from_organizations_catalog
 
 
 class ParsedReferenceData:
@@ -63,7 +63,7 @@ async def get_los_paths() -> List[ParsedReferenceData]:
 
 @alru_cache
 async def get_organizations() -> List[ParsedOrganization]:
-    organizations = await get_organizations_from_catalog()
+    organizations = await get_organizations_from_organizations_catalog()
     return ParsedOrganization.parse_list(organizations)
 
 

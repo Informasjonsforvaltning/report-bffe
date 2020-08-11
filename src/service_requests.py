@@ -2,7 +2,6 @@ import os
 
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
-
 from src.utils import ServiceKey, FetchFromServiceException
 
 service_urls = {
@@ -17,9 +16,10 @@ default_headers = {
     'accept': 'application/json'
 }
 
+organization_cache_key = "organizations"
 
-# from organization catalog !important
-async def get_organizations_from_catalog() -> list:
+
+async def get_organizations_from_organizations_catalog() -> list:
     url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}'
     async with AsyncClient() as session:
         try:
@@ -39,6 +39,7 @@ async def get_organization_from_catalog(national_reg_id: str) -> dict:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
+
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout) as err:
             raise FetchFromServiceException(
@@ -77,7 +78,12 @@ async def get_concepts_statistics():
     pass
 
 
-# datasets !important
+# datasets
+
+async def get_datasets_catalog():
+    pass
+
+
 async def get_datasets_statistics():
     # see datasets_simple_aggs_response in unit_mock_data.py for expected result
     pass
@@ -90,6 +96,10 @@ async def get_datasets_access_rights():
 
 async def get_datasets_themes_and_topics():
     # see datasets_themes_and_topics in unit_mock_data.py for expected result
+    pass
+
+
+async def get_datasets_formats():
     pass
 
 

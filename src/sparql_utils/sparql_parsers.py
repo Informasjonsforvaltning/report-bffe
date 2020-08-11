@@ -1,6 +1,5 @@
 import itertools
 import re
-from itertools import chain
 from typing import List
 
 from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
@@ -33,10 +32,15 @@ def parse_sparql_single_results(sparql_results: dict) -> dict:
     bindings = sparql_results["results"]["bindings"]
     parsed_content = {}
     for result in bindings:
-        parsed_content[ContentKeys.WITH_SUBJECT] = result[ContentKeys.WITH_SUBJECT]["value"]
-        parsed_content[ContentKeys.TOTAL] = result[ContentKeys.TOTAL]["value"]
-        parsed_content[ContentKeys.NEW_LAST_WEEK] = result[ContentKeys.NEW_LAST_WEEK]["value"]
-        parsed_content[ContentKeys.NATIONAL_COMPONENT] = result[ContentKeys.NATIONAL_COMPONENT]["value"]
+        try:
+            parsed_content[ContentKeys.WITH_SUBJECT] = result[ContentKeys.WITH_SUBJECT]["value"]
+            parsed_content[ContentKeys.TOTAL] = result[ContentKeys.TOTAL]["value"]
+            parsed_content[ContentKeys.NEW_LAST_WEEK] = result[ContentKeys.NEW_LAST_WEEK]["value"]
+            parsed_content[ContentKeys.NATIONAL_COMPONENT] = result[ContentKeys.NATIONAL_COMPONENT]["value"]
+            parsed_content[ContentKeys.OPEN_DATA] = result[ContentKeys.OPEN_DATA]["value"]
+        except KeyError:
+            continue
+
     return parsed_content
 
 
@@ -52,18 +56,18 @@ async def parse_sparql_catalogs_count(sparql_result: dict) -> list:
 async def parse_sparql_access_rights_count(sparql_result: dict) -> list:
     bindings = sparql_result["results"]["bindings"]
     access_rights_list = [await KeyCountObject.with_reference_key(reference_function=get_access_rights_code,
-                                                            key=ContentKeys.ACCESS_RIGHTS_CODE,
-                                                            sparql_result=x)
+                                                                  key=ContentKeys.ACCESS_RIGHTS_CODE,
+                                                                  sparql_result=x)
                           for x in bindings]
     return KeyCountObject.to_dicts(access_rights_list)
 
 
-async def parse_sparql_themes_and_topics(sparql_results: dict) -> list:
+async def parse_sparql_themes_and_topics_count(sparql_results: dict) -> list:
     bindings = sparql_results["results"]["bindings"]
     themes_list = [await KeyCountObject.with_reference_list_key(reference_function=get_los_path,
-                                                          key=ContentKeys.THEME,
-                                                          sparql_result=x
-                                                          )
+                                                                key=ContentKeys.THEME,
+                                                                sparql_result=x
+                                                                )
                    for x in bindings]
     flattened_list = itertools.chain.from_iterable(themes_list)
     return KeyCountObject.expand_with_hierarchy(flattened_list)

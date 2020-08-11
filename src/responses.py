@@ -1,14 +1,13 @@
 from typing import List
 
+from src.sparql_utils.sparql_parsers import ContentKeys
+
 
 class Response:
-    def __init__(self, totalObjects: int = None, newLastWeek: int = None, catalogs: list = None):
-        if totalObjects:
-            self.totalObjects = totalObjects
-        if newLastWeek:
-            self.newLastWeek = newLastWeek
-        if catalogs:
-            self.catalogs = catalogs
+    def __init__(self, totalObjects, newLastWeek, catalogs: list):
+        self.totalObjects = totalObjects
+        self.newLastWeek = newLastWeek
+        self.catalogs = catalogs
 
     def populate_from_es(self, es_result: dict) -> 'Response':
         self.totalObjects = es_result["page"]["totalElements"]
@@ -56,14 +55,25 @@ class ConceptResponse(Response):
 
 
 class DataSetResponse(Response):
-    def __init__(self, dist_formats: List[dict], single_aggregations: dict, catalogs: List[dict], themes: List[dict]):
-        super().__init__(totalObjects=single_aggregations["total"],
-                         newLastWeek=single_aggregations["new_last_week"],
-                         catalogs=catalogs
+    def __init__(self,
+                 dist_formats: List[dict],
+                 single_aggregations: dict,
+                 catalogs: List[dict],
+                 themes: List[dict],
+                 access_rights: List[dict]):
+        """
+
+        :rtype: object
+        """
+        super().__init__(totalObjects=single_aggregations[ContentKeys.TOTAL],
+                         newLastWeek=single_aggregations[ContentKeys.NEW_LAST_WEEK],
+                         catalogs=catalogs,
                          )
-        self.nationalComponent = single_aggregations["nationalComponent"]
-        self.withSubject = single_aggregations["withSubject"]
+        self.opendata = single_aggregations[ContentKeys.OPEN_DATA]
+        self.nationalComponent = single_aggregations[ContentKeys.NATIONAL_COMPONENT]
+        self.withSubject = single_aggregations[ContentKeys.WITH_SUBJECT]
         self.themesAndTopicsCount = themes
         self.formats = dist_formats
+        self.accessRights = access_rights
 
 
