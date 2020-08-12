@@ -1,7 +1,7 @@
 import pytest
 
-from src.sparql_utils.sparql_namespaces import DCT, NamespaceProperty, FOAF, SparqlFunctionString
-from src.sparql_utils.sparql_query_builder import SparqlCount, SparqlGraphPatternTerm, SparqlFunction, \
+from src.sparql_utils.sparql_namespaces import DCT, NamespaceProperty, FOAF, SparqlFunctionString, RDF
+from src.sparql_utils.sparql_query_builder import SparqlCount, SparqlGraphTerm, SparqlFunction, \
     SparqlSelect, SparqlWhere
 
 
@@ -50,10 +50,10 @@ def test_select_variables_and_count():
 @pytest.mark.unit
 def test_build_graph_pattern():
     expected = "?distribution dct:format ?distributionFormat ."
-    result = SparqlGraphPatternTerm.build_graph_pattern(
-        subject=SparqlGraphPatternTerm(var="distribution"),
-        predicate=SparqlGraphPatternTerm(namespace_property=DCT.format),
-        obj=SparqlGraphPatternTerm(var="distributionFormat"),
+    result = SparqlGraphTerm.build_graph_pattern(
+        subject=SparqlGraphTerm(var="distribution"),
+        predicate=SparqlGraphTerm(namespace_property=DCT.format),
+        obj=SparqlGraphTerm(var="distributionFormat"),
         close_pattern_with="."
     )
 
@@ -63,10 +63,10 @@ def test_build_graph_pattern():
 @pytest.mark.unit
 def test_build_type_graph_pattern():
     expected = "?publisher a foaf:Agent ."
-    result = SparqlGraphPatternTerm.build_graph_pattern(
-        subject=SparqlGraphPatternTerm(var="publisher"),
-        predicate=SparqlGraphPatternTerm(namespace_property=NamespaceProperty.RDF_TYPE),
-        obj=SparqlGraphPatternTerm(namespace_property=FOAF.agent),
+    result = SparqlGraphTerm.build_graph_pattern(
+        subject=SparqlGraphTerm(var="publisher"),
+        predicate=SparqlGraphTerm(namespace_property=RDF.TYPE),
+        obj=SparqlGraphTerm(namespace_property=FOAF.agent),
         close_pattern_with="."
     )
 
@@ -122,10 +122,10 @@ def test_function_str_from_hierarchy():
 def test_build_simple_where():
     expected = "WHERE { ?distribution dct:format ?distributionFormat . } "
 
-    graph = SparqlGraphPatternTerm.build_graph_pattern(
-        subject=SparqlGraphPatternTerm(var="distribution"),
-        predicate=SparqlGraphPatternTerm(namespace_property=DCT.format),
-        obj=SparqlGraphPatternTerm(var="distributionFormat"),
+    graph = SparqlGraphTerm.build_graph_pattern(
+        subject=SparqlGraphTerm(var="distribution"),
+        predicate=SparqlGraphTerm(namespace_property=DCT.format),
+        obj=SparqlGraphTerm(var="distributionFormat"),
         close_pattern_with="."
     )
     result = SparqlWhere(graphs=[graph])
@@ -150,10 +150,10 @@ def test_build_where_with_function():
 def test_build_simple_where():
     expected = "WHERE { ?distribution dct:format ?distributionFormat . BIND(LCASE(?distributionFormat) AS ?format) } "
 
-    graph = SparqlGraphPatternTerm.build_graph_pattern(
-        subject=SparqlGraphPatternTerm(var="distribution"),
-        predicate=SparqlGraphPatternTerm(namespace_property=DCT.format),
-        obj=SparqlGraphPatternTerm(var="distributionFormat"),
+    graph = SparqlGraphTerm.build_graph_pattern(
+        subject=SparqlGraphTerm(var="distribution"),
+        predicate=SparqlGraphTerm(namespace_property=DCT.format),
+        obj=SparqlGraphTerm(var="distributionFormat"),
         close_pattern_with="."
     )
 
@@ -165,13 +165,3 @@ def test_build_simple_where():
     result = SparqlWhere(graphs=[graph], functions=[leaf])
 
     assert str(result) == expected
-
-
-@pytest.mark.unit
-def test_mk():
-    expected = "PREFIX dct: <http://purl.org/dc/terms/> " \
-               "SELECT ?format (COUNT(?format) AS ?count) " \
-               "WHERE { " \
-               "?distribution dct:format ?distributionFormat . BIND(LCASE(?distributionFormat) AS ?format) } " \
-               "GROUP BY ?format" \
-               "ORDER BY DESC(?count)"

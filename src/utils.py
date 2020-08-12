@@ -4,6 +4,7 @@ class ServiceKey:
     DATA_SERVICES = "dataservices"
     DATA_SETS = "datasets"
     CONCEPTS = "concepts"
+    REFERENCE_DATA = "reference_data"
 
     @staticmethod
     def get_key(string_key: str) -> 'ServiceKey':

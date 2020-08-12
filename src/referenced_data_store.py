@@ -1,8 +1,8 @@
 from typing import List
 from src.organization_parser import ParsedOrganization
 from asyncstdlib.functools import lru_cache as alru_cache
-from src.service_requests import get_access_rights, get_themes_and_topics_from_service, \
-    get_organization_from_catalog, get_organizations_from_organizations_catalog
+from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
+    fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog
 
 
 class ParsedReferenceData:
@@ -51,25 +51,25 @@ class ParsedReferenceData:
 
 @alru_cache
 async def get_rights_statements() -> List[ParsedReferenceData]:
-    rights_statements = await get_access_rights()
+    rights_statements = await fetch_access_rights_from_reference_data()
     return ParsedReferenceData.from_rights_statement_list(rights_statements)
 
 
 @alru_cache
 async def get_los_paths() -> List[ParsedReferenceData]:
-    los_themes = await get_themes_and_topics_from_service()
+    los_themes = await fetch_themes_and_topics_from_reference_data()
     return ParsedReferenceData.from_los_list(los_themes)
 
 
 @alru_cache
 async def get_organizations() -> List[ParsedOrganization]:
-    organizations = await get_organizations_from_organizations_catalog()
+    organizations = await fetch_organizations_from_organizations_catalog()
     return ParsedOrganization.parse_list(organizations)
 
 
 @alru_cache
 async def get_organization_from_service(uri: str) -> ParsedOrganization:
-    org = await get_organization_from_catalog(uri)
+    org = await fetch_organization_from_catalog(uri)
     return ParsedOrganization.from_organizations_catalog_json(org)
 
 

@@ -28,6 +28,7 @@ def test_get_datasets(event_loop,
     assert 50 == int(result.nationalComponent)
     assert 3 == len(result.accessRights)
 
+
 @pytest.fixture
 def get_datasets_statistics_mock(mocker):
     mocker.patch('src.aggregation.get_datasets_statistics', return_value=datasets_simple_aggs_response)
@@ -60,4 +61,5 @@ def get_organizations_mock(mocker):
 
 @pytest.fixture
 def mock_access_rights_request(mocker):
-    mocker.patch('src.referenced_data_store.get_access_rights', return_value = mock_access_rights_catalog_response())
+    mocker.patch('src.referenced_data_store.fetch_access_rights_from_reference_data',
+                 return_value=mock_access_rights_catalog_response())
