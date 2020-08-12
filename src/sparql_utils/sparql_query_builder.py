@@ -71,8 +71,6 @@ class SparqlFunction:
                 current_node = current_node.parent
                 function_node: SparqlFunction = current_node
                 func_str = function_node.str_with_inner_function(inner_fun=func_str)
-
-        breakpoint()
         return func_str
 
 

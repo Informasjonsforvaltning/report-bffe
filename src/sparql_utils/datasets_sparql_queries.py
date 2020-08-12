@@ -112,3 +112,28 @@ def build_datasets_access_rights_query() -> str:
         group_by_var=code_var
     ).build()
     return encode_for_sparql(query)
+
+
+def build_datasets_formats_query():
+    prefixes = [DCT]
+    select = SparqlSelect(
+        variable_names=[ContentKeys.FORMAT],
+        count_variables=[(SparqlCount(variable_name=ContentKeys.FORMAT))]
+    )
+    fun_bind = SparqlFunction(fun=SparqlFunctionString.BIND)
+    fun_lcase_leaf = SparqlFunction(fun=SparqlFunctionString.LCASE, variable="distributionFormat", as_name="format",
+                                    parent=fun_bind)
+    where = SparqlWhere(
+        graphs=[
+            SparqlGraphTerm.build_graph_pattern(
+                subject=SparqlGraphTerm(var="distribution"),
+                predicate=SparqlGraphTerm(namespace_property=DCT.format),
+                obj=SparqlGraphTerm(var="distributionFormat"),
+                close_pattern_with="."
+            )
+        ],
+        functions=[fun_lcase_leaf]
+    )
+
+    query = SparqlBuilder(prefix=prefixes, select=select, where=where, group_by_var="format").build()
+    return encode_for_sparql(query)
