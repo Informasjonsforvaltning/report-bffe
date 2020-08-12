@@ -94,15 +94,19 @@ class SparqlGraphTerm:
 
 class SparqlSelect:
 
-    def __init__(self, variable_names: List[str] = None, count_variables: List[SparqlCount] = None):
+    def __init__(self, variable_names: List[str] = None,
+                 count_variables: List[SparqlCount] = None,
+                 function_variables: List[SparqlFunction] = None):
         self.variable_names = variable_names
         self.count_variables = count_variables
+        self.function_variables = function_variables
 
     def __str__(self):
-        return SparqlSelect.select(self.variable_names, self.count_variables)
+        return SparqlSelect.select(self.variable_names, self.count_variables, self.function_variables)
 
     @staticmethod
-    def select(variable_names: List[str] = None, count_variables: List[SparqlCount] = None) -> str:
+    def select(variable_names: List[str] = None, count_variables: List[SparqlCount] = None,
+               function_variables: List[SparqlFunction] = None) -> str:
         select = "SELECT"
         if not variable_names and not count_variables:
             return f"{select} *"
@@ -111,6 +115,9 @@ class SparqlSelect:
             if variable_names:
                 sparql_vars = [SparqlBuilder.make_var(x) for x in variable_names]
                 select += separator + separator.join(sparql_vars)
+            if function_variables:
+                functions_strings = [str(x) for x in function_variables]
+                select += separator + separator.join(functions_strings)
             if count_variables:
                 count_strings = [str(x) for x in count_variables]
                 select += separator + separator.join(count_strings)

@@ -23,7 +23,6 @@ class RDF(NamespaceProperty):
 
 
 class DCT(NamespaceProperty):
-
     prefix = "dct:"
     format = f"{prefix}format"
     publisher = f"{prefix}publisher"
@@ -64,6 +63,15 @@ class OWL(NamespaceProperty):
     @staticmethod
     def create_property(from_value: str, **kwargs) -> str:
         return NamespaceProperty.property_string(FOAF.prefix, from_value)
+
+
+class DCAT(NamespaceProperty):
+    prefix = "dcat:"
+    theme = f"{prefix}theme"
+
+    @staticmethod
+    def get_prefix_definition() -> str:
+        return "PREFIX dcat: <http://www.w3.org/ns/dcat%23>"
 
 
 class SparqlFunctionString:

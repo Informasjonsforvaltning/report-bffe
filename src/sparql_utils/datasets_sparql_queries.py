@@ -1,5 +1,5 @@
 from src.sparql_utils import ContentKeys
-from src.sparql_utils.sparql_namespaces import DCT, FOAF, OWL, SparqlFunctionString, RDF
+from src.sparql_utils.sparql_namespaces import DCT, FOAF, OWL, SparqlFunctionString, RDF, DCAT
 from src.sparql_utils.sparql_query_builder import SparqlSelect, SparqlCount, SparqlWhere, SparqlGraphTerm, \
     SparqlFunction, SparqlBuilder, SparqlOptional, encode_for_sparql
 
@@ -114,7 +114,7 @@ def build_datasets_access_rights_query() -> str:
     return encode_for_sparql(query)
 
 
-def build_datasets_formats_query():
+def build_datasets_formats_query() -> str:
     prefixes = [DCT]
     select = SparqlSelect(
         variable_names=[ContentKeys.FORMAT],
@@ -136,4 +136,25 @@ def build_datasets_formats_query():
     )
 
     query = SparqlBuilder(prefix=prefixes, select=select, where=where, group_by_var="format").build()
+    return encode_for_sparql(query)
+
+
+def build_datasets_themes_query() -> str:
+    prefixes = [DCAT]
+    select = SparqlSelect(
+        function_variables=[SparqlFunction(fun=SparqlFunctionString.STR, variable=ContentKeys.THEME)],
+        count_variables=[SparqlCount(variable_name=ContentKeys.THEME)]
+    )
+    where = SparqlWhere(
+        graphs=[
+            SparqlGraphTerm.build_graph_pattern(
+                subject=SparqlGraphTerm(var="dataset"),
+                predicate=SparqlGraphTerm(namespace_property=DCAT.theme),
+                obj=SparqlGraphTerm(var=ContentKeys.THEME),
+                close_pattern_with="."
+            )
+        ]
+    )
+
+    query = SparqlBuilder(prefix=prefixes,select=select,where=where, group_by_var=ContentKeys.THEME).build()
     return encode_for_sparql(query)
