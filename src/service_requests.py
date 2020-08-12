@@ -4,7 +4,8 @@ from typing import List
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
-from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_stats_query
+from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_stats_query, \
+    build_datasets_access_rights_query
 from src.utils import ServiceKey, FetchFromServiceException
 
 service_urls = {
@@ -104,7 +105,6 @@ async def get_datasets_statistics():
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
-            breakpoint()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
@@ -114,8 +114,19 @@ async def get_datasets_statistics():
 
 
 async def get_datasets_access_rights():
-    # see datasets_access_rights in unit_mock_data.py for expected result
-    pass
+    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_access_rights_query()}'
+    breakpoint()
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response.raise_for_status()
+            breakpoint()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="datasets access_rights query",
+                url=url
+            )
 
 
 async def get_datasets_themes_and_topics():

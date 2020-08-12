@@ -163,5 +163,4 @@ def test_build_simple_where():
                           parent=SparqlFunction(fun=SparqlFunctionString.BIND))
 
     result = SparqlWhere(graphs=[graph], functions=[leaf])
-
     assert str(result) == expected

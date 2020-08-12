@@ -23,9 +23,11 @@ class RDF(NamespaceProperty):
 
 
 class DCT(NamespaceProperty):
+
     prefix = "dct:"
     format = f"{prefix}format"
     publisher = f"{prefix}publisher"
+    accessRights = f"{prefix}accessRights"
     prefix_definition = "PREFIX dct: <http://purl.org/dc/terms/>"
 
     @staticmethod

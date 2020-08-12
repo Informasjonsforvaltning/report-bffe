@@ -71,6 +71,8 @@ class SparqlFunction:
                 current_node = current_node.parent
                 function_node: SparqlFunction = current_node
                 func_str = function_node.str_with_inner_function(inner_fun=func_str)
+
+        breakpoint()
         return func_str
 
 
@@ -208,4 +210,6 @@ def encode_for_sparql(string: str):
         .replace("<", "%3C") \
         .replace(">", "%3E") \
         .replace("(", "%28") \
-        .replace(")", "%29")
+        .replace(")", "%29") \
+        .replace("'", "%27") \
+        .replace("*", "%2A").replace("\\", "\\\\")
