@@ -1,0 +1,15 @@
+class ContentKeys:
+    FORMAT = "format"
+    WITH_SUBJECT = "withSubject"
+    OPEN_DATA = "opendata"
+    TOTAL = "total"
+    NEW_LAST_WEEK = "new_last_week"
+    NATIONAL_COMPONENT = "nationalComponent"
+    ORGANIZATION = "organization"
+    COUNT = "count"
+    VALUE = "value"
+    ACCESS_RIGHTS_CODE = "code"
+    TIME_SERIES_X_AXIS = "date"
+    TIME_SERIES_Y_AXIS = "count"
+    THEME = "theme"
+

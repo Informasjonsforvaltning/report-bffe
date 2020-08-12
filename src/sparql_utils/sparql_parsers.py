@@ -3,22 +3,7 @@ import re
 from typing import List
 
 from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
-
-
-class ContentKeys:
-    FORMAT = "format"
-    WITH_SUBJECT = "withSubject"
-    OPEN_DATA = "opendata"
-    TOTAL = "total"
-    NEW_LAST_WEEK = "new_last_week"
-    NATIONAL_COMPONENT = "nationalComponent"
-    ORGANIZATION = "organization"
-    COUNT = "count"
-    VALUE = "value"
-    ACCESS_RIGHTS_CODE = "code"
-    TIME_SERIES_X_AXIS = "date"
-    TIME_SERIES_Y_AXIS = "count"
-    THEME = "theme"
+from src.sparql_utils import ContentKeys
 
 
 def parse_sparql_formats_count(sparql_result: dict) -> list:

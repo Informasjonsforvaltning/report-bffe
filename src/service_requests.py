@@ -4,7 +4,7 @@ from typing import List
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
-from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query
+from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_stats_query
 from src.utils import ServiceKey, FetchFromServiceException
 
 service_urls = {
@@ -99,8 +99,18 @@ async def fetch_datasets_catalog():
 
 
 async def get_datasets_statistics():
-    # see datasets_simple_aggs_response in unit_mock_data.py for expected result
-    pass
+    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_stats_query()}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response.raise_for_status()
+            breakpoint()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="datasets statistics query",
+                url=url
+            )
 
 
 async def get_datasets_access_rights():
