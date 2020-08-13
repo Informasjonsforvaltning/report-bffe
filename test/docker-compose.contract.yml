@@ -12,3 +12,10 @@ services:
         - "8000:8080"
       depends_on:
         - servicesmock
+      environment:
+        - ORGANIZATION_CATALOG_URL=http://servicesmock:8080
+        - CONCEPT_HARVESTER_URL=http://servicesmock:8080/concepts
+        - DATASET_HARVESTER_URL=http://servicesmock:8080
+        - INFORMATIONMODELS_HARVESTER_URL=http://servicesmock:8080/informationmodels
+        - DATASERVICE_HARVESTER_URL=http://servicesmock:8080/apis
+        - REFERENCE_DATA_URL=http://servicesmock:8080/reference-data

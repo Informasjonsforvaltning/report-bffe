@@ -1,0 +1,20 @@
+{
+  "id" : "4f8d949f-6ed5-437a-a56c-7c3236072d6b",
+  "name" : "sparql_select",
+  "request" : {
+    "url" : "/sparql/select?query=PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E%20SELECT%20?code%20%28COUNT%28?code%29%20AS%20?count%29%20WHERE%20%7B%20?dataset%20dct:accessRights%20?code%20.%20%7D%20GROUP%20BY%20?code",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{ \"head\": {\n    \"vars\": [ \"code\" , \"count\" ]\n  } ,\n  \"results\": {\n    \"bindings\": [\n      { \n        \"code\": { \"type\": \"uri\" , \"value\": \"http://publications.europa.eu/resource/authority/access-right/RESTRICTED\" } ,\n        \"count\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"11\" }\n      } ,\n      { \n        \"code\": { \"type\": \"uri\" , \"value\": \"http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC\" } ,\n        \"count\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"8\" }\n      } ,\n      { \n        \"code\": { \"type\": \"uri\" , \"value\": \"http://publications.europa.eu/resource/authority/access-right/PUBLIC\" } ,\n        \"count\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"1231\" }\n      }\n    ]\n  }\n}\n",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 13 Aug 2020 11:40:22 GMT",
+      "Via" : "1.1 google"
+    }
+  },
+  "uuid" : "4f8d949f-6ed5-437a-a56c-7c3236072d6b",
+  "persistent" : true,
+  "insertionIndex" : 5
+}
