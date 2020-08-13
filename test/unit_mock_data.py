@@ -767,6 +767,17 @@ datasets_themes_and_topics = {
                     "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "1"
                 }
 
+            },
+            {
+                "theme": {
+                    "type": "uri",
+                    "value": "http://objektkatalog.geonorge.no/Objekttype/Index/EAID_EDD3FB30_A0A2_4ced_B367_5C4A5979F676"
+                },
+                "count": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "1"
+                }
             }
         ]
     }
@@ -901,6 +912,8 @@ def mocked_org_paths(uri: str):
 
 
 def mocked_los_paths(uri: str) -> str:
+    if uri == "http://objektkatalog.geonorge.no/Objekttype/Index/EAID_EDD3FB30_A0A2_4ced_B367_5C4A5979F676":
+        return None
     paths = {
         "https://psi.norge.no/los/tema/bygg-og-eiendom": ["bygg-og-eiendom"],
         "https://psi.norge.no/los/tema/priser-og-gebyr-for-bygg-og-eiendom": [

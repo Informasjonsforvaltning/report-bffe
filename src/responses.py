@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 from src.sparql_utils.sparql_parsers import ContentKeys
@@ -61,14 +62,11 @@ class DataSetResponse(Response):
                  catalogs: List[dict],
                  themes: List[dict],
                  access_rights: List[dict]):
-        """
-
-        :rtype: object
-        """
         super().__init__(totalObjects=single_aggregations[ContentKeys.TOTAL],
                          newLastWeek=single_aggregations[ContentKeys.NEW_LAST_WEEK],
                          catalogs=catalogs,
                          )
+
         self.opendata = single_aggregations[ContentKeys.OPEN_DATA]
         self.nationalComponent = single_aggregations[ContentKeys.NATIONAL_COMPONENT]
         self.withSubject = single_aggregations[ContentKeys.WITH_SUBJECT]
@@ -76,4 +74,6 @@ class DataSetResponse(Response):
         self.formats = dist_formats
         self.accessRights = access_rights
 
-
+    def json(self):
+        serialized = self.__dict__
+        return serialized

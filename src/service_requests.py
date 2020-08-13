@@ -6,7 +6,7 @@ from httpx import AsyncClient, ConnectTimeout, HTTPError
 
 from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_stats_query, \
     build_datasets_access_rights_query, build_datasets_formats_query, build_datasets_themes_query
-from src.utils import ServiceKey, FetchFromServiceException
+from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException
 
 service_urls = {
     ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080/organizations",
@@ -26,7 +26,7 @@ organization_cache_key = "organizations"
 
 
 async def fetch_organizations_from_organizations_catalog() -> List[dict]:
-    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}'
+    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations'
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
@@ -47,11 +47,19 @@ async def fetch_organization_from_catalog(national_reg_id: str) -> dict:
             response.raise_for_status()
 
             return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout) as err:
+        except (ConnectError, ConnectTimeout):
             raise FetchFromServiceException(
-                execution_point="organization",
+                execution_point="get organization",
                 url=url
             )
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                raise NotInNationalRegistryException(url)
+            else:
+                raise FetchFromServiceException(
+                    execution_point=f"{err.response.status_code}: get organization",
+                    url=url
+                )
 
 
 # from reference data (called seldom, not a crisis if they're slow) !important
@@ -59,7 +67,7 @@ async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
     url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/los'
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=service_urls, timeout=5)
+            response = await session.get(url=url, timeout=5)
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -73,7 +81,7 @@ async def fetch_access_rights_from_reference_data():
     url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/rightsstatement'
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=service_urls, timeout=5)
+            response = await session.get(url=url, timeout=5)
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):

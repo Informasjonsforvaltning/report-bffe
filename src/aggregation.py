@@ -29,11 +29,12 @@ def create_dataset_report():
     organizations, simple_stats, access_rights, themes, dist_formats = loop.run_until_complete(dataset_content_requests)
     parsing_tasks = asyncio.gather(
         parse_sparql_catalogs_count(organizations),
-        parse_sparql_access_rights_count(access_rights)
+        parse_sparql_access_rights_count(access_rights),
+        parse_sparql_themes_and_topics_count(themes)
     )
-    catalogs, access_rights_count = loop.run_until_complete(parsing_tasks)
+    catalogs, access_rights_count, themes_count = loop.run_until_complete(parsing_tasks)
     return DataSetResponse(
-        themes=parse_sparql_themes_and_topics_count,
+        themes=themes_count,
         catalogs=catalogs,
         single_aggregations=parse_sparql_single_results(simple_stats),
         access_rights=access_rights_count,

@@ -3,6 +3,7 @@ from src.organization_parser import ParsedOrganization
 from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog
+from src.utils import NotInNationalRegistryException
 
 
 class ParsedReferenceData:
@@ -81,10 +82,14 @@ async def get_org_path(uri: str) -> str:
         return org_catalog[org_idx].orgPath
     except ValueError:
         if ParsedOrganization.is_national_registry_uri(raw_uri):
-            org: ParsedOrganization = await get_organization_from_service(ParsedOrganization.resolve_id(uri=raw_uri))
-            return org.orgPath
+            try:
+                org: ParsedOrganization = await get_organization_from_service(
+                    ParsedOrganization.resolve_id(uri=raw_uri))
+                return org.orgPath
+            except NotInNationalRegistryException:
+                return "UKNOWN"
         else:
-            return None
+            return "UKNOWN"
 
 
 def clean_uri(uri_from_sparql: str):

@@ -44,10 +44,10 @@ def get_organizations_mock(mocker):
 
 @pytest.fixture
 def get_access_rights_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_access_rights', side_effect=mock_access_rights_catalog_response)
+    mocker.patch('src.referenced_data_store.fetch_access_rights_from_reference_data', side_effect=mock_access_rights_catalog_response)
 
 
 @pytest.fixture
 def get_los_paths_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_themes_and_topics_from_service',
+    mocker.patch('src.referenced_data_store.fetch_themes_and_topics_from_reference_data',
                  side_effect=mock_los_path_reference_response)

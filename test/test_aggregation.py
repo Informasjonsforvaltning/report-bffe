@@ -16,10 +16,11 @@ def test_get_datasets(event_loop,
                       get_dataset_catalogs_mock,
                       get_dataset_formats_mock,
                       get_organizations_mock,
-                      mock_access_rights_request):
+                      mock_access_rights_request,
+                      get_los_paths_mock):
     asyncio.set_event_loop(event_loop)
     result: DataSetResponse = create_dataset_report()
-    assert 7 == len(result.catalogs)
+    assert 8 == len(result.catalogs)
     assert 6 == len(result.formats)
     assert 76 == int(result.withSubject)
     assert 6 == int(result.opendata)
@@ -46,7 +47,7 @@ def get_dataset_themes_and_topics_mock(mocker):
 
 @pytest.fixture
 def get_dataset_catalogs_mock(mocker):
-    mocker.patch('src.aggregation.get_datasets_catalog', return_value=datasets_catalogs)
+    mocker.patch('src.aggregation.fetch_datasets_catalog', return_value=datasets_catalogs)
 
 
 @pytest.fixture

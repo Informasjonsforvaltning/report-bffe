@@ -32,3 +32,8 @@ class FetchFromServiceException(Exception):
     def __init__(self, execution_point: str, url: str = None):
         self.status = 500
         self.reason = f"Connection error when attempting to fetch {execution_point} from {url}"
+
+
+class NotInNationalRegistryException(Exception):
+    def __init__(self, uri):
+        self.reason = f"{uri} was not found in the nationalRegistry"

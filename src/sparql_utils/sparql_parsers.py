@@ -47,6 +47,17 @@ async def parse_sparql_access_rights_count(sparql_result: dict) -> list:
     return KeyCountObject.to_dicts(access_rights_list)
 
 
+def remove_none_values(iterable) -> list:
+    values = []
+    try:
+        for item in iterable:
+            if item:
+                values.append(item)
+    except TypeError:
+        pass
+    return values
+
+
 async def parse_sparql_themes_and_topics_count(sparql_results: dict) -> list:
     bindings = sparql_results["results"]["bindings"]
     themes_list = [await KeyCountObject.with_reference_list_key(reference_function=get_los_path,
@@ -55,7 +66,7 @@ async def parse_sparql_themes_and_topics_count(sparql_results: dict) -> list:
                                                                 )
                    for x in bindings]
     flattened_list = itertools.chain.from_iterable(themes_list)
-    return KeyCountObject.expand_with_hierarchy(flattened_list)
+    return KeyCountObject.expand_with_hierarchy(remove_none_values(flattened_list))
 
 
 def parse_sparql_time_series(sparql_result: dict) -> list:
@@ -106,6 +117,7 @@ class KeyCountObject:
     def expand_with_hierarchy(objects: List['KeyCountObject']):
         hierarchies = []
         aggregated_hierarchies = []
+
         for obj in objects:
             if obj:
                 hierarchies.extend(obj.get_count_with_hierarchy())
