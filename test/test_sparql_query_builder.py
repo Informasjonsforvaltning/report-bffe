@@ -65,7 +65,7 @@ def test_build_type_graph_pattern():
     expected = "?publisher a foaf:Agent ."
     result = SparqlGraphTerm.build_graph_pattern(
         subject=SparqlGraphTerm(var="publisher"),
-        predicate=SparqlGraphTerm(namespace_property=RDF.TYPE),
+        predicate=SparqlGraphTerm(namespace_property=RDF.type),
         obj=SparqlGraphTerm(namespace_property=FOAF.agent),
         close_pattern_with="."
     )

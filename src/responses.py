@@ -1,7 +1,7 @@
-import json
+from datetime import datetime
 from typing import List
 
-from src.sparql_utils.sparql_parsers import ContentKeys
+from src.sparql_utils.sparql_parsers import ContentKeys, ParsedDataPoint
 
 
 class Response:
@@ -77,3 +77,37 @@ class DataSetResponse(Response):
     def json(self):
         serialized = self.__dict__
         return serialized
+
+
+class TimeSeriesResponse:
+    def __init__(self, parsed_data_points: List[ParsedDataPoint]):
+        self.time_series = []
+        self.last_data_point: ParsedDataPoint = None
+        for data_point in parsed_data_points:
+            self.add(data_point)
+        self.add_months_from_last_datapoint_to_now()
+
+
+    def add(self, parsed_entry):
+        if len(self.time_series) == 0:
+            self.time_series.append(parsed_entry.response_dict())
+            self.last_data_point = parsed_entry
+        elif parsed_entry == self.last_data_point.get_next_month():
+            self.time_series.append(parsed_entry.response_dict())
+            self.last_data_point = parsed_entry
+        else:
+            while self.last_data_point.get_next_month() != parsed_entry:
+                next_month = self.last_data_point.get_next_month()
+                self.time_series.append(next_month.response_dict())
+                self.last_data_point = next_month
+            self.time_series.append(parsed_entry.response_dict())
+            self.last_data_point = parsed_entry
+    def add_months_from_last_datapoint_to_now(self):
+        now_data_point = ParsedDataPoint.from_date_time(datetime.now())
+        while self.last_data_point != now_data_point:
+            next_month = self.last_data_point.get_next_month()
+            self.time_series.append(next_month.response_dict())
+            self.last_data_point = next_month
+
+    def json(self) -> List[dict]:
+        return self.time_series

@@ -1,5 +1,5 @@
 {
-  "id" : "362d3a77-7080-4601-8ce4-07d49068e107",
+  "id" : "17b5c39c-3d8c-4263-b607-fa24e461bed4",
   "name" : "sparql_select",
   "request" : {
     "url" : "/sparql/select?query=PREFIX%20dcat:%20%3Chttp://www.w3.org/ns/dcat%23%3E%20PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E%20PREFIX%20xsd:%20%3Chttp://www.w3.org/2001/XMLSchema%23%3E%20SELECT%20%28COUNT%28?d1%29%20AS%20?withSubject%29%20%28COUNT%28?d2%29%20AS%20?opendata%29%20%28COUNT%28?d3%29%20AS%20?total%29%20%28COUNT%28?d4%29%20AS%20?new_last_week%29%20%28COUNT%28?d5%29%20AS%20?nationalComponent%29%20WHERE%20%7B%20%7B%20?d1%20a%20dcat:Dataset%20.%20FILTER%20EXISTS%7B%20?d1%20dct:subject%20?s%20.%20%7D%20%7D%20UNION%20%7B%20%7B%20SELECT%20?d2%20%28GROUP_CONCAT%28DISTINCT%20?license%29%20AS%20?uris%29%20WHERE%20%7B%20?d2%20a%20dcat:Dataset%20.%20?d2%20dct:accessRights%20?accessRights%20.%20?d2%20dcat:distribution%20?distribution%20.%20?distribution%20dct:license%20?l%20.%20OPTIONAL%20%7B%20?l%20dct:source%20?src%20.%20%7D%20BIND%28REPLACE%28STR%28?accessRights%29,%20%27%5E.%2A%5C%5C/%27,%20%27%27%29%20AS%20?publicCode%29%20BIND%28COALESCE%28?src,%20STR%28?l%29%29%20AS%20?license%29%20FILTER%20EXISTS%7B%20?d2%20dct:accessRights%20?a%20.%20%7D%20FILTER%28?publicCode%20=%20%27PUBLIC%27%29%20FILTER%28STRLEN%28?license%29%20%3E%200%29%20%7D%20GROUP%20BY%20?d2%20%7D%20%7D%20UNION%20%7B%20?d3%20a%20dcat:Dataset%20.%20%7D%20UNION%20%7B%20?d4%20a%20dcat:Dataset%20.%20?d4%20dct:issued%20?issued%20.%20FILTER%28?issued%20%3E=%20%28NOW%28%29%20-%20%22P7D%22%5E%5Exsd:duration%29%29%20%7D%20UNION%20%7B%20?d5%20a%20dcat:Dataset%20.%20?d5%20dct:provenance%20?provenance%20.%20FILTER%20CONTAINS%28LCASE%28STR%28?provenance%29%29,%20%22nasjonal%22%29%20%7D%20%7D%20",
@@ -10,11 +10,11 @@
     "body" : "{ \"head\": {\n    \"vars\": [ \"withSubject\" , \"opendata\" , \"total\" , \"new_last_week\" , \"nationalComponent\" ]\n  } ,\n  \"results\": {\n    \"bindings\": [\n      { \n        \"withSubject\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"35\" } ,\n        \"opendata\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"1057\" } ,\n        \"total\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"1251\" } ,\n        \"new_last_week\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"0\" } ,\n        \"nationalComponent\": { \"type\": \"literal\" , \"datatype\": \"http://www.w3.org/2001/XMLSchema#integer\" , \"value\": \"8\" }\n      }\n    ]\n  }\n}\n",
     "headers" : {
       "Content-Type" : "application/json",
-      "Date" : "Thu, 13 Aug 2020 11:40:50 GMT",
+      "Date" : "Fri, 14 Aug 2020 11:51:11 GMT",
       "Via" : "1.1 google"
     }
   },
-  "uuid" : "362d3a77-7080-4601-8ce4-07d49068e107",
+  "uuid" : "17b5c39c-3d8c-4263-b607-fa24e461bed4",
   "persistent" : true,
-  "insertionIndex" : 11
+  "insertionIndex" : 8
 }

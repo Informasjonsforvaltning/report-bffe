@@ -9,7 +9,9 @@ class ContentKeys:
     COUNT = "count"
     VALUE = "value"
     ACCESS_RIGHTS_CODE = "code"
-    TIME_SERIES_X_AXIS = "date"
-    TIME_SERIES_Y_AXIS = "count"
+    TIME_SERIES_MONTH = "month"
+    TIME_SERIES_YEAR = "year"
+    TIME_SERIES_Y_AXIS = "yAxis"
+    TIME_SERIES_X_AXIS = "xAxis"
     THEME = "theme"
 

@@ -15,7 +15,7 @@ class NamespaceProperty(metaclass=abc.ABCMeta):
 
 class RDF(NamespaceProperty):
     prefix = "rdf: "
-    TYPE = "a"
+    type = "a"
 
     @staticmethod
     def get_prefix_definition() -> str:
@@ -25,6 +25,7 @@ class RDF(NamespaceProperty):
 class DCT(NamespaceProperty):
     prefix = "dct:"
     format = f"{prefix}format"
+    issued = f"{prefix}issued"
     publisher = f"{prefix}publisher"
     accessRights = f"{prefix}accessRights"
     prefix_definition = "PREFIX dct: <http://purl.org/dc/terms/>"
@@ -68,6 +69,7 @@ class OWL(NamespaceProperty):
 class DCAT(NamespaceProperty):
     prefix = "dcat:"
     theme = f"{prefix}theme"
+    dataset = f"{prefix}Dataset"
 
     @staticmethod
     def get_prefix_definition() -> str:
@@ -75,6 +77,8 @@ class DCAT(NamespaceProperty):
 
 
 class SparqlFunctionString:
+    YEAR = "YEAR"
+    MONTH = "MONTH"
     STR = "STR"
     REPLACE = "REPLACE"
     BIND = "BIND"

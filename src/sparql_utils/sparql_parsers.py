@@ -1,5 +1,6 @@
 import itertools
 import re
+from datetime import datetime
 from typing import List
 
 from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
@@ -71,8 +72,7 @@ async def parse_sparql_themes_and_topics_count(sparql_results: dict) -> list:
 
 def parse_sparql_time_series(sparql_result: dict) -> list:
     bindings = sparql_result["results"]["bindings"]
-    return [{"xAxis": x[ContentKeys.TIME_SERIES_X_AXIS][ContentKeys.VALUE],
-             "yAxis": x[ContentKeys.TIME_SERIES_Y_AXIS][ContentKeys.VALUE]}
+    return [ParsedDataPoint.from_result_entry(x)
             for x in bindings]
 
 
@@ -158,3 +158,53 @@ class KeyCountObject:
     @staticmethod
     def to_dicts(objects: list):
         return [x.__dict__ for x in objects if x]
+
+
+class ParsedDataPoint:
+    def __init__(self, month, year, count):
+        try:
+            self.month = int(month)
+            self.year = int(year)
+        except TypeError:
+            self.month = month
+            self.year = year
+
+        self.count = count
+
+    def __str__(self):
+        month_str = str(self.month)
+        if len(month_str) == 1:
+            month_str = f"0{month_str}"
+        date_strings = ("01", month_str, str(self.year))
+        return ".".join(date_strings)
+
+    def response_dict(self):
+        return {
+            ContentKeys.TIME_SERIES_X_AXIS: str(self),
+            ContentKeys.TIME_SERIES_Y_AXIS: self.count
+        }
+
+    def get_next_month(self):
+        next_month = self.month + 1
+        next_year = self.year
+        if next_month == 13:
+            next_month = 1
+            next_year += 1
+        return ParsedDataPoint(month=next_month, year=next_year, count=0)
+
+    def __eq__(self, other: 'ParsedDataPoint'):
+        return self.month == other.month and self.year == other.year
+
+    @staticmethod
+    def from_result_entry(entry: dict):
+        return ParsedDataPoint(month=entry[ContentKeys.TIME_SERIES_MONTH]["value"],
+                               year=entry[ContentKeys.TIME_SERIES_YEAR]["value"],
+                               count=entry[ContentKeys.COUNT]["value"]
+                               )
+
+    @staticmethod
+    def from_date_time(date_time: datetime):
+        return ParsedDataPoint(month=date_time.month,
+                               year=date_time.year,
+                               count=0
+                               )

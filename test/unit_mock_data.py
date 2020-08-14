@@ -782,38 +782,86 @@ datasets_themes_and_topics = {
         ]
     }
 }
-time_series = {
+dataset_time_series = {
     "head": {
-        "vars": ["date", "count"]
+        "vars": [
+            "month",
+            "year",
+            "count"
+        ]
     },
     "results": {
         "bindings": [
             {
-                "date": {"type": "", "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                         "value": "2018-01-30T09:00:00"},
-                "count": {"type": "litteral", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "9"}
+                "month": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "01"
+                },
+                "year": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "2020"
+                },
+                "count": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "1"
+                }
             },
             {
-                "date": {"type": "", "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                         "value": "2018-02-30T09:00:00"},
-                "count": {"type": "litteral", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "1"}
+                "month": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "04"
+                },
+                "year": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "2020"
+                },
+                "count": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "1"
+                }
             },
             {
-                "date": {"type": "", "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                         "value": "2018-03-30T09:00:00"},
-
-                "count": {"type": "litteral", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "187"}
+                "month": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "05"
+                },
+                "year": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "2020"
+                },
+                "count": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "1"
+                }
             },
-
             {
-                "date": {"type": "", "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                         "value": "2018-03-30T09:00:00"},
-
-                "count": {"type": "litteral", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "1"}
+                "month": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "06"
+                },
+                "year": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "2020"
+                },
+                "count": {
+                    "type": "literal",
+                    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                    "value": "3"
+                }
             }
         ]
     }
-
 }
 
 

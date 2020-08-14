@@ -28,7 +28,7 @@ def catalog_query_where_clause():
 
     publisher_a_foaf_a_agent = SparqlGraphTerm.build_graph_pattern(
         subject=SparqlGraphTerm(var="publisher"),
-        predicate=SparqlGraphTerm(namespace_property=RDF.TYPE),
+        predicate=SparqlGraphTerm(namespace_property=RDF.type),
         obj=SparqlGraphTerm(namespace_property=FOAF.agent),
         close_pattern_with="."
     )
@@ -146,4 +146,41 @@ def build_datasets_themes_query() -> str:
     )
 
     query = SparqlBuilder(prefix=prefixes, select=select, where=where, group_by_var=ContentKeys.THEME).build()
+    return encode_for_sparql(query)
+
+
+def build_dataset_time_series_query():
+    base_var = "d"
+    issued_var = "issued"
+    prefixes = [DCAT, DCT]
+    select = SparqlSelect(
+        variable_names=[ContentKeys.TIME_SERIES_MONTH, ContentKeys.TIME_SERIES_YEAR],
+        count_variables=[SparqlCount(variable_name=base_var, as_name=ContentKeys.COUNT)]
+    )
+    where = SparqlWhere(
+        graphs=[
+            SparqlGraphTerm.build_graph_pattern(
+                subject=SparqlGraphTerm(var=base_var),
+                predicate=SparqlGraphTerm(namespace_property=RDF.type),
+                obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
+                close_pattern_with="."
+            ),
+            SparqlGraphTerm.build_graph_pattern(
+                subject=SparqlGraphTerm(var=base_var),
+                predicate=SparqlGraphTerm(namespace_property=DCT.issued),
+                obj=SparqlGraphTerm(var=issued_var),
+                close_pattern_with="."
+            )
+        ]
+    )
+
+    month_fun = SparqlFunction(SparqlFunctionString.MONTH, variable=issued_var, as_name=ContentKeys.TIME_SERIES_MONTH)
+    year_fun = SparqlFunction(SparqlFunctionString.YEAR, variable=issued_var, as_name=ContentKeys.TIME_SERIES_YEAR)
+    group_by_str = f"({str(month_fun)}) ({str(year_fun)})"
+    order_by = f"ASC(?{ContentKeys.TIME_SERIES_YEAR}) ASC(?{ContentKeys.TIME_SERIES_MONTH})"
+    query = SparqlBuilder(prefix=prefixes,
+                          select=select,
+                          where=where,
+                          group_by_str=group_by_str,
+                          order_by_str=order_by).build()
     return encode_for_sparql(query)

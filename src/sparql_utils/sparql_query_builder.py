@@ -179,14 +179,20 @@ class SparqlOptional(SparqlWhere):
 class SparqlBuilder:
 
     def __init__(self, prefix: List[NamespaceProperty] = None, select: SparqlSelect = None, where: SparqlWhere = None,
-                 group_by_var: str = None):
+                 group_by_var: str = None, group_by_str: str = None, order_by_str=None):
         self.prefix = prefix
         self.select = select
         self.where = where
         if group_by_var:
-            self.group_by_var = SparqlBuilder.make_var(group_by_var)
+            self.group_by = SparqlBuilder.make_var(group_by_var)
+        elif group_by_str:
+            self.group_by = group_by_str
         else:
-            self.group_by_var = False
+            self.group_by = False
+        if order_by_str:
+            self.order_by = order_by_str
+        else:
+            self.order_by = False
 
     @staticmethod
     def make_var(var_str: str) -> str:
@@ -204,8 +210,10 @@ class SparqlBuilder:
             query_str += f"{str(self.select)} "
         if self.where:
             query_str += f"{str(self.where)}"
-        if self.group_by_var:
-            query_str += f"GROUP BY {self.group_by_var}"
+        if self.group_by:
+            query_str += f"GROUP BY {self.group_by} "
+        if self.order_by:
+            query_str += f"ORDER BY {self.order_by}"
         return query_str
 
 

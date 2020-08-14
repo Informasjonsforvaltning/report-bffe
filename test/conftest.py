@@ -16,6 +16,8 @@ def wait_for_ready():
         while True:
             response = requests.get("http://localhost:8000/ready")
             if response.status_code == 200:
+                #wait for wiremock
+                time.sleep(2)
                 break
             if time.time() > timeout:
                 pytest.fail(
