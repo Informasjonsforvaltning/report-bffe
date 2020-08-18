@@ -92,6 +92,44 @@ class SparqlGraphTerm:
         return graph_pattern
 
 
+class SparqlFilter:
+    def __init__(self, filter_string: str = None, filter_on_var: str = None,
+                 filter_on_values: List[str] = None) -> object:
+        self.filter_string = filter_string
+        self.var = filter_on_var
+        self.values = filter_on_values
+
+    def __str__(self):
+        if self.filter_string:
+            return f"FILTER({self.filter_string}) "
+        else:
+            filter_str_values = ",".join([SparqlFilter.prepare_value(val) for val in self.values])
+            return f"FILTER({SparqlBuilder.make_var(self.var)} IN ({filter_str_values}))"
+
+    @staticmethod
+    def prepare_value(filter_value: str):
+        prepared_value = ""
+        if not filter_value.startswith("'"):
+            prepared_value = "'"
+        prepared_value += filter_value
+        if not filter_value.endswith("'"):
+            prepared_value += "'"
+        return prepared_value
+
+    @staticmethod
+    def collect_filters(**filter_params):
+        filters = []
+        for key, value in filter_params.items():
+            if value:
+                filters.append(
+                    SparqlFilter(filter_on_var=key, filter_on_values=value)
+                )
+        if len(filters) > 0:
+            return filters
+        else:
+            return None
+
+
 class SparqlSelect:
 
     def __init__(self, variable_names: List[str] = None,
@@ -126,24 +164,27 @@ class SparqlSelect:
 
 class SparqlWhere:
     def __init__(self, graphs: List[str] = None, functions: [SparqlFunction] = None,
-                 optional: 'SparqlOptional' = None, nested_clause: str = None):
+                 optional: 'SparqlOptional' = None, nested_clause: str = None, filters: List[SparqlFilter] = None):
         self.graph_patterns = graphs
         self.functions = functions
         self.optional = optional
         self.nested_clause = nested_clause
+        self.filters = filters
 
     def __str__(self) -> str:
         return SparqlWhere.build(graphs=self.graph_patterns,
                                  functions=self.functions,
                                  optional_clause=self.optional,
-                                 nested_clause_builder=self.nested_clause)
+                                 nested_clause_builder=self.nested_clause,
+                                 filters=self.filters)
 
     @staticmethod
     def build(graphs: List[str] = None,
               functions: [SparqlFunction] = None,
               build_as_optional: bool = False,
               optional_clause: 'SparqlOptional' = None,
-              nested_clause_builder: 'SparqlBuilder' = None
+              nested_clause_builder: 'SparqlBuilder' = None,
+              filters: SparqlFilter = None
               ) -> str:
         if build_as_optional:
             where_str = "OPTIONAL { "
@@ -164,6 +205,9 @@ class SparqlWhere:
             where_str += "{ "
             where_str += f"{nested_clause_builder.build()} "
             where_str += "} "
+        if filters:
+            for f in filters:
+                where_str += str(f)
         where_str += "} "
         return where_str
 

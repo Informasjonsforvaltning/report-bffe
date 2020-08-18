@@ -87,7 +87,6 @@ class TimeSeriesResponse:
             self.add(data_point)
         self.add_months_from_last_datapoint_to_now()
 
-
     def add(self, parsed_entry):
         if len(self.time_series) == 0:
             self.time_series.append(parsed_entry.response_dict())
@@ -102,6 +101,7 @@ class TimeSeriesResponse:
                 self.last_data_point = next_month
             self.time_series.append(parsed_entry.response_dict())
             self.last_data_point = parsed_entry
+
     def add_months_from_last_datapoint_to_now(self):
         now_data_point = ParsedDataPoint.from_date_time(datetime.now())
         while self.last_data_point != now_data_point:

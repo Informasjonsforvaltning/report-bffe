@@ -22,6 +22,11 @@ class ServiceKey:
             raise NotAServiceKeyException(string_key)
 
 
+class QueryParameter:
+    ORG_PATH = "orgPath"
+    THEME = "theme"
+
+
 class NotAServiceKeyException(Exception):
     def __init__(self, string_key: str):
         self.status = 400
@@ -37,3 +42,8 @@ class FetchFromServiceException(Exception):
 class NotInNationalRegistryException(Exception):
     def __init__(self, uri):
         self.reason = f"{uri} was not found in the nationalRegistry"
+
+
+class BadOrgPathException(Exception):
+    def __init__(self, org_path):
+        self.reason = f"could not find any organization with {org_path}"

@@ -14,4 +14,3 @@ class ContentKeys:
     TIME_SERIES_Y_AXIS = "yAxis"
     TIME_SERIES_X_AXIS = "xAxis"
     THEME = "theme"
-

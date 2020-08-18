@@ -1,5 +1,5 @@
 from typing import List
-from src.organization_parser import ParsedOrganization
+from src.organization_parser import ParsedOrganization, OrganizationStore
 from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog
@@ -65,13 +65,17 @@ async def get_los_paths() -> List[ParsedReferenceData]:
 @alru_cache
 async def get_organizations() -> List[ParsedOrganization]:
     organizations = await fetch_organizations_from_organizations_catalog()
-    return ParsedOrganization.parse_list(organizations)
+    parsed_organizations = ParsedOrganization.parse_list(organizations)
+    OrganizationStore.get_instance().update(parsed_organizations)
+    return parsed_organizations
 
 
 @alru_cache
 async def get_organization_from_service(uri: str) -> ParsedOrganization:
     org = await fetch_organization_from_catalog(uri)
-    return ParsedOrganization.from_organizations_catalog_json(org)
+    parsed_org = ParsedOrganization.from_organizations_catalog_json(org)
+    OrganizationStore.get_instance().add_organization(parsed_org)
+    return parsed_org
 
 
 async def get_org_path(uri: str) -> str:
@@ -79,6 +83,8 @@ async def get_org_path(uri: str) -> str:
     try:
         org_catalog = await get_organizations()
         org_idx: ParsedOrganization = org_catalog.index(raw_uri)
+        #tmp fix:
+        org_catalog[org_idx].dataset_reference_uri = uri
         return org_catalog[org_idx].orgPath
     except ValueError:
         if ParsedOrganization.is_national_registry_uri(raw_uri):
@@ -87,9 +93,9 @@ async def get_org_path(uri: str) -> str:
                     ParsedOrganization.resolve_id(uri=raw_uri))
                 return org.orgPath
             except NotInNationalRegistryException:
-                return "UKNOWN"
+                return "/ANNET"
         else:
-            return "UKNOWN"
+            return "/ANNET"
 
 
 def clean_uri(uri_from_sparql: str):

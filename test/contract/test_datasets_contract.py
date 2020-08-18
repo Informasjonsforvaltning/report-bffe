@@ -11,7 +11,7 @@ dataset_time_series_url = f"{service_url}/timeseries/datasets"
 class TestDatasetsReport:
 
     @pytest.mark.contract
-    def test_has_correct_format(self, wait_for_ready):
+    def test_report_has_correct_format(self, wait_for_ready):
         result = get(url=dataset_report_url)
         assert result.status_code == 200
         keys = result.json().keys()
@@ -25,13 +25,34 @@ class TestDatasetsReport:
         assert "themesAndTopicsCount" in keys
 
     @pytest.mark.contract
-    def test_timeseries_has_correct_format(self, wait_for_ready):
+    def test_report_filter_on_orgPath(self, wait_for_ready):
+        result = get(url=f"{dataset_report_url}?orgPath=/STAT/977161630")
+        assert result.status_code == 200
+        content = result.json()
+        assert content["totalObjects"] == 38
+        assert content["newLastWeek"] == 0
+        assert content["opendata"] == 38
+        assert len(content["catalogs"]) == 4
+        assert len(content["accessRights"]) == 1
+        assert content["accessRights "][0]["key"] == "PUBLIC"
+        assert content["accessRights"][0]["value"] == 38
+
+    @pytest.mark.contract
+    def test_report_filter_los_orgPath(self, wait_for_ready):
+        result = get(url=dataset_report_url)
+        assert result.status_code == 200
+        catalogs = result.json()["catalogs"]
+        for catalog in catalogs:
+            assert "/STAT" in catalog["key"]
+
+    @pytest.mark.contract
+    def test_time_series_has_correct_format(self, wait_for_ready):
         result = get(url=dataset_time_series_url)
         assert result.status_code == 200
         time_series = result.json()
         assert time_series[0]["xAxis"] == "01.09.2011"
         assert time_series[0]["yAxis"] == "12"
-        last_date = time_series[len(time_series)-1]["xAxis"]
+        last_date = time_series[len(time_series) - 1]["xAxis"]
         dt = datetime.strptime(last_date, '%d.%m.%Y')
         now = datetime.now()
         assert dt.month == now.month

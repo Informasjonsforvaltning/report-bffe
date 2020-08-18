@@ -1,4 +1,7 @@
 import re
+from typing import List
+
+from src.utils import BadOrgPathException
 
 NATIONAL_REGISTRY_PATTERN = "data.brreg.no/enhetsregisteret"
 
@@ -9,6 +12,8 @@ class ParsedOrganization:
         self.name = name
         self.org_id = ParsedOrganization.resolve_id(org_id, uri)
         self.orgPath = self.resolve_org_path(orgPath)
+        self.uri = uri
+        self.dataset_reference_uri = None
 
     def __eq__(self, other):
         """
@@ -58,7 +63,10 @@ class ParsedOrganization:
                 return org_path[1:org_path.__len__() - 1]
             else:
                 return org_path
-        return f"ANNET/{self.name}"
+        return f"/ANNET/{self.name}"
+
+    def has_national_registry_entry(self):
+        return not self.orgPath.startswith("/ANNET")
 
     @staticmethod
     def is_national_registry_uri(uri: str) -> bool:
@@ -91,3 +99,48 @@ class ParsedOrganization:
         for org in org_list:
             parsed_list.append(ParsedOrganization.from_organizations_catalog_json(org))
         return parsed_list
+
+
+class OrganizationStore:
+    __instance__: 'OrganizationStore' = None
+
+    def __init__(self):
+        if OrganizationStore.__instance__ is None:
+            self.organizations: List = None
+            self.modified = False
+            OrganizationStore.__instance__ = self
+        else:
+            raise OrganizationStoreExistsException()
+
+    def update(self, organizations: List[ParsedOrganization] = None):
+        if not self.organizations:
+            self.organizations = organizations
+        elif not self.modified:
+            self.organizations = organizations
+        else:
+            non_national_registry_orgs = [org for org in self.organizations if not org.has_national_registry_entry()]
+            self.organizations = organizations + non_national_registry_orgs
+
+    def add_organization(self, organization: ParsedOrganization):
+        if organization not in self.organizations:
+            self.organizations.append(organization)
+            self.modified = True
+
+    def get_organization_uris_from_org_path(self, orgpath: str) -> List[str]:
+        org_uris = [org.dataset_reference_uri for org in self.organizations if org == orgpath.split("/") and org.dataset_reference_uri is not None]
+        if len(org_uris) == 0:
+            raise BadOrgPathException(org_path=orgpath)
+        else:
+            return org_uris
+
+    @staticmethod
+    def get_instance():
+        if OrganizationStore.__instance__:
+            return OrganizationStore.__instance__
+        else:
+            return OrganizationStore()
+
+
+class OrganizationStoreExistsException(Exception):
+    def __init__(self):
+        self.message = "organization store is already created"

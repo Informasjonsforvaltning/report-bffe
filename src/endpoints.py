@@ -1,3 +1,4 @@
+from flask import request
 from flask_restful import Resource, abort
 
 from src.aggregation import get_report
@@ -19,7 +20,7 @@ class Ready(Resource):
 class Report(Resource):
     def get(self, content_type):
         try:
-            result = get_report(ServiceKey.get_key(content_type)).json()
+            result = get_report(content_type=ServiceKey.get_key(content_type), args=request.args).json()
             return result
         except NotAServiceKeyException:
             abort(400)
