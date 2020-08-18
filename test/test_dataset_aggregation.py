@@ -5,7 +5,7 @@ import pytest
 from src.dataset_aggregation import create_dataset_report
 from src.responses import DataSetResponse
 from test.unit_mock_data import datasets_simple_aggs_response, datasets_access_rights, datasets_themes_and_topics, \
-    datasets_catalogs, datasets_format_count, parsed_org_catalog_mock, mock_access_rights_catalog_response
+    datasets_catalogs, datasets_format_count, parsed_org_catalog_mock, mock_access_rights_catalog_response, brreg_org
 
 
 @pytest.mark.unit
@@ -17,7 +17,8 @@ def test_get_datasets(event_loop,
                       get_dataset_formats_mock,
                       get_organizations_mock,
                       mock_access_rights_request,
-                      get_los_paths_mock):
+                      get_los_paths_mock,
+                      get_organization_mock):
     asyncio.set_event_loop(event_loop)
     result: DataSetResponse = create_dataset_report(None, None)
     assert 8 == len(result.catalogs)
@@ -58,6 +59,11 @@ def get_dataset_formats_mock(mocker):
 @pytest.fixture
 def get_organizations_mock(mocker):
     mocker.patch('src.referenced_data_store.get_organizations', return_value=parsed_org_catalog_mock())
+
+
+@pytest.fixture
+def get_organization_mock(mocker):
+    mocker.patch('src.referenced_data_store.get_organization_from_organization_catalog', return_value=brreg_org)
 
 
 @pytest.fixture

@@ -2,7 +2,8 @@ from typing import List
 from src.organization_parser import ParsedOrganization, OrganizationStore
 from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
-    fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog
+    fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog, \
+    get_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog
 from src.utils import NotInNationalRegistryException
 
 
@@ -71,31 +72,36 @@ async def get_organizations() -> List[ParsedOrganization]:
 
 
 @alru_cache
-async def get_organization_from_service(uri: str) -> ParsedOrganization:
-    org = await fetch_organization_from_catalog(uri)
-    parsed_org = ParsedOrganization.from_organizations_catalog_json(org)
+async def get_organization_from_organization_catalog(uri: str, name: str) -> ParsedOrganization:
+    try:
+        if ParsedOrganization.is_national_registry_uri(uri):
+            org = await fetch_organization_from_catalog(ParsedOrganization.resolve_id(uri=uri), name)
+        else:
+            org = await attempt_fetch_organization_by_name_from_catalog(name)
+
+        parsed_org = ParsedOrganization.from_organizations_catalog_json(org)
+
+    except NotInNationalRegistryException:
+        orgpath = await get_generated_org_path_from_organization_catalog(name)
+        parsed_org = ParsedOrganization(name=name, uri=uri, orgPath=orgpath)
+
+    # tmp fix:
+    parsed_org.dataset_reference_uri = uri
     OrganizationStore.get_instance().add_organization(parsed_org)
     return parsed_org
 
 
-async def get_org_path(uri: str) -> str:
+async def get_org_path(uri: str, name: str) -> str:
     raw_uri = clean_uri(uri)
     try:
         org_catalog = await get_organizations()
         org_idx: ParsedOrganization = org_catalog.index(raw_uri)
-        #tmp fix:
+        # tmp fix:
         org_catalog[org_idx].dataset_reference_uri = uri
         return org_catalog[org_idx].orgPath
     except ValueError:
-        if ParsedOrganization.is_national_registry_uri(raw_uri):
-            try:
-                org: ParsedOrganization = await get_organization_from_service(
-                    ParsedOrganization.resolve_id(uri=raw_uri))
-                return org.orgPath
-            except NotInNationalRegistryException:
-                return "/ANNET"
-        else:
-            return "/ANNET"
+        org: ParsedOrganization = await get_organization_from_organization_catalog(uri=raw_uri, name=name)
+        return org.orgPath
 
 
 def clean_uri(uri_from_sparql: str):

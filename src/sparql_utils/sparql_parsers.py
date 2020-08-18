@@ -38,11 +38,19 @@ async def parse_sparql_catalogs_count(sparql_result: dict) -> list:
     if sparql_result is None:
         return
     bindings = sparql_result["results"]["bindings"]
-    catalog_list = [await KeyCountObject.with_reference_key(reference_function=get_org_path,
-                                                            key=ContentKeys.ORGANIZATION,
-                                                            sparql_result=x)
+    catalog_list = [await get_organization(sparql_result=x)
                     for x in bindings]
     return KeyCountObject.expand_with_hierarchy(catalog_list)
+
+
+async def get_organization(sparql_result):
+    reference = await get_org_path(uri=sparql_result[ContentKeys.ORGANIZATION_URI][ContentKeys.VALUE],
+                                   name=sparql_result[ContentKeys.ORG_NAME][ContentKeys.VALUE]
+                                   )
+    if reference:
+        return KeyCountObject(key=reference, count=sparql_result[ContentKeys.COUNT][ContentKeys.VALUE])
+    else:
+        return None
 
 
 async def parse_sparql_access_rights_count(sparql_result: dict) -> list:
@@ -108,8 +116,11 @@ class KeyCountObject:
         hierarchy_parts = [x for x in self.key.split("/")]
         hierarchy_list = []
         for i, v in enumerate(hierarchy_parts):
-            hierarchy_key = '/'.join(hierarchy_parts[0: i + 1])
-            hierarchy_list.append(KeyCountObject(key=hierarchy_key, count=self.count))
+            if v == "":
+                continue
+            else:
+                hierarchy_key = '/'.join(hierarchy_parts[0: i + 1])
+                hierarchy_list.append(KeyCountObject(key=hierarchy_key, count=self.count))
 
         return hierarchy_list
 

@@ -8,8 +8,7 @@ from src.sparql_utils.sparql_query_builder import SparqlSelect, SparqlCount, Spa
 
 def build_datasets_catalog_query(org_uris: List[str], theme: List[str]) -> str:
     prefixes = [DCT, FOAF, OWL]
-    group_by = "organization"
-    select_clause = SparqlSelect(variable_names=[group_by],
+    select_clause = SparqlSelect(variable_names=[ContentKeys.ORG_NAME, ContentKeys.ORGANIZATION_URI],
                                  count_variables=[SparqlCount(variable_name="item", as_name="count")]
                                  )
     where_clause = catalog_query_where_clause(org_uris, theme)
@@ -18,30 +17,38 @@ def build_datasets_catalog_query(org_uris: List[str], theme: List[str]) -> str:
         prefix=prefixes,
         select=select_clause,
         where=where_clause,
-        group_by_var=group_by
+        group_by_str=f"?{ContentKeys.ORGANIZATION_URI} ?{ContentKeys.ORG_NAME}"
     ).build()
-
+    breakpoint()
     return encode_for_sparql(query)
 
 
 def catalog_query_where_clause(org_uris: List[str], theme: List[str]):
     bind_root = SparqlFunction(fun=SparqlFunctionString.BIND).str_with_inner_function("COALESCE(?sameAs, STR("
                                                                                       "?publisher)) AS ?organization")
-
+    publisher_var = "publisher"
     publisher_a_foaf_a_agent = SparqlGraphTerm.build_graph_pattern(
         subject=SparqlGraphTerm(var="publisher"),
         predicate=SparqlGraphTerm(namespace_property=RDF.type),
         obj=SparqlGraphTerm(namespace_property=FOAF.agent),
         close_pattern_with="."
     )
+    publisher_name_pattern = SparqlGraphTerm.build_graph_pattern(
+        subject=SparqlGraphTerm(var=publisher_var),
+        predicate=SparqlGraphTerm(namespace_property=FOAF.name),
+        obj=SparqlGraphTerm(var=ContentKeys.ORG_NAME),
+        close_pattern_with="."
+    )
+
     graph_patterns = [
         publisher_a_foaf_a_agent,
         SparqlGraphTerm.build_graph_pattern(
             subject=SparqlGraphTerm(var="item"),
             predicate=SparqlGraphTerm(namespace_property=DCT.publisher),
-            obj=SparqlGraphTerm(var="publisher"),
+            obj=SparqlGraphTerm(var=publisher_var),
             close_pattern_with="."
-        )
+        ),
+        publisher_name_pattern
     ]
     nested_select_clause = SparqlSelect(variable_names=["publisher", "organization"])
     nested_where = SparqlWhere(graphs=[publisher_a_foaf_a_agent],
@@ -121,7 +128,6 @@ def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
                           ),
         group_by_var=code_var
     ).build()
-    breakpoint()
     return encode_for_sparql(query)
 
 

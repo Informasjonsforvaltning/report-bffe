@@ -59,10 +59,7 @@ class ParsedOrganization:
 
     def resolve_org_path(self, org_path: str):
         if org_path:
-            if org_path.startswith("/"):
-                return org_path[1:org_path.__len__() - 1]
-            else:
-                return org_path
+            return org_path
         return f"/ANNET/{self.name}"
 
     def has_national_registry_entry(self):
@@ -126,8 +123,9 @@ class OrganizationStore:
             self.organizations.append(organization)
             self.modified = True
 
-    def get_organization_uris_from_org_path(self, orgpath: str) -> List[str]:
-        org_uris = [org.dataset_reference_uri for org in self.organizations if org == orgpath.split("/") and org.dataset_reference_uri is not None]
+    def get_dataset_reference_for_orgpath(self, orgpath: str) -> List[str]:
+        org_uris = [org.dataset_reference_uri for org in self.organizations if
+                    org == orgpath.split("/") and org.dataset_reference_uri is not None]
         if len(org_uris) == 0:
             raise BadOrgPathException(org_path=orgpath)
         else:

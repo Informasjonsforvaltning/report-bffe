@@ -38,7 +38,7 @@ def gather_dataset_content_requests(orgpath, theme):
     theme = None
     if orgpath:
         try:
-            organization_uris = OrganizationStore.get_instance().get_organization_uris_from_org_path(orgpath=orgpath)
+            organization_uris = OrganizationStore.get_instance().get_dataset_reference_for_orgpath(orgpath=orgpath)
         except BadOrgPathException:
             organization_uris = None
 

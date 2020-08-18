@@ -42,6 +42,7 @@ class DCT(NamespaceProperty):
 class FOAF(NamespaceProperty):
     prefix = "foaf:"
     agent = f"{prefix}Agent"
+    name = f"{prefix}name"
 
     @staticmethod
     def get_prefix_definition() -> str:

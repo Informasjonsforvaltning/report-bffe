@@ -36,7 +36,7 @@ def event_loop():
 
 @pytest.fixture
 def get_organization_from_service_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_organization_from_service', side_effect=single_parsed_org_mock)
+    mocker.patch('src.referenced_data_store.get_organization_from_organization_catalog', side_effect=single_parsed_org_mock)
 
 
 @pytest.fixture

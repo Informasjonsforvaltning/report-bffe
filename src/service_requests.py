@@ -40,8 +40,8 @@ async def fetch_organizations_from_organizations_catalog() -> List[dict]:
             )
 
 
-async def fetch_organization_from_catalog(national_reg_id: str) -> dict:
-    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/{national_reg_id}'
+async def fetch_organization_from_catalog(national_reg_id: str, name: str) -> dict:
+    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations/{national_reg_id}'
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
@@ -50,17 +50,45 @@ async def fetch_organization_from_catalog(national_reg_id: str) -> dict:
             return response.json()
         except (ConnectError, ConnectTimeout):
             raise FetchFromServiceException(
-                execution_point="get organization",
+                execution_point="get organization by id",
                 url=url
             )
         except HTTPError as err:
             if err.response.status_code == 404:
-                raise NotInNationalRegistryException(url)
+                return await attempt_fetch_organization_by_name_from_catalog(name)
             else:
                 raise FetchFromServiceException(
                     execution_point=f"{err.response.status_code}: get organization",
                     url=url
                 )
+
+
+async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
+    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations?name={name.upper()}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response.raise_for_status()
+            return response.json()[0]
+        except (ConnectError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="get organization by name",
+                url=url
+            )
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                raise NotInNationalRegistryException(name)
+            else:
+                raise FetchFromServiceException(
+                    execution_point=f"{err.response.status_code}: get organization",
+                    url=url
+                )
+        except IndexError:
+            raise NotInNationalRegistryException(name)
+
+
+async def get_generated_org_path_from_organization_catalog(name: str):
+    pass
 
 
 # from reference data (called seldom, not a crisis if they're slow) !important

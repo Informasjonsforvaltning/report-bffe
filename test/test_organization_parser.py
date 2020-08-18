@@ -1,25 +1,12 @@
 import pytest
 
 from src.organization_parser import ParsedOrganization, OrganizationStore
-from src.utils import BadOrgPathException
-from test.unit_mock_data import parsed_org_catalog_mock
+from test.unit_mock_data import parsed_org_catalog_mock, brreg_org
 
-brreg_org: ParsedOrganization = ParsedOrganization.from_organizations_catalog_json({
-    "organizationId": "971040238",
-    "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
-    "name": "STATENS KARTVERK",
-    "orgType": "ORGL",
-    "orgPath": "STAT/972417858/971040238",
-    "subOrganizationOf": "972417858",
-    "issued": "1995-03-12",
-    "municipalityNumber": "3007",
-    "industryCode": "71.123",
-    "sectorCode": "6100"
-}
-)
 unknown_org: ParsedOrganization = ParsedOrganization(uri="http://someone.did.it.wrong/nkala", name="Just not right")
+unknown_org.dataset_reference_uri = "http://someone.did.it.wrong/nkala"
 other_org: ParsedOrganization = ParsedOrganization(uri="http://someone.did.it.wrong/nhiasoi", name="Another made wrong")
-
+other_org.dataset_reference_uri = "http://someone.did.it.wrong/nhiasoi"
 
 @pytest.mark.unit
 def test_is_national_registry_uri():
@@ -48,9 +35,11 @@ def test_resolve_id():
 def test_eq():
     org_name_some_name = ParsedOrganization(name="Some Name")
     org_national_reg_971040238_some_name = ParsedOrganization(name="Some Name",
-                                                              uri="https://data.brreg.no/enhetsregisteret/api/enheter/971040238")
+                                                              uri="https://data.brreg.no/enhetsregisteret/api/enheter"
+                                                                  "/971040238")
     org_national_reg_971040238_other_name = ParsedOrganization(name="Other Name",
-                                                               uri="https://data.brreg.no/enhetsregisteret/api/enheter/971040238")
+                                                               uri="https://data.brreg.no/enhetsregisteret/api"
+                                                                   "/enheter/971040238")
     org_not_national_reg_971040238_some_name = ParsedOrganization(name="Some Name",
                                                                   uri="https://dat.no/enhetsregisteret/api/enheter/971040238")
     org_not_national_reg_971040238_other_name = ParsedOrganization(name="Other Name",
@@ -93,29 +82,6 @@ def test_eq_org_path():
     assert org_path_from_catalog == ['STAT', '912660680']
     assert org_path_from_catalog == ['STAT', '912660680', '974760673']
     assert org_path_from_catalog != ['STAT', '912660681']
-    assert org_path_from_catalog != ['STAT', '92660681']
-    assert org_path_from_catalog != ['STAT', '912660680', '974760673', '776655']
-
-
-@pytest.mark.unit
-def test_eq_old_org_path():
-    org_path_from_catalog = ParsedOrganization.from_organizations_catalog_json({
-        "organizationId": "974760673",
-        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
-        "name": "REGISTERENHETEN I BRØNNØYSUND",
-        "orgType": "ORGL",
-        "orgPath": "/STAT/912660680/974760673",
-        "subOrganizationOf": "912660680",
-        "issued": "1995-08-09",
-        "municipalityNumber": "1813",
-        "industryCode": "84.110",
-        "sectorCode": "6100"
-    })
-
-    assert org_path_from_catalog == ['STAT']
-    assert org_path_from_catalog == ['STAT', '912660680']
-    assert org_path_from_catalog != ['STAT', '912660681']
-    assert org_path_from_catalog != ['STAT', '912660680', '974760673']
     assert org_path_from_catalog != ['STAT', '92660681']
     assert org_path_from_catalog != ['STAT', '912660680', '974760673', '776655']
 
@@ -201,27 +167,26 @@ def test_organization_store_update_should_retain_retain_unknown_organizations():
 
 
 @pytest.mark.unit
-def test_get_organization_by_org_path():
+def test_get_dataset_reference_by_org_path():
     store_instance: OrganizationStore = OrganizationStore.get_instance()
     store_instance.organizations = []
-    store_instance.update(organizations=parsed_org_catalog_mock())
+    org_catalog_mock = parsed_org_catalog_mock()
+    org_catalog_mock.append(brreg_org)
+    for org in org_catalog_mock:
+        org.dataset_reference_uri = org.uri
+    store_instance.update(organizations=org_catalog_mock)
     store_instance.add_organization(unknown_org)
     store_instance.add_organization(brreg_org)
-    unknown_org_result = store_instance.get_organization_uris_from_org_path(
+
+    unknown_org_result = store_instance.get_dataset_reference_for_orgpath(
         unknown_org.orgPath)
     assert len(unknown_org_result) == 1
     assert unknown_org_result[0] == "http://someone.did.it.wrong/nkala"
-    assert store_instance.get_organization_uris_from_org_path(
-        brreg_org.orgPath)[0] == "https://data.brreg.no/enhetsregisteret/api/enheter/971040238"
-    assert store_instance.get_organization_uris_from_org_path(
-        "STAT/912660680/974760673")[0] == "https://data.brreg.no/enhetsregisteret/api/enheter/974760673"
-    assert len(store_instance.get_organization_uris_from_org_path("STAT")) == 3
-    assert len(store_instance.get_organization_uris_from_org_path("STAT/972417858")) == 2
-    with pytest.raises(BadOrgPathException):
-        store_instance.get_organization_uris_from_org_path("PRIVAT/1235779999/7777")
+    org_catalog_org_1 = store_instance.get_dataset_reference_for_orgpath(orgpath="/STAT/912660680/974760673")
+    assert len(org_catalog_org_1) == 1
+    partial_org_path = store_instance.get_dataset_reference_for_orgpath(orgpath="/STAT/972417858")
+    assert len(partial_org_path) == 2
 
 
 
 
-
-# NB! må håndtere organisasjoner utenfor enhetsregisteret

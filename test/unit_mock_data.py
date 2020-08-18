@@ -11,7 +11,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/971203420",
                     "name": "FISKERIDIREKTORATET",
-                    "orgPath": "STAT/912660680/971203420"
+                    "orgPath": "/STAT/912660680/971203420"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:42",
@@ -29,7 +29,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/840747972",
                     "name": "FINANSTILSYNET",
-                    "orgPath": "STAT/972417807/840747972"
+                    "orgPath": "/STAT/972417807/840747972"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:44",
@@ -47,7 +47,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/971526920",
                     "name": "STATISTISK SENTRALBYRÅ",
-                    "orgPath": "STAT/972417807/971526920"
+                    "orgPath": "/STAT/972417807/971526920"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:44",
@@ -65,7 +65,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/840747972",
                     "name": "FINANSTILSYNET",
-                    "orgPath": "STAT/972417807/840747972"
+                    "orgPath": "/STAT/972417807/840747972"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:43",
@@ -83,7 +83,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/971527412",
                     "name": "NORSK KULTURRÅD",
-                    "orgPath": "STAT/972417866/971527412"
+                    "orgPath": "/STAT/972417866/971527412"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:42",
@@ -101,7 +101,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/974761076",
                     "name": "SKATTEETATEN",
-                    "orgPath": "STAT/972417807/974761076"
+                    "orgPath": "/STAT/972417807/974761076"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:43",
@@ -119,7 +119,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/974761076",
                     "name": "SKATTEETATEN",
-                    "orgPath": "STAT/972417807/974761076"
+                    "orgPath": "/STAT/972417807/974761076"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:43",
@@ -137,7 +137,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/974760223",
                     "name": "DIREKTORATET FOR BYGGKVALITET",
-                    "orgPath": "STAT/972417858/974760223"
+                    "orgPath": "/STAT/972417858/974760223"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:45",
@@ -155,7 +155,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/971526920",
                     "name": "STATISTISK SENTRALBYRÅ",
-                    "orgPath": "STAT/972417807/971526920"
+                    "orgPath": "/STAT/972417807/971526920"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:46",
@@ -173,7 +173,7 @@ informationmodels = {
                 "publisher": {
                     "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/971527412",
                     "name": "NORSK KULTURRÅD",
-                    "orgPath": "STAT/972417866/971527412"
+                    "orgPath": "/STAT/972417866/971527412"
                 },
                 "harvest": {
                     "firstHarvested": "2020-02-26T15:03:46",
@@ -708,24 +708,28 @@ datasets_catalogs = {
             {
                 "organization": {"type": "litteral", "value": "<https://data.brreg.no/enhetsregisteret/api/enheter"
                                                               "/974760673>"},
+                "name": {"type": "litteral", "value": "Baby Lama Inc."},
                 "count": {
                     "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "6"}
             },
             {
                 "organization": {"type": "litteral", "value": "<https://data.brreg.no/enhetsregisteret/api/enheter"
                                                               "/991825827>"},
+                "name": {"type": "litteral", "value": "Plentraktor AS"},
                 "count": {
                     "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "7"}
             },
             {
                 "organization": {"type": "litteral", "value": "<https://data.brreg.no/enhetsregisteret/api/enheter"
                                                               "/917422575>"},
+                "name": {"type": "litteral", "value": "Avinor AS"},
                 "count": {
                     "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "103"}
             },
             {
                 "organization": {"type": "litteral", "value": "<https://data.no/enhetsregisteret/api/enheter"
                                                               "/910298062>"},
+                "name": {"type": "litteral", "value": "Ville Vakre"},
                 "count": {
                     "type": "literal", "datatype": "http://www.w3.org/2001/XMLSchema#integer", "value": "76"}
             }
@@ -873,7 +877,7 @@ def parsed_org_catalog_mock():
             "internationalRegistry": None,
             "name": "REGISTERENHETEN I BRØNNØYSUND",
             "orgType": "ORGL",
-            "orgPath": "STAT/912660680/974760673",
+            "orgPath": "/STAT/912660680/974760673",
             "subOrganizationOf": "912660680",
             "issued": "1995-08-09",
             "municipalityNumber": "1813",
@@ -888,7 +892,7 @@ def parsed_org_catalog_mock():
             "internationalRegistry": None,
             "name": "Digitaliseringsdirektoratet",
             "orgType": "ORGL",
-            "orgPath": "STAT/972417858/991825827",
+            "orgPath": "/STAT/972417858/991825827",
             "subOrganizationOf": "972417858",
             "issued": "2007-10-15",
             "municipalityNumber": "0301",
@@ -907,7 +911,7 @@ def parsed_org_catalog_mock():
             "internationalRegistry": None,
             "name": "ENTUR AS",
             "orgType": "AS",
-            "orgPath": "PRIVAT/917422575",
+            "orgPath": "/PRIVAT/917422575",
             "subOrganizationOf": None,
             "issued": "2016-07-04",
             "municipalityNumber": "0301",
@@ -918,14 +922,14 @@ def parsed_org_catalog_mock():
         }])
 
 
-def single_parsed_org_mock(uri: str) -> ParsedOrganization:
-    if uri == '971040238':
+def single_parsed_org_mock(uri: str, name=None) -> ParsedOrganization:
+    if uri == 'https://data.brreg.no/enhetsregisteret/api/enheter/971040238':
         return ParsedOrganization.from_organizations_catalog_json({
             "organizationId": "971040238",
             "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
             "name": "STATENS KARTVERK",
             "orgType": "ORGL",
-            "orgPath": "STAT/972417858/971040238",
+            "orgPath": "/STAT/972417858/971040238",
             "subOrganizationOf": "972417858",
             "issued": "1995-03-12",
             "municipalityNumber": "3007",
@@ -934,7 +938,7 @@ def single_parsed_org_mock(uri: str) -> ParsedOrganization:
         }
         )
     else:
-        return None
+        return ParsedOrganization(name=name, uri=uri, orgPath=f"/ANNET/{name}")
 
 
 def mocked_access_rights(uri: str) -> str:
@@ -948,15 +952,15 @@ def mocked_access_rights(uri: str) -> str:
         return None
 
 
-def mocked_org_paths(uri: str):
+def mocked_org_paths(uri: str, name: str):
     if uri == '<https://data.brreg.no/enhetsregisteret/api/enheter/974760673>':
-        return 'STAT/912660680/974760673'
+        return '/STAT/912660680/974760673'
     elif uri == '<https://data.brreg.no/enhetsregisteret/api/enheter/991825827>':
-        return 'STAT/972417858/991825827'
+        return '/STAT/972417858/991825827'
     elif uri == '<https://data.brreg.no/enhetsregisteret/api/enheter/917422575>':
-        return 'STAT/912660680/917422575'
+        return '/STAT/912660680/917422575'
     else:
-        return None
+        return f'/ANNET{name}'
 
 
 def mocked_los_paths(uri: str) -> str:
@@ -1158,3 +1162,18 @@ def mock_los_path_reference_response():
             "tema": False
         }
     ]
+
+
+brreg_org: ParsedOrganization = ParsedOrganization.from_organizations_catalog_json({
+    "organizationId": "971040238",
+    "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
+    "name": "STATENS KARTVERK",
+    "orgType": "ORGL",
+    "orgPath": "/STAT/972417858/971040238",
+    "subOrganizationOf": "972417858",
+    "issued": "1995-03-12",
+    "municipalityNumber": "3007",
+    "industryCode": "71.123",
+    "sectorCode": "6100"
+}
+)
