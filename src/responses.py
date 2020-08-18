@@ -71,8 +71,8 @@ class DataSetResponse(Response):
         self.nationalComponent = single_aggregations[ContentKeys.NATIONAL_COMPONENT]
         self.withSubject = single_aggregations[ContentKeys.WITH_SUBJECT]
         self.themesAndTopicsCount = themes
-        self.formats = dist_formats
-        self.accessRights = access_rights
+        self.formats = dist_formats or empty_response()
+        self.accessRights = access_rights or empty_response(RESTRICTED=0, NON_PUBLIC=0, PUBLIC=0)
 
     def json(self):
         serialized = self.__dict__
@@ -111,3 +111,10 @@ class TimeSeriesResponse:
 
     def json(self) -> List[dict]:
         return self.time_series
+
+
+def empty_response(**kwargs) -> dict:
+    empty_dict = dict()
+    for key, value in kwargs.items():
+        empty_dict[key] = value
+    return empty_dict

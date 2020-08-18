@@ -21,7 +21,7 @@ def build_datasets_catalog_query(org_uris: List[str], theme: List[str]) -> str:
         group_by_var=group_by
     ).build()
 
-     return encode_for_sparql(query)
+    return encode_for_sparql(query)
 
 
 def catalog_query_where_clause(org_uris: List[str], theme: List[str]):
@@ -60,7 +60,7 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str]):
     return SparqlWhere(graphs=graph_patterns, nested_clause=nested_builder)
 
 
-def build_datasets_stats_query(orgpath, theme) -> str:
+def build_datasets_stats_query(org_uris: List[str], theme) -> str:
     return "PREFIX%20dcat:%20%3Chttp://www.w3.org/ns/dcat%23%3E%20PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E" \
            "%20PREFIX%20xsd:%20%3Chttp://www.w3.org/2001/XMLSchema%23%3E%20SELECT%20%28COUNT%28?d1%29%20AS%20" \
            "?withSubject%29%20%28COUNT%28?d2%29%20AS%20?opendata%29%20%28COUNT%28?d3%29%20AS%20?total%29%20%28COUNT" \
@@ -81,24 +81,47 @@ def build_datasets_stats_query(orgpath, theme) -> str:
            "%28?provenance%29%29,%20%22nasjonal%22%29%20}%20} "
 
 
-def build_datasets_access_rights_query(orgpath, theme) -> str:
+def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
     code_var = ContentKeys.ACCESS_RIGHTS_CODE
     prefixes = [DCT]
     select = SparqlSelect(variable_names=[code_var], count_variables=[SparqlCount(variable_name=code_var)])
+    where_filters = SparqlFilter.collect_filters(organization=org_uris)
+    var_dataset = "dataset"
+    var_publisher = "publisher"
+    var_organization = "organization"
+    where_graphs = [
+        SparqlGraphTerm.build_graph_pattern(
+            subject=SparqlGraphTerm(var=var_dataset),
+            predicate=SparqlGraphTerm(namespace_property=DCT.accessRights),
+            obj=SparqlGraphTerm(var=code_var),
+            close_pattern_with="."
+        ),
+    ]
+    where_functions = None
+    if where_filters:
+        where_graphs.append(
+            SparqlGraphTerm.build_graph_pattern(
+                SparqlGraphTerm(var=var_dataset),
+                SparqlGraphTerm(namespace_property=DCT.publisher),
+                SparqlGraphTerm(var=var_publisher),
+                close_pattern_with="."
+            )
+        )
+        where_functions = [
+            SparqlFunction(fun=SparqlFunctionString.STR, variable=var_publisher, as_name=var_organization,
+                           parent=SparqlFunction(SparqlFunctionString.BIND))
+        ]
+
     query = SparqlBuilder(
         prefix=prefixes,
         select=select,
-        where=SparqlWhere(graphs=[
-            SparqlGraphTerm.build_graph_pattern(
-                subject=SparqlGraphTerm(var="dataset"),
-                predicate=SparqlGraphTerm(namespace_property=DCT.accessRights),
-                obj=SparqlGraphTerm(var=code_var),
-                close_pattern_with="."
-
-            )
-        ]),
+        where=SparqlWhere(graphs=where_graphs,
+                          functions=where_functions,
+                          filters=where_filters
+                          ),
         group_by_var=code_var
     ).build()
+    breakpoint()
     return encode_for_sparql(query)
 
 

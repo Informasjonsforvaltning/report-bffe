@@ -100,6 +100,8 @@ async def fetch_datasets_catalog(org_uris: List[str] = None, theme: List[str] = 
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
+            if response.status_code == 204:
+                return {}
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
@@ -114,6 +116,8 @@ async def get_datasets_statistics(orgpath, theme):
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
+            if response.status_code == 204:
+                return {}
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
@@ -128,7 +132,8 @@ async def get_datasets_access_rights(orgpath, theme):
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
-            return response.json()
+            if response.status_code == 200:
+                return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="datasets access_rights query",
@@ -142,7 +147,8 @@ async def get_datasets_themes_and_topics(orgpath, theme):
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
-            return response.json()
+            if response.status_code == 200:
+                return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="datasets formats query",
@@ -156,7 +162,8 @@ async def get_datasets_formats(orgpath, theme):
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
-            return response.json()
+            if response.status_code == 200:
+                return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="datasets formats query",
@@ -170,7 +177,8 @@ async def fetch_dataset_time_series():
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
             response.raise_for_status()
-            return response.json()
+            if response.status_code == 200:
+                return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="datasets timeseries query",

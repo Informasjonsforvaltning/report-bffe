@@ -8,6 +8,8 @@ from src.sparql_utils import ContentKeys
 
 
 def parse_sparql_formats_count(sparql_result: dict) -> list:
+    if sparql_result is None:
+        return
     bindings = sparql_result["results"]["bindings"]
     format_list = [KeyCountObject.from_sparql(key=ContentKeys.FORMAT,
                                               sparql_result=x) for x in bindings]
@@ -15,6 +17,8 @@ def parse_sparql_formats_count(sparql_result: dict) -> list:
 
 
 def parse_sparql_single_results(sparql_results: dict) -> dict:
+    if sparql_results is None:
+        return
     bindings = sparql_results["results"]["bindings"]
     parsed_content = {}
     for result in bindings:
@@ -31,6 +35,8 @@ def parse_sparql_single_results(sparql_results: dict) -> dict:
 
 
 async def parse_sparql_catalogs_count(sparql_result: dict) -> list:
+    if sparql_result is None:
+        return
     bindings = sparql_result["results"]["bindings"]
     catalog_list = [await KeyCountObject.with_reference_key(reference_function=get_org_path,
                                                             key=ContentKeys.ORGANIZATION,
@@ -40,6 +46,8 @@ async def parse_sparql_catalogs_count(sparql_result: dict) -> list:
 
 
 async def parse_sparql_access_rights_count(sparql_result: dict) -> list:
+    if sparql_result is None:
+        return
     bindings = sparql_result["results"]["bindings"]
     access_rights_list = [await KeyCountObject.with_reference_key(reference_function=get_access_rights_code,
                                                                   key=ContentKeys.ACCESS_RIGHTS_CODE,
@@ -60,6 +68,8 @@ def remove_none_values(iterable) -> list:
 
 
 async def parse_sparql_themes_and_topics_count(sparql_results: dict) -> list:
+    if sparql_results is None:
+        return
     bindings = sparql_results["results"]["bindings"]
     themes_list = [await KeyCountObject.with_reference_list_key(reference_function=get_los_path,
                                                                 key=ContentKeys.THEME,
@@ -71,6 +81,8 @@ async def parse_sparql_themes_and_topics_count(sparql_results: dict) -> list:
 
 
 def parse_sparql_time_series(sparql_result: dict) -> list:
+    if sparql_result is None:
+        return
     bindings = sparql_result["results"]["bindings"]
     return [ParsedDataPoint.from_result_entry(x)
             for x in bindings]
