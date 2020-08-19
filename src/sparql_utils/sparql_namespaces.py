@@ -71,6 +71,7 @@ class DCAT(NamespaceProperty):
     prefix = "dcat:"
     theme = f"{prefix}theme"
     dataset = f"{prefix}Dataset"
+    distribution = f"{prefix}distribution"
 
     @staticmethod
     def get_prefix_definition() -> str:

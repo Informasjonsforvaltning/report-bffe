@@ -19,7 +19,6 @@ def build_datasets_catalog_query(org_uris: List[str], theme: List[str]) -> str:
         where=where_clause,
         group_by_str=f"?{ContentKeys.ORGANIZATION_URI} ?{ContentKeys.ORG_NAME}"
     ).build()
-    breakpoint()
     return encode_for_sparql(query)
 
 
@@ -131,25 +130,57 @@ def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
     return encode_for_sparql(query)
 
 
-def build_datasets_formats_query(orgpath, theme) -> str:
+def build_datasets_formats_query(org_uris: List[str], theme) -> str:
     prefixes = [DCT]
+    if org_uris:
+        prefixes.append(DCAT)
     select = SparqlSelect(
         variable_names=[ContentKeys.FORMAT],
         count_variables=[(SparqlCount(variable_name=ContentKeys.FORMAT))]
     )
+    var_distribution = "distribution"
+    var_publisher = "publisher"
+    var_org = "org"
     fun_bind = SparqlFunction(fun=SparqlFunctionString.BIND)
     fun_lcase_leaf = SparqlFunction(fun=SparqlFunctionString.LCASE, variable="distributionFormat", as_name="format",
                                     parent=fun_bind)
-    where = SparqlWhere(graphs=[
+    fun_org_str_leaf = SparqlFunction(fun=SparqlFunctionString.STR, variable=var_publisher, as_name=var_org,
+                                      parent=fun_bind)
+    where_graphs = []
+    if org_uris:
+        where_graphs.append(
+            SparqlGraphTerm.build_graph_pattern(
+                SparqlGraphTerm(var="dataset"),
+                SparqlGraphTerm(namespace_property=DCAT.distribution),
+                SparqlGraphTerm(var=var_distribution),
+                close_pattern_with="."
+            )
+        )
+        where_graphs.append(
+            SparqlGraphTerm.build_graph_pattern(
+                SparqlGraphTerm(var="dataset"),
+                SparqlGraphTerm(namespace_property=DCT.publisher),
+                SparqlGraphTerm(var=var_publisher),
+                close_pattern_with="."
+            )
+        )
+
+    where_graphs.append(
         SparqlGraphTerm.build_graph_pattern(
-            subject=SparqlGraphTerm(var="distribution"),
+            subject=SparqlGraphTerm(var=var_distribution),
             predicate=SparqlGraphTerm(namespace_property=DCT.format),
             obj=SparqlGraphTerm(var="distributionFormat"),
             close_pattern_with="."
         )
-    ], functions=[fun_lcase_leaf])
+    )
 
+    where_functions = [fun_lcase_leaf]
+    if org_uris:
+        where_functions.append(fun_org_str_leaf)
+    where = SparqlWhere(graphs=where_graphs, functions=where_functions,
+                        filters=SparqlFilter.collect_filters(org=org_uris))
     query = SparqlBuilder(prefix=prefixes, select=select, where=where, group_by_var="format").build()
+    breakpoint()
     return encode_for_sparql(query)
 
 

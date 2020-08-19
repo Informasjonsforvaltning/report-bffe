@@ -77,7 +77,7 @@ class SparqlFunction:
 class SparqlGraphTerm:
     def __init__(self, var: str = None, namespace_property: str = None):
         if var:
-            self.value = f"?{var}"
+            self.value = SparqlBuilder.make_var(var)
         if namespace_property:
             self.value = namespace_property
 

@@ -26,16 +26,13 @@ class TestDatasetsReport:
 
     @pytest.mark.contract
     def test_report_filter_on_orgPath(self, wait_for_ready):
-        result = get(url=f"{dataset_report_url}?orgPath=/STAT/977161630")
+        # /ANNET/RAMSUND OG ROGNAN REVISJON
+        result = get(url=f"{dataset_report_url}?orgPath=/STAT/972417858")
         assert result.status_code == 200
         content = result.json()
-        assert content["totalObjects"] == 38
-        assert content["newLastWeek"] == 0
-        assert content["opendata"] == 38
-        assert len(content["catalogs"]) == 4
-        assert len(content["accessRights"]) == 1
-        assert content["accessRights "][0]["key"] == "PUBLIC"
-        assert content["accessRights"][0]["value"] == 38
+        assert content["totalObjects"] == 113
+        for org in content["catalogs"]:
+            assert "/STAT/972417858" in org["key"]
 
     @pytest.mark.contract
     def test_report_filter_los_orgPath(self, wait_for_ready):
