@@ -2,7 +2,7 @@ import pytest
 
 from src.sparql_utils.sparql_parsers import parse_sparql_formats_count, parse_sparql_catalogs_count, \
     parse_sparql_time_series, parse_sparql_themes_and_topics_count, \
-    parse_sparql_single_results, ContentKeys, parse_sparql_access_rights_count, ParsedDataPoint
+    ContentKeys, parse_sparql_access_rights_count, ParsedDataPoint
 from test.unit_mock_data import datasets_format_count, datasets_simple_aggs_response, datasets_catalogs, \
     datasets_access_rights, mocked_org_paths, mocked_access_rights, dataset_time_series, datasets_themes_and_topics, \
     mocked_los_paths
@@ -16,16 +16,6 @@ def test_parse_formats_json_sparql_for_datasets(event_loop):
     assert [x["count"] for x in result if x["key"] == "CSV"][0] == 20
     assert [x["count"] for x in result if x["key"] == "KML"][0] == 48
     assert [x["count"] for x in result if x["key"] == "PNG"][0] == 3
-
-
-@pytest.mark.unit
-def test_parse_sparql_single_result():
-    result = parse_sparql_single_results(sparql_results=datasets_simple_aggs_response)
-    assert result[ContentKeys.TOTAL] == "508"
-    assert result[ContentKeys.NATIONAL_COMPONENT] == "50"
-    assert result[ContentKeys.NEW_LAST_WEEK] == "8"
-    assert result[ContentKeys.WITH_SUBJECT] == "76"
-
 
 @pytest.mark.unit
 def test_parse_sparql_catalogs_count(event_loop, mock_get_org_path):

@@ -1,15 +1,23 @@
 from typing import List
 
-from src.sparql_utils.sparql_namespaces import NamespaceProperty, SparqlFunctionString, NoLeafError
+from src.sparql_utils.sparql_namespaces import NamespaceProperty, SparqlFunctionString
 
 
 class SparqlCount:
-    def __init__(self, variable_name: str, as_name: str = None):
+    def __init__(self, variable_name: str, as_name: str = None, inner_function: SparqlFunctionString = None):
+        self.inner_function = inner_function
         self.variable = variable_name
         self.as_variable = as_name or "count"
 
     def __str__(self):
-        return f"({SparqlFunction.build_string(SparqlFunctionString.COUNT, SparqlBuilder.make_var(self.variable), self.as_variable)})"
+        if self.inner_function:
+            count_function = SparqlFunction(fun=SparqlFunctionString.COUNT, as_name=self.as_variable)
+            count_string = count_function.str_with_inner_function(
+                f"{self.inner_function}({SparqlBuilder.make_var(self.variable)}))"
+            )
+            return f"({count_string})"
+        else:
+            return f"({SparqlFunction.build_string(fun=SparqlFunctionString.COUNT, variable=self.variable, as_name=self.as_variable)}) "
 
 
 class SparqlFunction:

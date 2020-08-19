@@ -58,21 +58,25 @@ class ConceptResponse(Response):
 class DataSetResponse(Response):
     def __init__(self,
                  dist_formats: List[dict],
-                 single_aggregations: dict,
+                 total: int,
+                 new_last_week: int,
+                 opendata: int,
+                 national_component: int,
+                 with_subject: int,
                  catalogs: List[dict],
                  themes: List[dict],
                  access_rights: List[dict]):
-        super().__init__(totalObjects=single_aggregations[ContentKeys.TOTAL],
-                         newLastWeek=single_aggregations[ContentKeys.NEW_LAST_WEEK],
+        super().__init__(totalObjects=total,
+                         newLastWeek=new_last_week,
                          catalogs=catalogs,
                          )
 
-        self.opendata = single_aggregations[ContentKeys.OPEN_DATA]
-        self.nationalComponent = single_aggregations[ContentKeys.NATIONAL_COMPONENT]
-        self.withSubject = single_aggregations[ContentKeys.WITH_SUBJECT]
+        self.opendata = opendata
+        self.nationalComponent = national_component
+        self.withSubject = with_subject
         self.themesAndTopicsCount = themes
-        self.formats = dist_formats or empty_response()
-        self.accessRights = access_rights or empty_response(RESTRICTED=0, NON_PUBLIC=0, PUBLIC=0)
+        self.formats = dist_formats or []
+        self.accessRights = access_rights or []
 
     def json(self):
         serialized = self.__dict__
@@ -111,10 +115,3 @@ class TimeSeriesResponse:
 
     def json(self) -> List[dict]:
         return self.time_series
-
-
-def empty_response(**kwargs) -> dict:
-    empty_dict = dict()
-    for key, value in kwargs.items():
-        empty_dict[key] = value
-    return empty_dict

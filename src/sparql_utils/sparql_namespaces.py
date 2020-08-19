@@ -29,6 +29,10 @@ class DCT(NamespaceProperty):
     publisher = f"{prefix}publisher"
     accessRights = f"{prefix}accessRights"
     prefix_definition = "PREFIX dct: <http://purl.org/dc/terms/>"
+    provenance = f"{prefix}provenance"
+    license = f"{prefix}license"
+    source = f"{prefix}source"
+
 
     @staticmethod
     def get_prefix_definition() -> str:
@@ -78,7 +82,15 @@ class DCAT(NamespaceProperty):
         return "PREFIX dcat: <http://www.w3.org/ns/dcat%23>"
 
 
+class XSD(NamespaceProperty):
+
+    @staticmethod
+    def get_prefix_definition() -> str:
+        return "PREFIX xsd: <http://www.w3.org/2001/XMLSchema%23>"
+
+
 class SparqlFunctionString:
+    DISTINCT = "DISTINCT"
     YEAR = "YEAR"
     MONTH = "MONTH"
     STR = "STR"

@@ -21,17 +21,17 @@ def test_select_all():
 
 @pytest.mark.unit
 def test_build_count():
-    expected_default = "(COUNT(?format) AS ?count)"
+    expected_default = "(COUNT(?format) AS ?count) "
     default_result = SparqlCount("format")
     assert default_result.__str__() == expected_default
-    expected = "(COUNT(?id) AS ?org_count)"
+    expected = "(COUNT(?id) AS ?org_count) "
     result = SparqlCount("id", "org_count")
     assert result.__str__() == expected
 
 
 @pytest.mark.unit
 def test_select_with_count():
-    expected = "SELECT (COUNT(?format) AS ?format_count)"
+    expected = "SELECT (COUNT(?format) AS ?format_count) "
     count = SparqlCount("format", "format_count")
     result = SparqlSelect(count_variables=[count]).__str__()
     assert result == expected
@@ -39,7 +39,7 @@ def test_select_with_count():
 
 @pytest.mark.unit
 def test_select_variables_and_count():
-    expected = "SELECT ?name (COUNT(?d1) AS ?withSubject) (COUNT(?d2) AS ?openData)"
+    expected = "SELECT ?name (COUNT(?d1) AS ?withSubject)  (COUNT(?d2) AS ?openData) "
     result = SparqlSelect(
         variable_names=["name"],
         count_variables=[SparqlCount("d1", "withSubject"), SparqlCount("d2", "openData")]

@@ -1,7 +1,7 @@
 from typing import List
 
 from src.sparql_utils import ContentKeys
-from src.sparql_utils.sparql_namespaces import DCT, FOAF, OWL, SparqlFunctionString, RDF, DCAT
+from src.sparql_utils.sparql_namespaces import DCT, FOAF, OWL, SparqlFunctionString, RDF, DCAT, XSD
 from src.sparql_utils.sparql_query_builder import SparqlSelect, SparqlCount, SparqlWhere, SparqlGraphTerm, \
     SparqlFunction, SparqlBuilder, SparqlOptional, encode_for_sparql, SparqlFilter
 
@@ -229,18 +229,12 @@ def build_datasets_themes_query(org_uris: List[str], theme) -> str:
 def build_dataset_time_series_query():
     base_var = "d"
     issued_var = "issued"
-    prefixes = [DCAT, DCT]
+    prefixes = [DCT]
     select = SparqlSelect(
         variable_names=[ContentKeys.TIME_SERIES_MONTH, ContentKeys.TIME_SERIES_YEAR],
         count_variables=[SparqlCount(variable_name=base_var, as_name=ContentKeys.COUNT)]
     )
     where = SparqlWhere(graphs=[
-        SparqlGraphTerm.build_graph_pattern(
-            subject=SparqlGraphTerm(var=base_var),
-            predicate=SparqlGraphTerm(namespace_property=RDF.type),
-            obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
-            close_pattern_with="."
-        ),
         SparqlGraphTerm.build_graph_pattern(
             subject=SparqlGraphTerm(var=base_var),
             predicate=SparqlGraphTerm(namespace_property=DCT.issued),
@@ -259,3 +253,201 @@ def build_dataset_time_series_query():
                           group_by_str=group_by_str,
                           order_by_str=order_by).build()
     return encode_for_sparql(query)
+
+
+def build_dataset_simple_statistic_query(field: ContentKeys, org_uris: [List[str]], theme):
+    return simple_stat_functions[field](org_uris=org_uris, theme=theme)
+
+
+def build_datasets_total_query(org_uris: [List[str]], theme):
+    prefix = [DCAT, DCT]
+    var_dataset = "dataaset"
+    where_graphs = [
+        SparqlGraphTerm.build_graph_pattern(
+            subject=SparqlGraphTerm(var=var_dataset),
+            predicate=SparqlGraphTerm(namespace_property=RDF.type),
+            obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
+            close_pattern_with="."
+        )
+    ]
+    select = SparqlSelect(count_variables=[SparqlCount(variable_name=var_dataset, as_name=ContentKeys.TOTAL)])
+    where = SparqlWhere(graphs=where_graphs)
+    query = SparqlBuilder(prefix=prefix, select=select, where=where).build()
+    return encode_for_sparql(query)
+
+
+def build_datasets_with_subject_query(org_uris: List[str], theme):
+    prefix = [DCAT, DCT]
+    var_dataset = "dataset"
+    where_graphs = [
+        SparqlGraphTerm.build_graph_pattern(
+            subject=SparqlGraphTerm(var=var_dataset),
+            predicate=SparqlGraphTerm(namespace_property=RDF.type),
+            obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
+            close_pattern_with="."
+        )
+    ]
+    filters = [SparqlFilter(filter_string="EXISTS {?dataset dct:subject ?subject .}")]
+    select = SparqlSelect(count_variables=[SparqlCount(variable_name=var_dataset, as_name=ContentKeys.WITH_SUBJECT)])
+    where = SparqlWhere(graphs=where_graphs, filters=filters)
+    query = SparqlBuilder(prefix=prefix, select=select, where=where).build()
+    return encode_for_sparql(query)
+
+
+def build_dataset_open_data_query(org_uris: List[str], theme):
+    # TODO: get reference data from
+    # https://fellesdatakatalog.digdir.no/reference-data/codes/openlicenses
+    # get public accessright from referenced data store
+
+    open_licenses = ['http://data.norge.no/nlod/',
+                     'http://data.norge.no/nlod/no/1.0',
+                     'http://data.norge.no/nlod/no/2.0',
+                     'http://creativecommons.org/licenses/by/4.0/',
+                     'http://creativecommons.org/licenses/by/4.0/deed.no',
+                     'http://creativecommons.org/publicdomain/zero/1.0/']
+
+    public_access_right = '<http://publications.europa.eu/resource/authority/access-right/PUBLIC>'
+
+    d_var = "d"
+    access_right_var = "accessRights"
+    dist_var = "distribution"
+    dct_license_var = "l"
+    license_source_var = "src"
+    all_licenses_var = "license"
+    prefix = [DCAT, DCT]
+    select = SparqlSelect(
+        count_variables=[SparqlCount(variable_name=d_var, as_name=ContentKeys.OPEN_DATA,
+                                     inner_function=SparqlFunctionString.DISTINCT)]
+    )
+    where_graps = [
+        build_var_a_dataset_graph(d_var),
+        SparqlGraphTerm.build_graph_pattern(
+            SparqlGraphTerm(var=d_var),
+            SparqlGraphTerm(namespace_property=DCT.accessRights),
+            SparqlGraphTerm(var=access_right_var),
+            close_pattern_with="."
+        ),
+        SparqlGraphTerm.build_graph_pattern(
+            SparqlGraphTerm(var=d_var),
+            SparqlGraphTerm(namespace_property=DCAT.distribution),
+            SparqlGraphTerm(var=dist_var),
+            "."
+        ),
+        SparqlGraphTerm.build_graph_pattern(
+            SparqlGraphTerm(var=dist_var),
+            SparqlGraphTerm(namespace_property=DCT.license),
+            SparqlGraphTerm(var=dct_license_var),
+            "."
+        )
+    ]
+
+    optional = SparqlOptional(
+        graphs=[
+            SparqlGraphTerm.build_graph_pattern(
+                SparqlGraphTerm(var=dct_license_var),
+                SparqlGraphTerm(namespace_property=DCT.source),
+                SparqlGraphTerm(var=license_source_var),
+                "."
+            )
+
+        ]
+    )
+    combine_licenses_function = SparqlFunction(
+        fun=SparqlFunctionString.BIND).str_with_inner_function(f"COALESCE(?{license_source_var}, STR(?{dct_license_var})) AS ?{all_licenses_var}")
+
+    filters = SparqlFilter.collect_filters(license=open_licenses)
+    filters.append(
+        SparqlFilter(filter_string=f"?{access_right_var}={public_access_right}")
+    )
+
+    where = SparqlWhere(
+        graphs=where_graps,
+        functions=[combine_licenses_function],
+        optional=optional,
+        filters=filters
+    )
+
+    query = SparqlBuilder(
+        prefix=prefix,
+        select=select,
+        where=where
+    ).build()
+    return encode_for_sparql(query)
+
+
+def build_datasets_new_last_week_query(org_uris: List[str], theme) -> str:
+    prefix = [DCT, XSD]
+    d_var = "d"
+    issued_var = "issued"
+    select = SparqlSelect(count_variables=[SparqlCount(variable_name=d_var, as_name=ContentKeys.NEW_LAST_WEEK)])
+    where_graphs = [
+        SparqlGraphTerm.build_graph_pattern(
+            SparqlGraphTerm(var=d_var),
+            SparqlGraphTerm(namespace_property=DCT.issued),
+            SparqlGraphTerm(var=issued_var)
+        )
+    ]
+    filters = [SparqlFilter(filter_string='?issued >= (NOW() - "P7D"^^xsd:duration ) ')]
+    where = SparqlWhere(
+        graphs=where_graphs,
+        filters=filters
+    )
+
+    query = SparqlBuilder(
+        prefix=prefix,
+        select=select,
+        where=where
+    ).build()
+    return encode_for_sparql(query)
+
+
+def build_datasets_national_component_query(org_uris: List[str], theme) -> str:
+    d_var = "d"
+    provenance_var = "provenance"
+    national_provenance_uri = "<http://data.brreg.no/datakatalog/provinens/nasjonal>"
+    prefix = [DCT, DCAT]
+    select = SparqlSelect(count_variables=[SparqlCount(variable_name=d_var, as_name=ContentKeys.NATIONAL_COMPONENT)])
+    a_dataset_pattern = build_var_a_dataset_graph(d_var)
+    where_graphs = [
+        a_dataset_pattern,
+        SparqlGraphTerm.build_graph_pattern(
+            SparqlGraphTerm(var=d_var),
+            SparqlGraphTerm(namespace_property=DCT.provenance),
+            SparqlGraphTerm(var=provenance_var)
+        )
+    ]
+
+    filters = [
+        SparqlFilter(filter_string=f"?{provenance_var}={national_provenance_uri}")
+    ]
+
+    where = SparqlWhere(
+        graphs=where_graphs,
+        filters=filters
+    )
+
+    query = SparqlBuilder(
+        prefix=prefix,
+        select=select,
+        where=where
+    ).build()
+    return encode_for_sparql(query)
+
+
+simple_stat_functions = {
+    ContentKeys.TOTAL: build_datasets_total_query,
+    ContentKeys.OPEN_DATA: build_dataset_open_data_query,
+    ContentKeys.NATIONAL_COMPONENT: build_datasets_national_component_query,
+    ContentKeys.WITH_SUBJECT: build_datasets_with_subject_query,
+    ContentKeys.NEW_LAST_WEEK: build_datasets_new_last_week_query
+}
+
+
+def build_var_a_dataset_graph(var: str):
+    return SparqlGraphTerm.build_graph_pattern(
+            subject=SparqlGraphTerm(var=var),
+            predicate=SparqlGraphTerm(namespace_property=RDF.type),
+            obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
+            close_pattern_with="."
+        )
+

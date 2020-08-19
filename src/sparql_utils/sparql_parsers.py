@@ -16,22 +16,11 @@ def parse_sparql_formats_count(sparql_result: dict) -> list:
     return KeyCountObject.reduce_to_dicts(format_list)
 
 
-def parse_sparql_single_results(sparql_results: dict) -> dict:
-    if sparql_results is None:
+def parse_sparql_single_statistic(key: ContentKeys, sparql_result: dict) -> list:
+    if sparql_result is None:
         return
-    bindings = sparql_results["results"]["bindings"]
-    parsed_content = {}
-    for result in bindings:
-        try:
-            parsed_content[ContentKeys.WITH_SUBJECT] = result[ContentKeys.WITH_SUBJECT]["value"]
-            parsed_content[ContentKeys.TOTAL] = result[ContentKeys.TOTAL]["value"]
-            parsed_content[ContentKeys.NEW_LAST_WEEK] = result[ContentKeys.NEW_LAST_WEEK]["value"]
-            parsed_content[ContentKeys.NATIONAL_COMPONENT] = result[ContentKeys.NATIONAL_COMPONENT]["value"]
-            parsed_content[ContentKeys.OPEN_DATA] = result[ContentKeys.OPEN_DATA]["value"]
-        except KeyError:
-            continue
-
-    return parsed_content
+    bindings = sparql_result["results"]["bindings"]
+    return bindings[0][key][ContentKeys.VALUE]
 
 
 async def parse_sparql_catalogs_count(sparql_result: dict) -> list:

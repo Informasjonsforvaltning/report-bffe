@@ -33,7 +33,7 @@ def test_get_datasets(event_loop,
 
 @pytest.fixture
 def get_datasets_statistics_mock(mocker):
-    mocker.patch('src.dataset_aggregation.get_datasets_statistics', return_value=datasets_simple_aggs_response)
+    mocker.patch('src.dataset_aggregation.query_simple_statistic', return_value=datasets_simple_aggs_response)
 
 
 @pytest.fixture
