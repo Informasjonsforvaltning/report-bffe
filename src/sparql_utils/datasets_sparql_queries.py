@@ -66,27 +66,6 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str]):
     return SparqlWhere(graphs=graph_patterns, nested_clause=nested_builder)
 
 
-def build_datasets_stats_query(org_uris: List[str], theme) -> str:
-    return "PREFIX%20dcat:%20%3Chttp://www.w3.org/ns/dcat%23%3E%20PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E" \
-           "%20PREFIX%20xsd:%20%3Chttp://www.w3.org/2001/XMLSchema%23%3E%20SELECT%20%28COUNT%28?d1%29%20AS%20" \
-           "?withSubject%29%20%28COUNT%28?d2%29%20AS%20?opendata%29%20%28COUNT%28?d3%29%20AS%20?total%29%20%28COUNT" \
-           "%28?d4%29%20AS%20?new_last_week%29%20%28COUNT%28?d5%29%20AS%20?nationalComponent%29%20WHERE%20{%20{" \
-           "%20?d1%20a%20dcat:Dataset%20.%20FILTER%20EXISTS{%20?d1%20dct:subject%20?s%20.%20}%20}%20UNION%20{%20{" \
-           "%20SELECT%20?d2%20%28GROUP_CONCAT%28DISTINCT%20?license%29%20AS%20?uris%29%20WHERE%20{" \
-           "%20?d2%20a%20dcat:Dataset%20.%20?d2%20dct:accessRights%20?accessRights%20.%20?d2%20dcat:distribution%20" \
-           "?distribution%20.%20?distribution%20dct:license%20?l%20.%20OPTIONAL%20{" \
-           "%20?l%20dct:source%20?src%20.%20}%20BIND%28REPLACE%28STR%28?accessRights%29,%20%27^.%2A\\\\/%27," \
-           "%20%27%27%29%20AS%20?publicCode%29%20BIND%28COALESCE%28?src," \
-           "%20STR%28?l%29%29%20AS%20?license%29%20FILTER%20EXISTS{" \
-           "%20?d2%20dct:accessRights%20?a%20.%20}%20FILTER%28?publicCode%20=%20%27PUBLIC%27%29%20FILTER%28STRLEN%28" \
-           "?license%29%20%3E%200%29%20}%20GROUP%20BY%20?d2%20}%20}%20UNION%20{" \
-           "%20?d3%20a%20dcat:Dataset%20.%20}%20UNION%20{" \
-           "%20?d4%20a%20dcat:Dataset%20.%20?d4%20dct:issued%20?issued%20.%20FILTER%28?issued%20%3E=%20%28NOW%28%29" \
-           "%20-%20%22P7D%22^^xsd:duration%29%29%20}%20UNION%20{" \
-           "%20?d5%20a%20dcat:Dataset%20.%20?d5%20dct:provenance%20?provenance%20.%20FILTER%20CONTAINS%28LCASE%28STR" \
-           "%28?provenance%29%29,%20%22nasjonal%22%29%20}%20} "
-
-
 def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
     code_var = ContentKeys.ACCESS_RIGHTS_CODE
     prefixes = [DCT]
@@ -261,35 +240,51 @@ def build_dataset_simple_statistic_query(field: ContentKeys, org_uris: [List[str
 
 def build_datasets_total_query(org_uris: [List[str]], theme):
     prefix = [DCAT, DCT]
-    var_dataset = "dataaset"
+    dataset_var = "dataaset"
+    publisher_var = "publisher"
+    publisher_str_var = "org"
     where_graphs = [
         SparqlGraphTerm.build_graph_pattern(
-            subject=SparqlGraphTerm(var=var_dataset),
+            subject=SparqlGraphTerm(var=dataset_var),
             predicate=SparqlGraphTerm(namespace_property=RDF.type),
             obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
             close_pattern_with="."
         )
     ]
-    select = SparqlSelect(count_variables=[SparqlCount(variable_name=var_dataset, as_name=ContentKeys.TOTAL)])
-    where = SparqlWhere(graphs=where_graphs)
+    functions = []
+    if org_uris:
+        where_graphs.append(build_dataset_publisher_graph(dataset_var=dataset_var, publisher_var=publisher_var))
+        functions.append(build_publisher_str_function(publisher_var=publisher_var, publisher_str_var=publisher_str_var))
+
+    select = SparqlSelect(count_variables=[SparqlCount(variable_name=dataset_var, as_name=ContentKeys.TOTAL)])
+    where = SparqlWhere(graphs=where_graphs, functions=functions, filters=SparqlFilter.collect_filters(org=org_uris))
     query = SparqlBuilder(prefix=prefix, select=select, where=where).build()
     return encode_for_sparql(query)
 
 
 def build_datasets_with_subject_query(org_uris: List[str], theme):
     prefix = [DCAT, DCT]
-    var_dataset = "dataset"
+    dataset_var = "dataset"
+    publisher_var = "publisher"
+    publisher_str_var = "org"
     where_graphs = [
         SparqlGraphTerm.build_graph_pattern(
-            subject=SparqlGraphTerm(var=var_dataset),
+            subject=SparqlGraphTerm(var=dataset_var),
             predicate=SparqlGraphTerm(namespace_property=RDF.type),
             obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
             close_pattern_with="."
         )
     ]
     filters = [SparqlFilter(filter_string="EXISTS {?dataset dct:subject ?subject .}")]
-    select = SparqlSelect(count_variables=[SparqlCount(variable_name=var_dataset, as_name=ContentKeys.WITH_SUBJECT)])
-    where = SparqlWhere(graphs=where_graphs, filters=filters)
+    functions = []
+    if org_uris:
+        where_graphs.append(build_dataset_publisher_graph(dataset_var=dataset_var, publisher_var=publisher_var))
+        functions.append(build_publisher_str_function(publisher_var=publisher_var, publisher_str_var=publisher_str_var))
+        org_filter = SparqlFilter(filter_on_var=publisher_str_var, filter_on_values=org_uris)
+        filters.append(org_filter)
+
+    select = SparqlSelect(count_variables=[SparqlCount(variable_name=dataset_var, as_name=ContentKeys.WITH_SUBJECT)])
+    where = SparqlWhere(graphs=where_graphs, functions=functions, filters=filters)
     query = SparqlBuilder(prefix=prefix, select=select, where=where).build()
     return encode_for_sparql(query)
 
@@ -314,12 +309,14 @@ def build_dataset_open_data_query(org_uris: List[str], theme):
     dct_license_var = "l"
     license_source_var = "src"
     all_licenses_var = "license"
+    publisher_var = "publisher"
+    publisher_str_var= "org"
     prefix = [DCAT, DCT]
     select = SparqlSelect(
         count_variables=[SparqlCount(variable_name=d_var, as_name=ContentKeys.OPEN_DATA,
                                      inner_function=SparqlFunctionString.DISTINCT)]
     )
-    where_graps = [
+    where_graphs = [
         build_var_a_dataset_graph(d_var),
         SparqlGraphTerm.build_graph_pattern(
             SparqlGraphTerm(var=d_var),
@@ -353,16 +350,23 @@ def build_dataset_open_data_query(org_uris: List[str], theme):
         ]
     )
     combine_licenses_function = SparqlFunction(
-        fun=SparqlFunctionString.BIND).str_with_inner_function(f"COALESCE(?{license_source_var}, STR(?{dct_license_var})) AS ?{all_licenses_var}")
-
+        fun=SparqlFunctionString.BIND).str_with_inner_function(
+        f"COALESCE(?{license_source_var}, STR(?{dct_license_var})) AS ?{all_licenses_var}")
+    functions = [combine_licenses_function]
     filters = SparqlFilter.collect_filters(license=open_licenses)
     filters.append(
         SparqlFilter(filter_string=f"?{access_right_var}={public_access_right}")
     )
 
+    if org_uris:
+        where_graphs.append(build_dataset_publisher_graph(dataset_var=d_var, publisher_var=publisher_var))
+        functions.append(build_publisher_str_function(publisher_var=publisher_var, publisher_str_var=publisher_str_var))
+        org_filter = SparqlFilter(filter_on_var=publisher_str_var, filter_on_values=org_uris)
+        filters.append(org_filter)
+
     where = SparqlWhere(
-        graphs=where_graps,
-        functions=[combine_licenses_function],
+        graphs=where_graphs,
+        functions=functions,
         optional=optional,
         filters=filters
     )
@@ -445,9 +449,23 @@ simple_stat_functions = {
 
 def build_var_a_dataset_graph(var: str):
     return SparqlGraphTerm.build_graph_pattern(
-            subject=SparqlGraphTerm(var=var),
-            predicate=SparqlGraphTerm(namespace_property=RDF.type),
-            obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
-            close_pattern_with="."
-        )
+        subject=SparqlGraphTerm(var=var),
+        predicate=SparqlGraphTerm(namespace_property=RDF.type),
+        obj=SparqlGraphTerm(namespace_property=DCAT.dataset),
+        close_pattern_with="."
+    )
 
+
+def build_publisher_str_function(publisher_var: str, publisher_str_var: str):
+    fun_bind = SparqlFunction(fun=SparqlFunctionString.BIND)
+    return SparqlFunction(fun=SparqlFunctionString.STR, variable=publisher_var, as_name=publisher_str_var,
+                          parent=fun_bind)
+
+
+def build_dataset_publisher_graph(dataset_var: str, publisher_var):
+    return SparqlGraphTerm.build_graph_pattern(
+        SparqlGraphTerm(var=dataset_var),
+        SparqlGraphTerm(namespace_property=DCT.publisher),
+        SparqlGraphTerm(var=publisher_var),
+        close_pattern_with="."
+    )

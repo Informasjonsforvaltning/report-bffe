@@ -5,9 +5,8 @@ from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
 from src.sparql_utils import ContentKeys
-from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_stats_query, \
-    build_datasets_access_rights_query, build_datasets_formats_query, build_datasets_themes_query, \
-    build_dataset_time_series_query, build_datasets_total_query, build_datasets_with_subject_query, \
+from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_access_rights_query, \
+    build_datasets_formats_query, build_datasets_themes_query, build_dataset_time_series_query, \
     build_dataset_simple_statistic_query
 from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException
 
@@ -142,8 +141,13 @@ async def fetch_datasets_catalog(org_uris: List[str] = None, theme: List[str] = 
 
 
 async def query_simple_statistic(field: ContentKeys, org_uris: List[str] = None, theme=None):
-    query = build_dataset_simple_statistic_query(field, org_uris=org_uris,theme=theme)
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={query}'
+
+    query = build_dataset_simple_statistic_query(field, org_uris=org_uris, theme=theme)
+    if field == ContentKeys.NEW_LAST_WEEK:
+        base_url = f"{service_urls.get(ServiceKey.DATA_SETS)}/{meta_sparql_select_url}"
+    else:
+        base_url = f"{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}"
+    url = f'{base_url}?query={query}'
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
@@ -156,6 +160,7 @@ async def query_simple_statistic(field: ContentKeys, org_uris: List[str] = None,
                 execution_point="datasets total query",
                 url=url
             )
+
 
 async def get_datasets_access_rights(orgpath, theme):
     url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_access_rights_query(orgpath, theme)}'

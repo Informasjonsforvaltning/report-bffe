@@ -74,7 +74,7 @@ class DataSetResponse(Response):
         self.opendata = opendata
         self.nationalComponent = national_component
         self.withSubject = with_subject
-        self.themesAndTopicsCount = themes
+        self.themesAndTopicsCount = themes or []
         self.formats = dist_formats or []
         self.accessRights = access_rights or []
 
