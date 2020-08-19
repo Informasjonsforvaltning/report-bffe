@@ -180,24 +180,47 @@ def build_datasets_formats_query(org_uris: List[str], theme) -> str:
     where = SparqlWhere(graphs=where_graphs, functions=where_functions,
                         filters=SparqlFilter.collect_filters(org=org_uris))
     query = SparqlBuilder(prefix=prefixes, select=select, where=where, group_by_var="format").build()
-    breakpoint()
     return encode_for_sparql(query)
 
 
-def build_datasets_themes_query(orgpath, theme) -> str:
+def build_datasets_themes_query(org_uris: List[str], theme) -> str:
     prefixes = [DCAT]
+    if org_uris:
+        prefixes.append(DCT)
     select = SparqlSelect(
         variable_names=[ContentKeys.THEME],
         count_variables=[SparqlCount(variable_name=ContentKeys.THEME)]
     )
-    where = SparqlWhere(graphs=[
+    var_dataset = "dataset"
+    var_org = "org"
+    var_publisher = "publisher"
+    where_graphs = [
         SparqlGraphTerm.build_graph_pattern(
-            subject=SparqlGraphTerm(var="dataset"),
+            subject=SparqlGraphTerm(var=var_dataset),
             predicate=SparqlGraphTerm(namespace_property=DCAT.theme),
             obj=SparqlGraphTerm(var=ContentKeys.THEME),
             close_pattern_with="."
         )
-    ])
+    ]
+
+    if org_uris:
+        where_graphs.append(
+            SparqlGraphTerm.build_graph_pattern(
+                subject=SparqlGraphTerm(var=var_dataset),
+                predicate=SparqlGraphTerm(namespace_property=DCT.publisher),
+                obj=SparqlGraphTerm(var=var_publisher)
+            )
+        )
+
+    where_functions = None
+    if org_uris:
+        where_functions = [
+            SparqlFunction(fun=SparqlFunctionString.STR, variable=var_publisher, as_name=var_org,
+                           parent=SparqlFunction(fun=SparqlFunctionString.BIND))
+        ]
+    where = SparqlWhere(graphs=where_graphs,
+                        filters=SparqlFilter.collect_filters(org=org_uris),
+                        functions=where_functions)
 
     query = SparqlBuilder(prefix=prefixes, select=select, where=where, group_by_var=ContentKeys.THEME).build()
     return encode_for_sparql(query)
