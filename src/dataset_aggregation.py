@@ -53,7 +53,7 @@ def gather_dataset_content_requests(orgpath, theme, theme_profile):
     return asyncio.gather(
         fetch_datasets_catalog(org_uris=organization_uris, theme=theme, theme_profile=theme_profile),
         get_datasets_access_rights(organization_uris, theme, theme_profile),
-        get_datasets_themes_and_topics(organization_uris, theme),
+        get_datasets_themes_and_topics(organization_uris, theme, theme_profile),
         get_datasets_formats(organization_uris, theme, theme_profile),
         query_simple_statistic(field=ContentKeys.TOTAL, org_uris=organization_uris, theme=theme),
         query_simple_statistic(field=ContentKeys.WITH_SUBJECT, org_uris=organization_uris, theme=theme),

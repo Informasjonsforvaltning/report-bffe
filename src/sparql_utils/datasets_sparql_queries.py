@@ -202,10 +202,8 @@ def build_datasets_formats_query(org_uris: List[str], theme, theme_profile: Them
     return encode_for_sparql(query)
 
 
-def build_datasets_themes_query(org_uris: List[str], theme) -> str:
-    prefixes = [DCAT]
-    if org_uris:
-        prefixes.append(DCT)
+def build_datasets_themes_query(org_uris: List[str], theme, theme_profile: ThemeProfile) -> str:
+    prefixes = [DCAT,DCT]
     select = SparqlSelect(
         variable_names=[ContentKeys.THEME],
         count_variables=[SparqlCount(variable_name=ContentKeys.THEME)]
@@ -213,15 +211,17 @@ def build_datasets_themes_query(org_uris: List[str], theme) -> str:
     var_dataset = "dataset"
     var_org = "org"
     var_publisher = "publisher"
-    where_graphs = [
-        SparqlGraphTerm.build_graph_pattern(
-            subject=SparqlGraphTerm(var=var_dataset),
-            predicate=SparqlGraphTerm(namespace_property=DCAT.theme),
-            obj=SparqlGraphTerm(var=ContentKeys.THEME),
-            close_pattern_with="."
-        )
-    ]
-
+    var_theme = "theme"
+    var_access_right = "accessRights"
+    where_graphs = [build_var_a_dataset_graph(var=var_dataset),
+                    SparqlGraphTerm.build_graph_pattern(
+                        subject=SparqlGraphTerm(var=var_dataset),
+                        predicate=SparqlGraphTerm(namespace_property=DCAT.theme),
+                        obj=SparqlGraphTerm(var=ContentKeys.THEME),
+                        close_pattern_with="."
+                    )]
+    where_functions = None
+    where_filters = SparqlFilter.collect_filters(org=org_uris)
     if org_uris:
         where_graphs.append(
             SparqlGraphTerm.build_graph_pattern(
@@ -230,15 +230,25 @@ def build_datasets_themes_query(org_uris: List[str], theme) -> str:
                 obj=SparqlGraphTerm(var=var_publisher)
             )
         )
-
-    where_functions = None
     if org_uris:
         where_functions = [
             SparqlFunction(fun=SparqlFunctionString.STR, variable=var_publisher, as_name=var_org,
                            parent=SparqlFunction(fun=SparqlFunctionString.BIND))
         ]
+
+    if theme_profile:
+        if theme_profile == ThemeProfile.TRANSPORT:
+            where_graphs.append(build_datasets_themes_graph(dataset_var=var_dataset, theme_var=var_theme))
+            where_graphs.append(build_datasets_access_rights_graph(dataset_var=var_dataset,
+                                                                   access_rights_var=var_access_right))
+            theme_filters = build_transport_theme_profile_filters(los_theme_var=var_theme,
+                                                                  access_rights_var=var_access_right)
+            if where_filters is None:
+                where_filters = []
+            where_filters.extend(theme_filters)
+
     where = SparqlWhere(graphs=where_graphs,
-                        filters=SparqlFilter.collect_filters(org=org_uris),
+                        filters=where_filters,
                         functions=where_functions)
 
     query = SparqlBuilder(prefix=prefixes, select=select, where=where, group_by_var=ContentKeys.THEME).build()

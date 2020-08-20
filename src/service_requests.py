@@ -177,8 +177,9 @@ async def get_datasets_access_rights(orgpath, theme, theme_profile):
             )
 
 
-async def get_datasets_themes_and_topics(org_uris: List[str] = None, theme=None):
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_themes_query(org_uris, theme)} '
+async def get_datasets_themes_and_topics(org_uris: List[str] = None, theme=None, theme_profile: ThemeProfile = None):
+    query = build_datasets_themes_query(org_uris, theme, theme_profile)
+    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={query} '
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)
