@@ -162,8 +162,8 @@ async def query_simple_statistic(field: ContentKeys, org_uris: List[str] = None,
             )
 
 
-async def get_datasets_access_rights(orgpath, theme):
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_access_rights_query(orgpath, theme)}'
+async def get_datasets_access_rights(orgpath, theme, theme_profile):
+    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_access_rights_query(orgpath, theme,theme_profile)}'
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)

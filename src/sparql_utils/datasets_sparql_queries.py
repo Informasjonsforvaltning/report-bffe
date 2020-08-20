@@ -24,7 +24,6 @@ def build_datasets_catalog_query(org_uris: List[str], theme: List[str], theme_pr
         where=where_clause,
         group_by_str=f"?{ContentKeys.ORGANIZATION_URI} ?{ContentKeys.ORG_NAME}"
     ).build()
-    breakpoint()
     return encode_for_sparql(query)
 
 
@@ -87,19 +86,21 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str], theme_prof
     return SparqlWhere(graphs=graph_patterns, nested_clause=nested_builder, filters=filters)
 
 
-def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
-    code_var = ContentKeys.ACCESS_RIGHTS_CODE
-    prefixes = [DCT]
-    select = SparqlSelect(variable_names=[code_var], count_variables=[SparqlCount(variable_name=code_var)])
-    where_filters = SparqlFilter.collect_filters(organization=org_uris)
+def build_datasets_access_rights_query(org_uris: List[str], theme, theme_profile: ThemeProfile) -> str:
+    access_rights_var = ContentKeys.ACCESS_RIGHTS_CODE
+    theme_var = "theme"
     var_dataset = "dataset"
     var_publisher = "publisher"
     var_organization = "organization"
+    prefixes = [DCT, DCAT]
+    select = SparqlSelect(variable_names=[access_rights_var],
+                          count_variables=[SparqlCount(variable_name=access_rights_var)])
+    where_filters = SparqlFilter.collect_filters(organization=org_uris)
     where_graphs = [
         SparqlGraphTerm.build_graph_pattern(
             subject=SparqlGraphTerm(var=var_dataset),
             predicate=SparqlGraphTerm(namespace_property=DCT.accessRights),
-            obj=SparqlGraphTerm(var=code_var),
+            obj=SparqlGraphTerm(var=access_rights_var),
             close_pattern_with="."
         ),
     ]
@@ -118,6 +119,16 @@ def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
                            parent=SparqlFunction(SparqlFunctionString.BIND))
         ]
 
+    if theme_profile:
+        where_graphs.append(
+            build_datasets_themes_graph(dataset_var=var_dataset, theme_var=theme_var)
+        )
+        if where_filters is None:
+            where_filters = []
+        where_filters.extend(
+            build_transport_theme_profile_filters(los_theme_var=theme_var, access_rights_var=access_rights_var)
+        )
+
     query = SparqlBuilder(
         prefix=prefixes,
         select=select,
@@ -125,7 +136,7 @@ def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
                           functions=where_functions,
                           filters=where_filters
                           ),
-        group_by_var=code_var
+        group_by_var=access_rights_var
     ).build()
     return encode_for_sparql(query)
 
