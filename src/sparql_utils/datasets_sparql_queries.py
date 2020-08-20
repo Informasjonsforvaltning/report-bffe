@@ -518,7 +518,7 @@ def build_datasets_national_component_query(org_uris: List[str], theme, theme_pr
         where_graphs.append(build_dataset_publisher_graph(dataset_var=d_var, publisher_var=default_publisher_var))
         functions.append(build_publisher_str_function(publisher_var=default_publisher_var,
                                                       publisher_str_var=default_publisher_str_var))
-        org_filter = SparqlFilter(filter_on_var=default_publisher_str_var, filter_on_values=org_uris)
+        org_filter = SparqlFilter(filter_on_var=default_publisher_str_var, filter_on_values=org_uris, add_str_fun=True)
         filters.append(org_filter)
 
     if theme_profile:
@@ -532,7 +532,8 @@ def build_datasets_national_component_query(org_uris: List[str], theme, theme_pr
 
     where = SparqlWhere(
         graphs=where_graphs,
-        filters=filters
+        filters=filters,
+        functions=functions
     )
 
     query = SparqlBuilder(

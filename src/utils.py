@@ -52,3 +52,8 @@ class NotInNationalRegistryException(Exception):
 class BadOrgPathException(Exception):
     def __init__(self, org_path):
         self.reason = f"could not find any organization with {org_path}"
+
+
+class NoOrganizationEntriesException(Exception):
+    def __init__(self):
+        self.reason = f"organization store is empty"

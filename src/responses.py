@@ -8,7 +8,7 @@ class Response:
     def __init__(self, totalObjects, newLastWeek, catalogs: list):
         self.totalObjects = totalObjects
         self.newLastWeek = newLastWeek
-        self.catalogs = catalogs
+        self.catalogs = catalogs or []
 
     def populate_from_es(self, es_result: dict) -> 'Response':
         self.totalObjects = es_result["page"]["totalElements"]
@@ -58,11 +58,11 @@ class ConceptResponse(Response):
 class DataSetResponse(Response):
     def __init__(self,
                  dist_formats: List[dict],
-                 total: int,
-                 new_last_week: int,
-                 opendata: int,
-                 national_component: int,
-                 with_subject: int,
+                 total: str,
+                 new_last_week: str,
+                 opendata: str,
+                 national_component: str,
+                 with_subject: str,
                  catalogs: List[dict],
                  themes: List[dict],
                  access_rights: List[dict]):
@@ -81,6 +81,11 @@ class DataSetResponse(Response):
     def json(self):
         serialized = self.__dict__
         return serialized
+
+    @staticmethod
+    def empty_response():
+        return DataSetResponse(dist_formats=None, total="0", new_last_week="0", opendata="0", national_component="0",
+                               with_subject="0", catalogs=None, themes=None, access_rights=None)
 
 
 class TimeSeriesResponse:

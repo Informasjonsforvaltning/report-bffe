@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from src.utils import BadOrgPathException
+from src.utils import BadOrgPathException, NoOrganizationEntriesException
 
 NATIONAL_REGISTRY_PATTERN = "data.brreg.no/enhetsregisteret"
 
@@ -119,9 +119,12 @@ class OrganizationStore:
             self.modified = True
 
     def get_dataset_reference_for_orgpath(self, orgpath: str) -> List[str]:
-        #handle organization list not collected
-        org_uris = [org.dataset_reference_uri for org in self.organizations if
-                    org == orgpath.split("/") and org.dataset_reference_uri is not None]
+        try:
+            org_uris = [org.dataset_reference_uri for org in self.organizations if
+                        org == orgpath.split("/") and org.dataset_reference_uri is not None]
+        except TypeError:
+            raise NoOrganizationEntriesException()
+
         if len(org_uris) == 0:
             raise BadOrgPathException(org_path=orgpath)
         else:

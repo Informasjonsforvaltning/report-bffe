@@ -8,7 +8,7 @@ from src.sparql_utils import ContentKeys
 from src.sparql_utils.sparql_parsers import parse_sparql_formats_count, parse_sparql_access_rights_count, \
     parse_sparql_catalogs_count, parse_sparql_themes_and_topics_count, \
     parse_sparql_single_statistic
-from src.utils import ServiceKey, BadOrgPathException
+from src.utils import ServiceKey, BadOrgPathException, NoOrganizationEntriesException
 
 
 def create_dataset_report(orgpath, theme, theme_profile):
@@ -18,38 +18,41 @@ def create_dataset_report(orgpath, theme, theme_profile):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     asyncio.set_event_loop(loop)
-    organizations, access_rights, themes, dist_formats, total, with_subject, new_last_week, opendata, national_component = loop.run_until_complete(
-        gather_dataset_content_requests(orgpath, theme, theme_profile))
-    parsing_tasks = asyncio.gather(
-        parse_sparql_catalogs_count(sparql_result=organizations, content_type=ServiceKey.DATA_SETS),
-        parse_sparql_access_rights_count(access_rights),
-        parse_sparql_themes_and_topics_count(themes)
-    )
-    catalogs, access_rights_count, themes_count = loop.run_until_complete(
-        parsing_tasks)
-    return DataSetResponse(
-        themes=themes_count,
-        catalogs=catalogs,
-        access_rights=access_rights_count,
-        dist_formats=parse_sparql_formats_count(dist_formats),
-        total=parse_sparql_single_statistic(ContentKeys.TOTAL, total),
-        with_subject=parse_sparql_single_statistic(ContentKeys.WITH_SUBJECT, with_subject),
-        new_last_week=parse_sparql_single_statistic(ContentKeys.NEW_LAST_WEEK, new_last_week),
-        opendata=parse_sparql_single_statistic(ContentKeys.OPEN_DATA, opendata),
-        national_component=parse_sparql_single_statistic(ContentKeys.NATIONAL_COMPONENT,
-                                                         national_component)
-    )
+    try:
+        organizations, access_rights, themes, dist_formats, total, with_subject, new_last_week, opendata, national_component = loop.run_until_complete(
+            gather_dataset_content_requests(orgpath, theme, theme_profile))
+        parsing_tasks = asyncio.gather(
+            parse_sparql_catalogs_count(sparql_result=organizations, content_type=ServiceKey.DATA_SETS),
+            parse_sparql_access_rights_count(access_rights),
+            parse_sparql_themes_and_topics_count(themes)
+        )
+        catalogs, access_rights_count, themes_count = loop.run_until_complete(
+            parsing_tasks)
+        return DataSetResponse(
+            themes=themes_count,
+            catalogs=catalogs,
+            access_rights=access_rights_count,
+            dist_formats=parse_sparql_formats_count(dist_formats),
+            total=parse_sparql_single_statistic(ContentKeys.TOTAL, total),
+            with_subject=parse_sparql_single_statistic(ContentKeys.WITH_SUBJECT, with_subject),
+            new_last_week=parse_sparql_single_statistic(ContentKeys.NEW_LAST_WEEK, new_last_week),
+            opendata=parse_sparql_single_statistic(ContentKeys.OPEN_DATA, opendata),
+            national_component=parse_sparql_single_statistic(ContentKeys.NATIONAL_COMPONENT,
+                                                             national_component)
+        )
+    except BadOrgPathException:
+        return DataSetResponse.empty_response()
+    except NoOrganizationEntriesException:
+        catalogs = loop.run_until_complete(fetch_datasets_catalog(None, None, None))
+        loop.run_until_complete(parse_sparql_catalogs_count(catalogs, ServiceKey.DATA_SETS))
+        return create_dataset_report(orgpath, theme, theme_profile)
 
 
 def gather_dataset_content_requests(orgpath, theme, theme_profile):
     organization_uris = None
     theme = None
     if orgpath:
-        try:
-            organization_uris = OrganizationStore.get_instance().get_dataset_reference_for_orgpath(orgpath=orgpath)
-        except BadOrgPathException:
-            organization_uris = None
-
+        organization_uris = OrganizationStore.get_instance().get_dataset_reference_for_orgpath(orgpath=orgpath)
     return asyncio.gather(
         fetch_datasets_catalog(org_uris=organization_uris, theme=theme, theme_profile=theme_profile),
         get_datasets_access_rights(organization_uris, theme, theme_profile),
