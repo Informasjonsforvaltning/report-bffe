@@ -46,8 +46,8 @@ class ParsedReferenceData:
     def from_los_list(reference_data_response: List[dict]):
         los_list = []
         for theme in reference_data_response:
-            parsed_right = ParsedReferenceData.from_los_themes_and_topics_list(theme)
-            los_list.append(parsed_right)
+            parsed_theme = ParsedReferenceData.from_los_themes_and_topics_list(theme)
+            los_list.append(parsed_theme)
         return los_list
 
 
@@ -135,4 +135,4 @@ async def get_los_path(uri: str) -> List[str]:
         lp_idx = los_paths.index(raw_uri)
         return los_paths[lp_idx].ref_value
     except ValueError:
-        return None
+        return []

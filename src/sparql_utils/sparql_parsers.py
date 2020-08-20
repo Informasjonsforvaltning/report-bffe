@@ -80,8 +80,12 @@ async def parse_sparql_themes_and_topics_count(sparql_results: dict) -> list:
                                                                 sparql_result=x
                                                                 )
                    for x in bindings]
-    flattened_list = itertools.chain.from_iterable(themes_list)
-    return KeyCountObject.expand_with_hierarchy(remove_none_values(flattened_list))
+    flat_list = []
+    for themes in themes_list:
+        if themes:
+            flat_list.extend(themes)
+
+    return KeyCountObject.expand_with_hierarchy(flat_list)
 
 
 def parse_sparql_time_series(sparql_result: dict) -> list:

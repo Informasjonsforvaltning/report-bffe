@@ -232,7 +232,7 @@ def build_datasets_themes_query(org_uris: List[str], theme, theme_profile: Theme
                         close_pattern_with="."
                     )]
     where_functions = None
-    where_filters = SparqlFilter.collect_filters(org=org_uris)
+    where_filters = [SparqlFilter(filter_string=f'regex(str(?{ContentKeys.THEME}), "los", "i" )')]
     if org_uris:
         where_graphs.append(
             SparqlGraphTerm.build_graph_pattern(
@@ -241,11 +241,11 @@ def build_datasets_themes_query(org_uris: List[str], theme, theme_profile: Theme
                 obj=SparqlGraphTerm(var=var_publisher)
             )
         )
-    if org_uris:
         where_functions = [
             SparqlFunction(fun=SparqlFunctionString.STR, variable=var_publisher, as_name=var_org,
                            parent=SparqlFunction(fun=SparqlFunctionString.BIND))
         ]
+        where_filters.extend(SparqlFilter.collect_filters(org=org_uris))
 
     if theme_profile:
         if theme_profile == ThemeProfile.TRANSPORT:
