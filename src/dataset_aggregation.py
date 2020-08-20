@@ -21,7 +21,7 @@ def create_dataset_report(orgpath, theme, theme_profile):
     organizations, access_rights, themes, dist_formats, total, with_subject, new_last_week, opendata, national_component = loop.run_until_complete(
         gather_dataset_content_requests(orgpath, theme, theme_profile))
     parsing_tasks = asyncio.gather(
-        parse_sparql_catalogs_count(organizations),
+        parse_sparql_catalogs_count(sparql_result=organizations, content_type=ServiceKey.DATA_SETS),
         parse_sparql_access_rights_count(access_rights),
         parse_sparql_themes_and_topics_count(themes)
     )

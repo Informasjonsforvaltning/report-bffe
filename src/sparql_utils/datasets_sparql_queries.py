@@ -17,16 +17,17 @@ def build_datasets_catalog_query(org_uris: List[str], theme: List[str], theme_pr
     prefixes = [DCT, FOAF, OWL]
     if theme_profile:
         prefixes.append(DCAT)
-    select_clause = SparqlSelect(variable_names=[ContentKeys.ORG_NAME, ContentKeys.ORGANIZATION_URI],
-                                 count_variables=[SparqlCount(variable_name="item", as_name="count")]
-                                 )
+    select_clause = SparqlSelect(
+        variable_names=[ContentKeys.ORG_NAME, ContentKeys.ORGANIZATION_URI, ContentKeys.SRC_ORGANIZATION],
+        count_variables=[SparqlCount(variable_name="item", as_name="count")]
+    )
     where_clause = catalog_query_where_clause(org_uris, theme, theme_profile)
 
     query = SparqlBuilder(
         prefix=prefixes,
         select=select_clause,
         where=where_clause,
-        group_by_str=f"?{ContentKeys.ORGANIZATION_URI} ?{ContentKeys.ORG_NAME}"
+        group_by_str=f"?{ContentKeys.ORGANIZATION_URI} ?{ContentKeys.ORG_NAME} ?{ContentKeys.SRC_ORGANIZATION}"
     ).build()
     return encode_for_sparql(query)
 
@@ -37,9 +38,9 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str], theme_prof
     access_right_var = "accessRights"
     bind_root = SparqlFunction(fun=SparqlFunctionString.BIND).str_with_inner_function("COALESCE(?sameAs, STR("
                                                                                       "?publisher)) AS ?organization")
-    publisher_var = "publisher"
+    publisher_var = ContentKeys.SRC_ORGANIZATION
     publisher_a_foaf_a_agent = SparqlGraphTerm.build_graph_pattern(
-        subject=SparqlGraphTerm(var="publisher"),
+        subject=SparqlGraphTerm(var=publisher_var),
         predicate=SparqlGraphTerm(namespace_property=RDF.type),
         obj=SparqlGraphTerm(namespace_property=FOAF.agent),
         close_pattern_with="."
@@ -61,7 +62,7 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str], theme_prof
         ),
         publisher_name_pattern
     ]
-    nested_select_clause = SparqlSelect(variable_names=["publisher", "organization"])
+    nested_select_clause = SparqlSelect(variable_names=[publisher_var, "organization"])
     filters = None
     if theme_profile:
         if theme_profile == ThemeProfile.TRANSPORT:
@@ -73,6 +74,11 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str], theme_prof
             if filters is None:
                 filters = []
             filters.extend(theme_filters)
+    nested_filters = []
+    if org_uris:
+        nested_filters.append(
+            SparqlFilter(filter_on_var=ContentKeys.SRC_ORGANIZATION, filter_on_values=org_uris, add_str_fun=True)
+        )
 
     nested_where = SparqlWhere(graphs=[publisher_a_foaf_a_agent],
                                functions=[bind_root],
@@ -84,9 +90,10 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str], theme_prof
                                        close_pattern_with="."
                                    )
                                ]),
-                               filters=SparqlFilter.collect_filters(organization=org_uris)
+                               filters=nested_filters
                                )
     nested_builder = SparqlBuilder(select=nested_select_clause, where=nested_where)
+
     return SparqlWhere(graphs=graph_patterns, nested_clause=nested_builder, filters=filters)
 
 
@@ -440,7 +447,8 @@ def build_dataset_open_data_query(org_uris: List[str], theme, theme_profile: The
     if theme_profile:
         if theme_profile == ThemeProfile.TRANSPORT:
             where_graphs.append(build_datasets_themes_graph(dataset_var=d_var, theme_var=default_theme_var))
-            theme_filters = build_transport_theme_profile_filters(los_theme_var=default_theme_var, access_rights_var=False)
+            theme_filters = build_transport_theme_profile_filters(los_theme_var=default_theme_var,
+                                                                  access_rights_var=False)
             filters.append(theme_filters)
 
     where = SparqlWhere(
@@ -508,7 +516,8 @@ def build_datasets_national_component_query(org_uris: List[str], theme, theme_pr
 
     if org_uris:
         where_graphs.append(build_dataset_publisher_graph(dataset_var=d_var, publisher_var=default_publisher_var))
-        functions.append(build_publisher_str_function(publisher_var=default_publisher_var, publisher_str_var=default_publisher_str_var))
+        functions.append(build_publisher_str_function(publisher_var=default_publisher_var,
+                                                      publisher_str_var=default_publisher_str_var))
         org_filter = SparqlFilter(filter_on_var=default_publisher_str_var, filter_on_values=org_uris)
         filters.append(org_filter)
 

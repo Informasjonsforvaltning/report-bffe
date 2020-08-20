@@ -4,7 +4,7 @@ from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog, \
     get_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog
-from src.utils import NotInNationalRegistryException
+from src.utils import NotInNationalRegistryException, ServiceKey
 
 
 class ParsedReferenceData:
@@ -72,7 +72,9 @@ async def get_organizations() -> List[ParsedOrganization]:
 
 
 @alru_cache
-async def get_organization_from_organization_catalog(uri: str, name: str) -> ParsedOrganization:
+async def get_organization_from_organization_catalog(uri: str, name: str,
+                                                     content_type: ServiceKey,
+                                                     src_uri: str = None) -> ParsedOrganization:
     try:
         if ParsedOrganization.is_national_registry_uri(uri):
             org = await fetch_organization_from_catalog(ParsedOrganization.resolve_id(uri=uri), name)
@@ -85,22 +87,30 @@ async def get_organization_from_organization_catalog(uri: str, name: str) -> Par
         orgpath = await get_generated_org_path_from_organization_catalog(name)
         parsed_org = ParsedOrganization(name=name, uri=uri, orgPath=orgpath)
 
-    # tmp fix:
-    parsed_org.dataset_reference_uri = uri
+    if content_type == ServiceKey.DATA_SETS:
+        if src_uri:
+            parsed_org.dataset_reference_uri = src_uri
+        else:
+            parsed_org.dataset_reference_uri = uri
     OrganizationStore.get_instance().add_organization(parsed_org)
     return parsed_org
 
 
-async def get_org_path(uri: str, name: str) -> str:
+async def get_org_path(uri: str, name: str, content_type: ServiceKey, src_uri=None) -> str:
     raw_uri = clean_uri(uri)
     try:
         org_catalog = await get_organizations()
         org_idx: ParsedOrganization = org_catalog.index(raw_uri)
-        # tmp fix:
-        org_catalog[org_idx].dataset_reference_uri = uri
+        if content_type == ServiceKey.DATA_SETS:
+            if src_uri:
+                org_catalog[org_idx].dataset_reference_uri = src_uri
+            else:
+                org_catalog[org_idx].dataset_reference_uri = uri
         return org_catalog[org_idx].orgPath
     except ValueError:
-        org: ParsedOrganization = await get_organization_from_organization_catalog(uri=raw_uri, name=name)
+        org: ParsedOrganization = await get_organization_from_organization_catalog(uri=raw_uri, name=name,
+                                                                                   content_type=content_type,
+                                                                                   src_uri=src_uri)
         return org.orgPath
 
 

@@ -3,6 +3,7 @@ import pytest
 from src.sparql_utils.sparql_parsers import parse_sparql_formats_count, parse_sparql_catalogs_count, \
     parse_sparql_time_series, parse_sparql_themes_and_topics_count, \
     ContentKeys, parse_sparql_access_rights_count, ParsedDataPoint
+from src.utils import ServiceKey
 from test.unit_mock_data import datasets_format_count, datasets_simple_aggs_response, datasets_catalogs, \
     datasets_access_rights, mocked_org_paths, mocked_access_rights, dataset_time_series, datasets_themes_and_topics, \
     mocked_los_paths
@@ -19,7 +20,8 @@ def test_parse_formats_json_sparql_for_datasets(event_loop):
 
 @pytest.mark.unit
 def test_parse_sparql_catalogs_count(event_loop, mock_get_org_path):
-    result = event_loop.run_until_complete(parse_sparql_catalogs_count(sparql_result=datasets_catalogs))
+    result = event_loop.run_until_complete(parse_sparql_catalogs_count(sparql_result=datasets_catalogs,
+                                                                       content_type=ServiceKey.DATA_SETS))
     assert (result.__len__()) == 7
     assert [x["count"] for x in result if x["key"] == "/STAT"][0] == 6 + 7 + 103
     assert [x["count"] for x in result if x["key"] == "/STAT/912660680"][0] == 103 + 6

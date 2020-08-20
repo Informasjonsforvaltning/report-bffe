@@ -1,4 +1,5 @@
 class ContentKeys:
+    SRC_ORGANIZATION = "publisher"
     FORMAT = "format"
     WITH_SUBJECT = "withSubject"
     OPEN_DATA = "opendata"

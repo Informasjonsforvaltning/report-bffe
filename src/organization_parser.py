@@ -119,12 +119,13 @@ class OrganizationStore:
             self.modified = True
 
     def get_dataset_reference_for_orgpath(self, orgpath: str) -> List[str]:
+        #handle organization list not collected
         org_uris = [org.dataset_reference_uri for org in self.organizations if
                     org == orgpath.split("/") and org.dataset_reference_uri is not None]
         if len(org_uris) == 0:
             raise BadOrgPathException(org_path=orgpath)
         else:
-            return org_uris
+             return org_uris
 
     @staticmethod
     def get_instance():

@@ -922,7 +922,7 @@ def parsed_org_catalog_mock():
         }])
 
 
-def single_parsed_org_mock(uri: str, name=None) -> ParsedOrganization:
+def single_parsed_org_mock(uri: str, name=None, *args, **kvargs) -> ParsedOrganization:
     if uri == 'https://data.brreg.no/enhetsregisteret/api/enheter/971040238':
         return ParsedOrganization.from_organizations_catalog_json({
             "organizationId": "971040238",
@@ -952,7 +952,7 @@ def mocked_access_rights(uri: str) -> str:
         return None
 
 
-def mocked_org_paths(uri: str, name: str):
+def mocked_org_paths(uri: str, name: str, **args):
     if uri == '<https://data.brreg.no/enhetsregisteret/api/enheter/974760673>':
         return '/STAT/912660680/974760673'
     elif uri == '<https://data.brreg.no/enhetsregisteret/api/enheter/991825827>':

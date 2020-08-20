@@ -5,6 +5,7 @@ from typing import List
 
 from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
 from src.sparql_utils import ContentKeys
+from src.utils import ServiceKey
 
 
 def parse_sparql_formats_count(sparql_result: dict) -> list:
@@ -23,17 +24,23 @@ def parse_sparql_single_statistic(key: ContentKeys, sparql_result: dict) -> list
     return bindings[0][key][ContentKeys.VALUE]
 
 
-async def parse_sparql_catalogs_count(sparql_result: dict) -> list:
-    if sparql_result is None:
+async def parse_sparql_catalogs_count(sparql_result: dict, content_type: ServiceKey) -> list:
+    if sparql_result is None or len(sparql_result) == 0:
         return
     bindings = sparql_result["results"]["bindings"]
-    catalog_list = [await get_organization(sparql_result=x)
+    catalog_list = [await get_organization(sparql_result=x, content_type=content_type)
                     for x in bindings]
     return KeyCountObject.expand_with_hierarchy(catalog_list)
 
 
-async def get_organization(sparql_result):
+async def get_organization(sparql_result: dict, content_type: ServiceKey):
+    try:
+        src_uri = sparql_result[ContentKeys.SRC_ORGANIZATION][ContentKeys.VALUE]
+    except KeyError:
+        src_uri = None
     reference = await get_org_path(uri=sparql_result[ContentKeys.ORGANIZATION_URI][ContentKeys.VALUE],
+                                   src_uri=src_uri,
+                                   content_type=content_type,
                                    name=sparql_result[ContentKeys.ORG_NAME][ContentKeys.VALUE]
                                    )
     if reference:

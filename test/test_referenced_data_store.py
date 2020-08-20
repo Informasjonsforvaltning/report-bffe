@@ -2,19 +2,26 @@ import asyncio
 import pytest
 
 from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
+from src.utils import ServiceKey
 
 
 @pytest.mark.unit
 def test_get_org_path_in_org_catalog(event_loop, get_organizations_mock):
     result = event_loop.run_until_complete(
-        get_org_path("<https://data.brreg.no/enhetsregisteret/api/enheter/974760673>", name="Statens Håpefulle"))
+        get_org_path(uri="<https://data.brreg.no/enhetsregisteret/api/enheter/974760673>",
+                     src_uri="<something different>",
+                     name="Statens Håpefulle",
+                     content_type=ServiceKey.DATA_SETS))
     assert result == "/STAT/912660680/974760673"
 
 
 @pytest.mark.unit
 def test_get_org_path_in_national_registry(get_organizations_mock, get_organization_from_service_mock, event_loop):
     result = event_loop.run_until_complete(
-        get_org_path("<https://data.brreg.no/enhetsregisteret/api/enheter/971040238>", name="Yes ma'm"))
+        get_org_path(uri="<https://data.brreg.no/enhetsregisteret/api/enheter/971040238>",
+                     src_uri=None,
+                     name="Yes ma'm",
+                     content_type=ServiceKey.CONCEPTS))
     assert result == "/STAT/972417858/971040238"
 
 
