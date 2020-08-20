@@ -141,8 +141,9 @@ async def fetch_datasets_catalog(org_uris: List[str] = None, theme: List[str] = 
             )
 
 
-async def query_simple_statistic(field: ContentKeys, org_uris: List[str] = None, theme=None):
-    query = build_dataset_simple_statistic_query(field, org_uris=org_uris, theme=theme)
+async def query_simple_statistic(field: ContentKeys, org_uris: List[str] = None, theme=None,
+                                 theme_profile: ThemeProfile = None):
+    query = build_dataset_simple_statistic_query(field, org_uris=org_uris, theme=theme, theme_profile=theme_profile)
     if field == ContentKeys.NEW_LAST_WEEK:
         base_url = f"{service_urls.get(ServiceKey.DATA_SETS)}/{meta_sparql_select_url}"
     else:

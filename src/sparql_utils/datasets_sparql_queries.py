@@ -7,6 +7,8 @@ from src.sparql_utils.sparql_query_builder import SparqlSelect, SparqlCount, Spa
 from src.utils import ThemeProfile
 
 public_access_right = '<http://publications.europa.eu/resource/authority/access-right/PUBLIC>'
+default_theme_var = "theme"
+default_access_right_var = "accessRight"
 
 
 def build_datasets_catalog_query(org_uris: List[str], theme: List[str], theme_profile: ThemeProfile) -> str:
@@ -203,7 +205,7 @@ def build_datasets_formats_query(org_uris: List[str], theme, theme_profile: Them
 
 
 def build_datasets_themes_query(org_uris: List[str], theme, theme_profile: ThemeProfile) -> str:
-    prefixes = [DCAT,DCT]
+    prefixes = [DCAT, DCT]
     select = SparqlSelect(
         variable_names=[ContentKeys.THEME],
         count_variables=[SparqlCount(variable_name=ContentKeys.THEME)]
@@ -284,11 +286,11 @@ def build_dataset_time_series_query():
     return encode_for_sparql(query)
 
 
-def build_dataset_simple_statistic_query(field: ContentKeys, org_uris: [List[str]], theme):
-    return simple_stat_functions[field](org_uris=org_uris, theme=theme)
+def build_dataset_simple_statistic_query(field: ContentKeys, org_uris: [List[str]], theme, theme_profile: ThemeProfile):
+    return simple_stat_functions[field](org_uris=org_uris, theme=theme, theme_profile=theme_profile)
 
 
-def build_datasets_total_query(org_uris: [List[str]], theme):
+def build_datasets_total_query(org_uris: [List[str]], theme, theme_profile: ThemeProfile):
     prefix = [DCAT, DCT]
     dataset_var = "dataaset"
     publisher_var = "publisher"
@@ -302,17 +304,28 @@ def build_datasets_total_query(org_uris: [List[str]], theme):
         )
     ]
     functions = []
+    filters = SparqlFilter.collect_filters(org=org_uris)
     if org_uris:
         where_graphs.append(build_dataset_publisher_graph(dataset_var=dataset_var, publisher_var=publisher_var))
         functions.append(build_publisher_str_function(publisher_var=publisher_var, publisher_str_var=publisher_str_var))
+    if theme_profile:
+        if theme_profile == ThemeProfile.TRANSPORT:
+            where_graphs.append(build_datasets_themes_graph(dataset_var=dataset_var, theme_var=default_theme_var))
+            where_graphs.append(build_datasets_access_rights_graph(dataset_var=dataset_var,
+                                                                   access_rights_var=default_access_right_var))
+            theme_filters = build_transport_theme_profile_filters(los_theme_var=default_theme_var,
+                                                                  access_rights_var=default_access_right_var)
+            if filters is None:
+                filters = []
+            filters.extend(theme_filters)
 
     select = SparqlSelect(count_variables=[SparqlCount(variable_name=dataset_var, as_name=ContentKeys.TOTAL)])
-    where = SparqlWhere(graphs=where_graphs, functions=functions, filters=SparqlFilter.collect_filters(org=org_uris))
+    where = SparqlWhere(graphs=where_graphs, functions=functions, filters=filters)
     query = SparqlBuilder(prefix=prefix, select=select, where=where).build()
     return encode_for_sparql(query)
 
 
-def build_datasets_with_subject_query(org_uris: List[str], theme):
+def build_datasets_with_subject_query(org_uris: List[str], theme, theme_profile: ThemeProfile):
     prefix = [DCAT, DCT]
     dataset_var = "dataset"
     publisher_var = "publisher"
@@ -339,7 +352,7 @@ def build_datasets_with_subject_query(org_uris: List[str], theme):
     return encode_for_sparql(query)
 
 
-def build_dataset_open_data_query(org_uris: List[str], theme):
+def build_dataset_open_data_query(org_uris: List[str], theme, theme_profile: ThemeProfile):
     # TODO: get reference data from
     # https://fellesdatakatalog.digdir.no/reference-data/codes/openlicenses
     # get public accessright from referenced data store
@@ -427,7 +440,7 @@ def build_dataset_open_data_query(org_uris: List[str], theme):
     return encode_for_sparql(query)
 
 
-def build_datasets_new_last_week_query(org_uris: List[str], theme) -> str:
+def build_datasets_new_last_week_query(org_uris: List[str], theme, theme_profile: ThemeProfile) -> str:
     prefix = [DCT, XSD]
     d_var = "d"
     issued_var = "issued"
@@ -453,7 +466,7 @@ def build_datasets_new_last_week_query(org_uris: List[str], theme) -> str:
     return encode_for_sparql(query)
 
 
-def build_datasets_national_component_query(org_uris: List[str], theme) -> str:
+def build_datasets_national_component_query(org_uris: List[str], theme, theme_profile: ThemeProfile) -> str:
     d_var = "d"
     provenance_var = "provenance"
     national_provenance_uri = "<http://data.brreg.no/datakatalog/provinens/nasjonal>"
