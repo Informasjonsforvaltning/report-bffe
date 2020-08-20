@@ -112,11 +112,6 @@ class OrganizationStore:
     def update(self, organizations: List[ParsedOrganization] = None):
         if not self.organizations:
             self.organizations = organizations
-        elif not self.modified:
-            self.organizations = organizations
-        else:
-            non_national_registry_orgs = [org for org in self.organizations if not org.has_national_registry_entry()]
-            self.organizations = organizations + non_national_registry_orgs
 
     def add_organization(self, organization: ParsedOrganization):
         if organization not in self.organizations:

@@ -11,7 +11,7 @@ from src.sparql_utils.sparql_parsers import parse_sparql_formats_count, parse_sp
 from src.utils import ServiceKey, BadOrgPathException
 
 
-def create_dataset_report(orgpath, theme):
+def create_dataset_report(orgpath, theme, theme_profile):
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -19,7 +19,7 @@ def create_dataset_report(orgpath, theme):
         asyncio.set_event_loop(loop)
     asyncio.set_event_loop(loop)
     organizations, access_rights, themes, dist_formats, total, with_subject, new_last_week, opendata, national_component = loop.run_until_complete(
-        gather_dataset_content_requests(orgpath, theme))
+        gather_dataset_content_requests(orgpath, theme, theme_profile))
     parsing_tasks = asyncio.gather(
         parse_sparql_catalogs_count(organizations),
         parse_sparql_access_rights_count(access_rights),
@@ -41,7 +41,7 @@ def create_dataset_report(orgpath, theme):
     )
 
 
-def gather_dataset_content_requests(orgpath, theme):
+def gather_dataset_content_requests(orgpath, theme, theme_profile):
     organization_uris = None
     theme = None
     if orgpath:
@@ -51,7 +51,7 @@ def gather_dataset_content_requests(orgpath, theme):
             organization_uris = None
 
     return asyncio.gather(
-        fetch_datasets_catalog(org_uris=organization_uris, theme=theme),
+        fetch_datasets_catalog(org_uris=organization_uris, theme=theme, theme_profile=theme_profile),
         get_datasets_access_rights(organization_uris, theme),
         get_datasets_themes_and_topics(organization_uris, theme),
         get_datasets_formats(organization_uris, theme),

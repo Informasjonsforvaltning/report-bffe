@@ -8,7 +8,7 @@ from src.sparql_utils import ContentKeys
 from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_access_rights_query, \
     build_datasets_formats_query, build_datasets_themes_query, build_dataset_time_series_query, \
     build_dataset_simple_statistic_query
-from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException
+from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException, ThemeProfile
 
 service_urls = {
     ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080/organizations",
@@ -124,8 +124,8 @@ async def fetch_access_rights_from_reference_data():
 
 # datasets
 
-async def fetch_datasets_catalog(org_uris: List[str] = None, theme: List[str] = None):
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_catalog_query(org_uris, theme)} '
+async def fetch_datasets_catalog(org_uris: List[str] = None, theme: List[str] = None,theme_profile:ThemeProfile = None):
+    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_catalog_query(org_uris, theme,theme_profile=theme_profile)} '
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=5)

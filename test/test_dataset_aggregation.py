@@ -20,7 +20,7 @@ def test_get_datasets(event_loop,
                       get_los_paths_mock,
                       get_organization_mock):
     asyncio.set_event_loop(event_loop)
-    result: DataSetResponse = create_dataset_report(None, None)
+    result: DataSetResponse = create_dataset_report(None, None, None)
     assert 8 == len(result.catalogs)
     assert 6 == len(result.formats)
     assert 76 == int(result.withSubject)

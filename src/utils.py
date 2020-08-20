@@ -22,7 +22,12 @@ class ServiceKey:
             raise NotAServiceKeyException(string_key)
 
 
+class ThemeProfile:
+    TRANSPORT = "transport"
+
+
 class QueryParameter:
+    THEME_PROFILE = "themeprofile"
     ORG_PATH = "orgPath"
     THEME = "theme"
 

@@ -102,17 +102,22 @@ class SparqlGraphTerm:
 
 class SparqlFilter:
     def __init__(self, filter_string: str = None, filter_on_var: str = None,
-                 filter_on_values: List[str] = None) -> object:
+                 filter_on_values: List[str] = None, add_str_fun=False) -> object:
         self.filter_string = filter_string
         self.var = filter_on_var
         self.values = filter_on_values
+        self.add_str_fun = add_str_fun
 
     def __str__(self):
         if self.filter_string:
             return f"FILTER({self.filter_string}) "
         else:
             filter_str_values = ",".join([SparqlFilter.prepare_value(val) for val in self.values])
-            return f"FILTER({SparqlBuilder.make_var(self.var)} IN ({filter_str_values}))"
+            if self.add_str_fun:
+                filter_var = f"STR({SparqlBuilder.make_var(self.var)})"
+            else:
+                filter_var = SparqlBuilder.make_var(self.var)
+            return f"FILTER({filter_var} IN ({filter_str_values}))"
 
     @staticmethod
     def prepare_value(filter_value: str):

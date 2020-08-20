@@ -113,59 +113,6 @@ def test_organization_store_add_organization():
     store_instance.add_organization(other_org)
     assert len(store_instance.organizations) == 6
 
-
-@pytest.mark.unit
-def test_organization_store_update_should_retain_retain_unknown_organizations():
-    store_instance: OrganizationStore = OrganizationStore.get_instance()
-    store_instance.organizations = []
-    store_instance.update(organizations=parsed_org_catalog_mock())
-    store_instance.add_organization(brreg_org)
-    store_instance.add_organization(unknown_org)
-    # second update
-    update_with = ParsedOrganization.parse_list([
-        {
-            "organizationId": "55555555",
-            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/55555555",
-            "internationalRegistry": None,
-            "name": "Digitaliseringsdirektoratet",
-            "orgType": "ORGL",
-            "orgPath": "STAT/972417858/55555555",
-            "subOrganizationOf": "972417858",
-            "issued": "2007-10-15",
-            "municipalityNumber": "0301",
-            "industryCode": "84.110",
-            "sectorCode": "6100",
-            "prefLabel": {
-                "nb": "Digitaliseringsdirektoratet",
-                "nn": "Digitaliseringsdirektoratet",
-                "en": "Norwegian Digitalisation Agency"
-            },
-            "allowDelegatedRegistration": None
-        },
-        {
-            "organizationId": "44444444",
-            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/44444444",
-            "internationalRegistry": None,
-            "name": "ENTUR AS",
-            "orgType": "AS",
-            "orgPath": "PRIVAT/44444444",
-            "subOrganizationOf": None,
-            "issued": "2016-07-04",
-            "municipalityNumber": "0301",
-            "industryCode": "62.010",
-            "sectorCode": "1120",
-            "prefLabel": None,
-            "allowDelegatedRegistration": None
-        }])
-
-    store_instance.update(update_with)
-    assert len(store_instance.organizations) == 3
-    assert unknown_org in store_instance.organizations
-    assert update_with[0] in store_instance.organizations
-    assert update_with[1] in store_instance.organizations
-    assert brreg_org not in store_instance.organizations
-
-
 @pytest.mark.unit
 def test_get_dataset_reference_by_org_path():
     store_instance: OrganizationStore = OrganizationStore.get_instance()

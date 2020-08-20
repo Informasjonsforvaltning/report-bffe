@@ -4,14 +4,19 @@ from src.sparql_utils import ContentKeys
 from src.sparql_utils.sparql_namespaces import DCT, FOAF, OWL, SparqlFunctionString, RDF, DCAT, XSD
 from src.sparql_utils.sparql_query_builder import SparqlSelect, SparqlCount, SparqlWhere, SparqlGraphTerm, \
     SparqlFunction, SparqlBuilder, SparqlOptional, encode_for_sparql, SparqlFilter
+from src.utils import ThemeProfile
+
+public_access_right = '<http://publications.europa.eu/resource/authority/access-right/PUBLIC>'
 
 
-def build_datasets_catalog_query(org_uris: List[str], theme: List[str]) -> str:
+def build_datasets_catalog_query(org_uris: List[str], theme: List[str], theme_profile: ThemeProfile) -> str:
     prefixes = [DCT, FOAF, OWL]
+    if theme_profile:
+        prefixes.append(DCAT)
     select_clause = SparqlSelect(variable_names=[ContentKeys.ORG_NAME, ContentKeys.ORGANIZATION_URI],
                                  count_variables=[SparqlCount(variable_name="item", as_name="count")]
                                  )
-    where_clause = catalog_query_where_clause(org_uris, theme)
+    where_clause = catalog_query_where_clause(org_uris, theme, theme_profile)
 
     query = SparqlBuilder(
         prefix=prefixes,
@@ -19,10 +24,14 @@ def build_datasets_catalog_query(org_uris: List[str], theme: List[str]) -> str:
         where=where_clause,
         group_by_str=f"?{ContentKeys.ORGANIZATION_URI} ?{ContentKeys.ORG_NAME}"
     ).build()
+    breakpoint()
     return encode_for_sparql(query)
 
 
-def catalog_query_where_clause(org_uris: List[str], theme: List[str]):
+def catalog_query_where_clause(org_uris: List[str], theme: List[str], theme_profile: ThemeProfile):
+    dataset_var = "item"
+    theme_var = "theme"
+    access_right_var = "accessRights"
     bind_root = SparqlFunction(fun=SparqlFunctionString.BIND).str_with_inner_function("COALESCE(?sameAs, STR("
                                                                                       "?publisher)) AS ?organization")
     publisher_var = "publisher"
@@ -50,6 +59,18 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str]):
         publisher_name_pattern
     ]
     nested_select_clause = SparqlSelect(variable_names=["publisher", "organization"])
+    filters = None
+    if theme_profile:
+        if theme_profile == ThemeProfile.TRANSPORT:
+            graph_patterns.append(build_datasets_themes_graph(dataset_var=dataset_var, theme_var=theme_var))
+            graph_patterns.append(build_datasets_access_rights_graph(dataset_var=dataset_var,
+                                                                     access_rights_var=access_right_var))
+            theme_filters = build_transport_theme_profile_filters(los_theme_var=theme_var,
+                                                                  access_rights_var=access_right_var)
+            if filters is None:
+                filters = []
+            filters.extend(theme_filters)
+
     nested_where = SparqlWhere(graphs=[publisher_a_foaf_a_agent],
                                functions=[bind_root],
                                optional=SparqlOptional(graphs=[
@@ -63,7 +84,7 @@ def catalog_query_where_clause(org_uris: List[str], theme: List[str]):
                                filters=SparqlFilter.collect_filters(organization=org_uris)
                                )
     nested_builder = SparqlBuilder(select=nested_select_clause, where=nested_where)
-    return SparqlWhere(graphs=graph_patterns, nested_clause=nested_builder)
+    return SparqlWhere(graphs=graph_patterns, nested_clause=nested_builder, filters=filters)
 
 
 def build_datasets_access_rights_query(org_uris: List[str], theme) -> str:
@@ -301,8 +322,6 @@ def build_dataset_open_data_query(org_uris: List[str], theme):
                      'http://creativecommons.org/licenses/by/4.0/deed.no',
                      'http://creativecommons.org/publicdomain/zero/1.0/']
 
-    public_access_right = '<http://publications.europa.eu/resource/authority/access-right/PUBLIC>'
-
     d_var = "d"
     access_right_var = "accessRights"
     dist_var = "distribution"
@@ -310,7 +329,7 @@ def build_dataset_open_data_query(org_uris: List[str], theme):
     license_source_var = "src"
     all_licenses_var = "license"
     publisher_var = "publisher"
-    publisher_str_var= "org"
+    publisher_str_var = "org"
     prefix = [DCAT, DCT]
     select = SparqlSelect(
         count_variables=[SparqlCount(variable_name=d_var, as_name=ContentKeys.OPEN_DATA,
@@ -468,4 +487,35 @@ def build_dataset_publisher_graph(dataset_var: str, publisher_var):
         SparqlGraphTerm(namespace_property=DCT.publisher),
         SparqlGraphTerm(var=publisher_var),
         close_pattern_with="."
+    )
+
+
+def build_transport_theme_profile_filters(los_theme_var, access_rights_var):
+    los_themes = ['https://psi.norge.no/los/tema/mobilitetstilbud',
+                  'https://psi.norge.no/los/tema/trafikkinformasjon',
+                  'https://psi.norge.no/los/tema/veg-og-vegregulering',
+                  'https://psi.norge.no/los/tema/yrkestransport'
+                  ]
+    theme_filter = SparqlFilter(filter_on_var=los_theme_var, filter_on_values=los_themes, add_str_fun=True)
+    if access_rights_var:
+        return [SparqlFilter(filter_string=f"?{access_rights_var}={public_access_right}"), theme_filter]
+    else:
+        return theme_filter
+
+
+def build_datasets_themes_graph(dataset_var, theme_var):
+    return SparqlGraphTerm.build_graph_pattern(
+        SparqlGraphTerm(var=dataset_var),
+        SparqlGraphTerm(namespace_property=DCAT.theme),
+        SparqlGraphTerm(var=theme_var),
+        "."
+    )
+
+
+def build_datasets_access_rights_graph(dataset_var, access_rights_var):
+    return SparqlGraphTerm.build_graph_pattern(
+        SparqlGraphTerm(var=dataset_var),
+        SparqlGraphTerm(namespace_property=DCT.accessRights),
+        SparqlGraphTerm(var=access_rights_var),
+        "."
     )
