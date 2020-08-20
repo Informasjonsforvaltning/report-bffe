@@ -345,6 +345,16 @@ def build_datasets_with_subject_query(org_uris: List[str], theme, theme_profile:
         functions.append(build_publisher_str_function(publisher_var=publisher_var, publisher_str_var=publisher_str_var))
         org_filter = SparqlFilter(filter_on_var=publisher_str_var, filter_on_values=org_uris)
         filters.append(org_filter)
+    if theme_profile:
+        if theme_profile == ThemeProfile.TRANSPORT:
+            where_graphs.append(build_datasets_themes_graph(dataset_var=dataset_var, theme_var=default_theme_var))
+            where_graphs.append(build_datasets_access_rights_graph(dataset_var=dataset_var,
+                                                                   access_rights_var=default_access_right_var))
+            theme_filters = build_transport_theme_profile_filters(los_theme_var=default_theme_var,
+                                                                  access_rights_var=default_access_right_var)
+            if filters is None:
+                filters = []
+            filters.extend(theme_filters)
 
     select = SparqlSelect(count_variables=[SparqlCount(variable_name=dataset_var, as_name=ContentKeys.WITH_SUBJECT)])
     where = SparqlWhere(graphs=where_graphs, functions=functions, filters=filters)
