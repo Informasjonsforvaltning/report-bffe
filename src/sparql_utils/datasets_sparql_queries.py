@@ -9,6 +9,8 @@ from src.utils import ThemeProfile
 public_access_right = '<http://publications.europa.eu/resource/authority/access-right/PUBLIC>'
 default_theme_var = "theme"
 default_access_right_var = "accessRight"
+default_publisher_var = "publisher"
+default_publisher_str_var = "org"
 
 
 def build_datasets_catalog_query(org_uris: List[str], theme: List[str], theme_profile: ThemeProfile) -> str:
@@ -494,13 +496,30 @@ def build_datasets_national_component_query(org_uris: List[str], theme, theme_pr
         SparqlGraphTerm.build_graph_pattern(
             SparqlGraphTerm(var=d_var),
             SparqlGraphTerm(namespace_property=DCT.provenance),
-            SparqlGraphTerm(var=provenance_var)
+            SparqlGraphTerm(var=provenance_var),
+            "."
         )
     ]
 
     filters = [
         SparqlFilter(filter_string=f"?{provenance_var}={national_provenance_uri}")
     ]
+    functions = []
+
+    if org_uris:
+        where_graphs.append(build_dataset_publisher_graph(dataset_var=d_var, publisher_var=default_publisher_var))
+        functions.append(build_publisher_str_function(publisher_var=default_publisher_var, publisher_str_var=default_publisher_str_var))
+        org_filter = SparqlFilter(filter_on_var=default_publisher_str_var, filter_on_values=org_uris)
+        filters.append(org_filter)
+
+    if theme_profile:
+        if theme_profile == ThemeProfile.TRANSPORT:
+            where_graphs.append(build_datasets_themes_graph(dataset_var=d_var, theme_var=default_theme_var))
+            where_graphs.append(build_datasets_access_rights_graph(dataset_var=d_var,
+                                                                   access_rights_var=default_access_right_var))
+            theme_filters = build_transport_theme_profile_filters(los_theme_var=default_theme_var,
+                                                                  access_rights_var=default_access_right_var)
+            filters.extend(theme_filters)
 
     where = SparqlWhere(
         graphs=where_graphs,
