@@ -22,6 +22,11 @@ class ServiceKey:
             raise NotAServiceKeyException(string_key)
 
 
+class ParsedDatapoint:
+    def __init__(self):
+        pass
+
+
 class ThemeProfile:
     TRANSPORT = "transport"
 

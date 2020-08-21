@@ -4,10 +4,6 @@ from typing import List
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
-from src.sparql_utils import ContentKeys
-from src.sparql_utils.datasets_sparql_queries import build_datasets_catalog_query, build_datasets_access_rights_query, \
-    build_datasets_formats_query, build_datasets_themes_query, build_dataset_time_series_query, \
-    build_dataset_simple_statistic_query
 from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException, ThemeProfile
 
 service_urls = {
@@ -89,8 +85,23 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
             raise NotInNationalRegistryException(name)
 
 
-async def get_generated_org_path_from_organization_catalog(name: str):
-    pass
+async def fetch_generated_org_path_from_organization_catalog(name: str):
+    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/orgpath/{name.upper()}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response.raise_for_status()
+            return response.json()[0]
+        except (ConnectError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="get organization by name",
+                url=url
+            )
+        except HTTPError as err:
+            raise FetchFromServiceException(
+                execution_point=f"{err.response.status_code}: get organization",
+                url=url
+            )
 
 
 # from reference data (called seldom, not a crisis if they're slow) !important
@@ -123,106 +134,6 @@ async def fetch_access_rights_from_reference_data():
 
 
 # datasets
-
-async def fetch_datasets_catalog(org_uris: List[str] = None, theme: List[str] = None,
-                                 theme_profile: ThemeProfile = None):
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_catalog_query(org_uris, theme, theme_profile=theme_profile)} '
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
-            response.raise_for_status()
-            if response.status_code == 204:
-                return {}
-            return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="datasets catalog query",
-                url=url
-            )
-
-
-async def query_simple_statistic(field: ContentKeys, org_uris: List[str] = None, theme=None,
-                                 theme_profile: ThemeProfile = None):
-    query = build_dataset_simple_statistic_query(field, org_uris=org_uris, theme=theme, theme_profile=theme_profile)
-    if field == ContentKeys.NEW_LAST_WEEK:
-        base_url = f"{service_urls.get(ServiceKey.DATA_SETS)}/{meta_sparql_select_url}"
-    else:
-        base_url = f"{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}"
-    url = f'{base_url}?query={query}'
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
-            response.raise_for_status()
-            if response.status_code == 204:
-                return {}
-            return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="datasets total query",
-                url=url
-            )
-
-
-async def get_datasets_access_rights(orgpath, theme, theme_profile):
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={build_datasets_access_rights_query(orgpath, theme, theme_profile)}'
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
-            response.raise_for_status()
-            if response.status_code == 200:
-                return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="datasets access_rights query",
-                url=url
-            )
-
-
-async def get_datasets_themes_and_topics(org_uris: List[str] = None, theme=None, theme_profile: ThemeProfile = None):
-    query = build_datasets_themes_query(org_uris, theme, theme_profile)
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={query} '
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
-            response.raise_for_status()
-            if response.status_code == 200:
-                return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="datasets formats query",
-                url=url
-            )
-
-
-async def get_datasets_formats(org_uris: List[str] = None, theme: List[str] = None, theme_profile: ThemeProfile = None):
-    query = build_datasets_formats_query(org_uris, theme, theme_profile)
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{sparql_select_url}?query={query}'
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
-            response.raise_for_status()
-            if response.status_code == 200:
-                return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="datasets formats query",
-                url=url
-            )
-
-
-async def fetch_dataset_time_series():
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/{meta_sparql_select_url}?query={build_dataset_time_series_query()}'
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
-            response.raise_for_status()
-            if response.status_code == 200:
-                return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="datasets timeseries query",
-                url=url
-            )
 
 
 # TODO

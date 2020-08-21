@@ -16,6 +16,7 @@ requests = "*"
 gunicorn = "*"
 asyncstdlib = "*"
 httpx = "*"
+elasticsearch = "*"
 
 [requires]
 python_version = "3.8"

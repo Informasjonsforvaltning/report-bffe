@@ -3,7 +3,7 @@ from src.organization_parser import ParsedOrganization, OrganizationStore
 from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog, \
-    get_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog
+    fetch_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog
 from src.utils import NotInNationalRegistryException, ServiceKey
 
 
@@ -84,7 +84,7 @@ async def get_organization_from_organization_catalog(uri: str, name: str,
         parsed_org = ParsedOrganization.from_organizations_catalog_json(org)
 
     except NotInNationalRegistryException:
-        orgpath = await get_generated_org_path_from_organization_catalog(name)
+        orgpath = await fetch_generated_org_path_from_organization_catalog(name)
         parsed_org = ParsedOrganization(name=name, uri=uri, orgPath=orgpath)
 
     if content_type == ServiceKey.DATA_SETS:
