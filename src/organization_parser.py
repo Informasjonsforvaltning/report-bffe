@@ -1,101 +1,90 @@
-import re
 from typing import List
 
-from src.utils import BadOrgPathException, NoOrganizationEntriesException
+from src.rdf_namespaces import OrgCatalogKeys, ContentKeys, JSON_LD
+from src.utils import NATIONAL_REGISTRY_PATTERN
 
-NATIONAL_REGISTRY_PATTERN = "data.brreg.no/enhetsregisteret"
 
+class OrganizationReferencesObject:
+    def __init__(self, org_uri: str, org_path: str = None, same_as: str = None, name: str = None):
+        self.org_uri: str = org_uri
+        self.org_path: str = org_path
+        self.same_as: str = same_as
+        self.name: str = name
 
-class ParsedOrganization:
+    def update_orgpath(self, org_path):
+        self.org_path = org_path
 
-    def __init__(self, name, orgPath=None, org_id=None, uri=None):
-        self.name = name
-        self.org_id = ParsedOrganization.resolve_id(org_id, uri)
-        self.orgPath = self.resolve_org_path(orgPath)
-        self.uri = uri
-        self.dataset_reference_uri = None
+    def update_same_as(self, foaf_same_as):
+        self.same_as = foaf_same_as
+
+    def has_national_registry_uri(self):
+        prefix = self.org_uri.split(":")[1]
+        return prefix == NATIONAL_REGISTRY_PATTERN
 
     def __eq__(self, other):
-        """
-        Performs a best attempt for matching organizations:
-            comparator or name as fallback
-        :param other:
-        :return:
-        """
-        if isinstance(other, str):
-            if other == self.get_comparator():
-                return True
-            elif ParsedOrganization.is_national_registry_uri(other):
-                return ParsedOrganization.resolve_id(uri=other) == self.get_comparator()
-            else:
-                return other == self.name
-        elif isinstance(other, ParsedOrganization):
-            if other.get_comparator() == self.get_comparator():
+        if type(other) == OrganizationReferencesObject:
+            same_uri = OrganizationReferencesObject.__eq_on_http(self.org_uri, other.org_uri)
+            if same_uri:
                 return True
             else:
-                return other.name == self.name
-        elif isinstance(other, list):
-            return self.__eq_on_org_path(other)
-        else:
-            return False
-
-    def __eq_on_org_path(self, other_org_path: list):
-        self_org_path_list = self.orgPath.split("/")
-        if self_org_path_list.__len__() < other_org_path.__len__():
-            return False
-        for i in range(0, len(other_org_path)):
-            if other_org_path[i] != self_org_path_list[i]:
+                if self.same_as is not None:
+                    return OrganizationReferencesObject.__eq_on_http(self.same_as, other.org_uri)
+                else:
+                    if other.same_as is not None:
+                        return OrganizationReferencesObject.__eq_on_http(self.org_uri, other.same_as)
+                    else:
+                        return False
+        elif type(other) == str:
+            if other.startswith("http"):
+                return OrganizationReferencesObject.__eq_on_http(self.org_uri, other)
+            else:
                 return False
-        return True
-
-    def get_comparator(self):
-        try:
-            if self.org_id:
-                return self.org_id
-            else:
-                return self.name
-        except AttributeError:
-            return self.name
-
-    def resolve_org_path(self, org_path: str):
-        if org_path:
-            return org_path
-        return f"/ANNET/{self.name}"
-
-    def has_national_registry_entry(self):
-        return not self.orgPath.startswith("/ANNET")
-
-    @staticmethod
-    def is_national_registry_uri(uri: str) -> bool:
-        return re.findall(NATIONAL_REGISTRY_PATTERN, uri).__len__() > 0
-
-    @staticmethod
-    def resolve_id(org_id=None, uri=None):
-        if org_id:
-            return org_id
-        elif uri and ParsedOrganization.is_national_registry_uri(uri):
-            uri_components = uri.split("/")
-            return uri_components[len(uri_components) - 1]
         else:
-            return None
+            return False
 
     @staticmethod
-    def from_organizations_catalog_json(json: dict):
-        return ParsedOrganization(name=json["name"],
-                                  orgPath=json["orgPath"],
-                                  uri=json["norwegianRegistry"],
-                                  org_id=json["organizationId"])
+    def __eq_on_http(uri_1: str, uri_2: str) -> bool:
+        if NATIONAL_REGISTRY_PATTERN in uri_1 and NATIONAL_REGISTRY_PATTERN in uri_2:
+            return OrganizationReferencesObject.__eq_on_national_registry(uri_1, uri_2)
+        suffix_1 = uri_1.split("//")[1]
+        suffix_2 = uri_2.split("//")[1]
+        return suffix_1 == suffix_2
 
     @staticmethod
-    def from_harvester_elastic_result(param):
-        pass
+    def __eq_on_national_registry(uri_1: str, uri_2: str) -> bool:
+        suffix_1 = uri_1.split("/")
+        suffix_2 = uri_2.split("/")
+        return suffix_1[- 1] == suffix_2[- 1]
 
     @staticmethod
-    def parse_list(org_list: list):
-        parsed_list = []
-        for org in org_list:
-            parsed_list.append(ParsedOrganization.from_organizations_catalog_json(org))
-        return parsed_list
+    def from_organization_catalog_single_response(organization: dict):
+        return OrganizationReferencesObject(
+            org_uri=organization[OrgCatalogKeys.URI],
+            org_path=organization[OrgCatalogKeys.ORG_PATH],
+            name=organization[OrgCatalogKeys.NAME]
+        )
+
+    @staticmethod
+    def from_organization_catalog_list_response(organizations: List[dict]):
+        return [OrganizationReferencesObject.from_organization_catalog_single_response(org) for org in organizations]
+
+    @staticmethod
+    def from_json_ld_values(ld_org_uri_value: List[dict], ld_same_as_value: List[dict] = None):
+        org_uri: str = ld_org_uri_value[0][ContentKeys.VALUE]
+        same_as: str = None
+        org_path: str = None
+        if ld_same_as_value:
+            same_as = ld_same_as_value[0][ContentKeys.VALUE]
+        return OrganizationReferencesObject(org_uri, org_path, same_as)
+
+    @staticmethod
+    def is_national_registry_uri(uri):
+        return NATIONAL_REGISTRY_PATTERN in uri
+
+    @staticmethod
+    def resolve_id(uri: str):
+        uri_parts = uri.split("/")
+        return uri_parts[-1]
 
 
 class OrganizationStore:
@@ -109,29 +98,28 @@ class OrganizationStore:
         else:
             raise OrganizationStoreExistsException()
 
-    def update(self, organizations: List[ParsedOrganization] = None):
+    def update(self, organizations: List[OrganizationReferencesObject] = None):
         if not self.organizations:
             self.organizations = organizations
 
-    def add_organization(self, organization: ParsedOrganization):
-        if organization not in self.organizations:
+    def add_organization(self, organization: OrganizationReferencesObject):
+        if not self.organizations:
+            self.organizations = []
+        if organization.org_uri not in [org.org_uri for org in self.organizations]:
             self.organizations.append(organization)
             self.modified = True
 
-    def get_dataset_reference_for_orgpath(self, orgpath: str) -> List[str]:
+    def get_orgpath(self, uri: str) -> str:
         try:
-            org_uris = [org.dataset_reference_uri for org in self.organizations if
-                        org == orgpath.split("/") and org.dataset_reference_uri is not None]
-        except TypeError:
-            raise NoOrganizationEntriesException()
-
-        if len(org_uris) == 0:
-            raise BadOrgPathException(org_path=orgpath)
-        else:
-             return org_uris
+            org_idx = self.organizations.index(uri)
+            return self.organizations[org_idx].org_path
+        except ValueError:
+            return None
+        except AttributeError:
+            raise OrganizationStoreNotInitiatedException()
 
     @staticmethod
-    def get_instance():
+    def get_instance() -> 'OrganizationStore':
         if OrganizationStore.__instance__:
             return OrganizationStore.__instance__
         else:
@@ -141,3 +129,8 @@ class OrganizationStore:
 class OrganizationStoreExistsException(Exception):
     def __init__(self):
         self.message = "organization store is already created"
+
+
+class OrganizationStoreNotInitiatedException(Exception):
+    def __init__(self):
+        self.message = "no content in OrganizationStore"

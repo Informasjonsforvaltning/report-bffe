@@ -22,6 +22,9 @@ class ServiceKey:
             raise NotAServiceKeyException(string_key)
 
 
+NATIONAL_REGISTRY_PATTERN = "data.brreg.no/enhetsregisteret"
+
+
 class ParsedDatapoint:
     def __init__(self):
         pass

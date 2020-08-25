@@ -1,5 +1,6 @@
 from typing import List
-from src.organization_parser import ParsedOrganization, OrganizationStore
+
+from src.organization_parser import OrganizationStore, OrganizationReferencesObject
 from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog, \
@@ -64,54 +65,41 @@ async def get_los_paths() -> List[ParsedReferenceData]:
 
 
 @alru_cache
-async def get_organizations() -> List[ParsedOrganization]:
+async def get_organizations() -> List[OrganizationReferencesObject]:
     organizations = await fetch_organizations_from_organizations_catalog()
-    parsed_organizations = ParsedOrganization.parse_list(organizations)
-    OrganizationStore.get_instance().update(parsed_organizations)
-    return parsed_organizations
+    parsed_organizations = OrganizationReferencesObject.from_organization_catalog_list_response(organizations)
+    org_store = OrganizationStore.get_instance()
+    [org_store.add_organization(org) for org in parsed_organizations]
+    return org_store.organizations
 
 
 @alru_cache
-async def get_organization_from_organization_catalog(uri: str, name: str,
-                                                     content_type: ServiceKey,
-                                                     src_uri: str = None) -> ParsedOrganization:
+async def get_organization_from_organization_catalog(uri: str, name: str) -> OrganizationReferencesObject:
     try:
-        if ParsedOrganization.is_national_registry_uri(uri):
-            org = await fetch_organization_from_catalog(ParsedOrganization.resolve_id(uri=uri), name)
+        if OrganizationReferencesObject.is_national_registry_uri(uri):
+            org = await fetch_organization_from_catalog(OrganizationReferencesObject.resolve_id(uri=uri), name)
         else:
             org = await attempt_fetch_organization_by_name_from_catalog(name)
 
-        parsed_org = ParsedOrganization.from_organizations_catalog_json(org)
+        parsed_org = OrganizationReferencesObject.from_organization_catalog_single_response(org)
 
     except NotInNationalRegistryException:
         orgpath = await fetch_generated_org_path_from_organization_catalog(name)
-        parsed_org = ParsedOrganization(name=name, uri=uri, orgPath=orgpath)
+        parsed_org = OrganizationReferencesObject(name=name, org_uri=uri, org_path=orgpath)
 
-    if content_type == ServiceKey.DATA_SETS:
-        if src_uri:
-            parsed_org.dataset_reference_uri = src_uri
-        else:
-            parsed_org.dataset_reference_uri = uri
     OrganizationStore.get_instance().add_organization(parsed_org)
     return parsed_org
 
 
-async def get_org_path(uri: str, name: str, content_type: ServiceKey, src_uri=None) -> str:
+async def get_org_path(uri: str, name: str) -> str:
     raw_uri = clean_uri(uri)
     try:
         org_catalog = await get_organizations()
-        org_idx: ParsedOrganization = org_catalog.index(raw_uri)
-        if content_type == ServiceKey.DATA_SETS:
-            if src_uri:
-                org_catalog[org_idx].dataset_reference_uri = src_uri
-            else:
-                org_catalog[org_idx].dataset_reference_uri = uri
-        return org_catalog[org_idx].orgPath
+        org_idx: OrganizationReferencesObject = org_catalog.index(raw_uri)
+        return org_catalog[org_idx].org_path
     except ValueError:
-        org: ParsedOrganization = await get_organization_from_organization_catalog(uri=raw_uri, name=name,
-                                                                                   content_type=content_type,
-                                                                                   src_uri=src_uri)
-        return org.orgPath
+        org: OrganizationReferencesObject = await get_organization_from_organization_catalog(uri=raw_uri, name=name)
+        return org.org_path
 
 
 def clean_uri(uri_from_sparql: str):
@@ -126,6 +114,10 @@ async def get_access_rights_code(uri: str) -> str:
         return access_rights[ar_idx].ref_value
     except ValueError:
         return None
+
+
+async def add_los_path_to_entry(entry: dict) -> dict:
+    pass
 
 
 async def get_los_path(uri: str) -> List[str]:

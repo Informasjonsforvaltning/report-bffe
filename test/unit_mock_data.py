@@ -1,4 +1,4 @@
-from src.organization_parser import ParsedOrganization
+from src.organization_parser import OrganizationReferencesObject
 
 informationmodels = {
     "_embedded": {
@@ -613,64 +613,60 @@ concepts_aggregation = {
         }
     }
 }
-
-
-def parsed_org_catalog_mock():
-    return ParsedOrganization.parse_list([
-        {
-            "organizationId": "974760673",
-            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
-            "internationalRegistry": None,
-            "name": "REGISTERENHETEN I BRØNNØYSUND",
-            "orgType": "ORGL",
-            "orgPath": "/STAT/912660680/974760673",
-            "subOrganizationOf": "912660680",
-            "issued": "1995-08-09",
-            "municipalityNumber": "1813",
-            "industryCode": "84.110",
-            "sectorCode": "6100",
-            "prefLabel": None,
-            "allowDelegatedRegistration": None
+mocked_organization_catalog_response = [{
+    "organizationId": "974760673",
+    "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
+    "internationalRegistry": None,
+    "name": "REGISTERENHETEN I BRØNNØYSUND",
+    "orgType": "ORGL",
+    "orgPath": "/STAT/912660680/974760673",
+    "subOrganizationOf": "912660680",
+    "issued": "1995-08-09",
+    "municipalityNumber": "1813",
+    "industryCode": "84.110",
+    "sectorCode": "6100",
+    "prefLabel": None,
+    "allowDelegatedRegistration": None
+},
+    {
+        "organizationId": "991825827",
+        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/991825827",
+        "internationalRegistry": None,
+        "name": "Digitaliseringsdirektoratet",
+        "orgType": "ORGL",
+        "orgPath": "/STAT/972417858/991825827",
+        "subOrganizationOf": "972417858",
+        "issued": "2007-10-15",
+        "municipalityNumber": "0301",
+        "industryCode": "84.110",
+        "sectorCode": "6100",
+        "prefLabel": {
+            "nb": "Digitaliseringsdirektoratet",
+            "nn": "Digitaliseringsdirektoratet",
+            "en": "Norwegian Digitalisation Agency"
         },
-        {
-            "organizationId": "991825827",
-            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/991825827",
-            "internationalRegistry": None,
-            "name": "Digitaliseringsdirektoratet",
-            "orgType": "ORGL",
-            "orgPath": "/STAT/972417858/991825827",
-            "subOrganizationOf": "972417858",
-            "issued": "2007-10-15",
-            "municipalityNumber": "0301",
-            "industryCode": "84.110",
-            "sectorCode": "6100",
-            "prefLabel": {
-                "nb": "Digitaliseringsdirektoratet",
-                "nn": "Digitaliseringsdirektoratet",
-                "en": "Norwegian Digitalisation Agency"
-            },
-            "allowDelegatedRegistration": None
-        },
-        {
-            "organizationId": "917422575",
-            "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/917422575",
-            "internationalRegistry": None,
-            "name": "ENTUR AS",
-            "orgType": "AS",
-            "orgPath": "/PRIVAT/917422575",
-            "subOrganizationOf": None,
-            "issued": "2016-07-04",
-            "municipalityNumber": "0301",
-            "industryCode": "62.010",
-            "sectorCode": "1120",
-            "prefLabel": None,
-            "allowDelegatedRegistration": None
-        }])
+        "allowDelegatedRegistration": None
+    },
+    {
+        "organizationId": "917422575",
+        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/917422575",
+        "internationalRegistry": None,
+        "name": "ENTUR AS",
+        "orgType": "AS",
+        "orgPath": "/PRIVAT/917422575",
+        "subOrganizationOf": None,
+        "issued": "2016-07-04",
+        "municipalityNumber": "0301",
+        "industryCode": "62.010",
+        "sectorCode": "1120",
+        "prefLabel": None,
+        "allowDelegatedRegistration": None
+    }]
 
 
-def single_parsed_org_mock(uri: str, name=None, *args, **kvargs) -> ParsedOrganization:
+def single_parsed_org_mock(uri: str, name=None, *args, **kvargs) -> OrganizationReferencesObject:
     if uri == 'https://data.brreg.no/enhetsregisteret/api/enheter/971040238':
-        return ParsedOrganization.from_organizations_catalog_json({
+        return OrganizationReferencesObject.from_organization_catalog_single_response({
             "organizationId": "971040238",
             "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
             "name": "STATENS KARTVERK",
@@ -684,7 +680,7 @@ def single_parsed_org_mock(uri: str, name=None, *args, **kvargs) -> ParsedOrgani
         }
         )
     else:
-        return ParsedOrganization(name=name, uri=uri, orgPath=f"/ANNET/{name}")
+        return OrganizationReferencesObject(name=name, org_uri=uri, org_path=f"/ANNET/{name}")
 
 
 def mocked_access_rights(uri: str) -> str:
@@ -910,7 +906,7 @@ def mock_los_path_reference_response():
     ]
 
 
-brreg_org: ParsedOrganization = ParsedOrganization.from_organizations_catalog_json({
+parsed_brreg_org: OrganizationReferencesObject = OrganizationReferencesObject.from_organization_catalog_single_response({
     "organizationId": "971040238",
     "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
     "name": "STATENS KARTVERK",
@@ -923,3 +919,21 @@ brreg_org: ParsedOrganization = ParsedOrganization.from_organizations_catalog_js
     "sectorCode": "6100"
 }
 )
+
+
+def parsed_org_catalog_mock():
+    return OrganizationReferencesObject.from_organization_catalog_list_response(mocked_organization_catalog_response)
+
+
+brreg_org = {
+    "organizationId": "971040238",
+    "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
+    "name": "STATENS KARTVERK",
+    "orgType": "ORGL",
+    "orgPath": "/STAT/972417858/971040238",
+    "subOrganizationOf": "972417858",
+    "issued": "1995-03-12",
+    "municipalityNumber": "3007",
+    "industryCode": "71.123",
+    "sectorCode": "6100"
+}

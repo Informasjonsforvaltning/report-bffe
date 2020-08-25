@@ -7,7 +7,8 @@ from httpx import AsyncClient, ConnectTimeout, HTTPError
 from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException, ThemeProfile
 
 service_urls = {
-    ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080/organizations",
+    ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "https://organization-catalogue.staging"
+                                                                       ".fellesdatakatalog.digdir.no",
     ServiceKey.INFO_MODELS: os.getenv('INFORMATIONMODELS_HARVESTER_URL') or "http://localhost:8080/informationmodels",
     ServiceKey.DATA_SERVICES: os.getenv('DATASERVICE_HARVESTER_URL') or "http://localhost:8080/apis",
     ServiceKey.DATA_SETS: os.getenv('DATASET_HARVESTER_URL') or "http://localhost:8080",
@@ -15,13 +16,9 @@ service_urls = {
     ServiceKey.REFERENCE_DATA: f"{os.getenv('REFERENCE_DATA_URL')}" or "http://localhost:8080/reference-data"
 }
 
-sparql_select_url = "sparql/select"
-meta_sparql_select_url = "/sparql/meta/select"
 default_headers = {
     'accept': 'application/json'
 }
-
-organization_cache_key = "organizations"
 
 
 async def fetch_organizations_from_organizations_catalog() -> List[dict]:
@@ -86,12 +83,12 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
 
 
 async def fetch_generated_org_path_from_organization_catalog(name: str):
-    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/orgpath/{name.upper()}'
+    url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations/orgpath/{name.upper()}'
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response = await session.get(url=url, timeout=5)
             response.raise_for_status()
-            return response.json()[0]
+            return response.text
         except (ConnectError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="get organization by name",
@@ -133,7 +130,18 @@ async def fetch_access_rights_from_reference_data():
             )
 
 
-# datasets
+async def fetch_catalog_from_dataset_harvester() -> dict:
+    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/catalogs'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="fetching dataset catalog",
+                url=url
+            )
 
 
 # TODO

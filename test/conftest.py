@@ -6,7 +6,7 @@ import requests
 from urllib3.exceptions import MaxRetryError, NewConnectionError
 
 from test.unit_mock_data import mock_los_path_reference_response, mock_access_rights_catalog_response, \
-    parsed_org_catalog_mock, single_parsed_org_mock
+    single_parsed_org_mock, parsed_brreg_org, parsed_org_catalog_mock, mocked_organization_catalog_response
 
 
 @pytest.fixture(scope="session")
@@ -16,7 +16,7 @@ def wait_for_ready():
         while True:
             response = requests.get("http://localhost:8000/ready")
             if response.status_code == 200:
-                #wait for wiremock
+                # wait for wiremock
                 time.sleep(2)
                 break
             if time.time() > timeout:
@@ -36,7 +36,8 @@ def event_loop():
 
 @pytest.fixture
 def get_organization_from_service_mock(mocker):
-    mocker.patch('src.referenced_data_store.get_organization_from_organization_catalog', side_effect=single_parsed_org_mock)
+    mocker.patch('src.referenced_data_store.get_organization_from_organization_catalog',
+                 side_effect=single_parsed_org_mock)
 
 
 @pytest.fixture
@@ -46,7 +47,8 @@ def get_organizations_mock(mocker):
 
 @pytest.fixture
 def get_access_rights_mock(mocker):
-    mocker.patch('src.referenced_data_store.fetch_access_rights_from_reference_data', side_effect=mock_access_rights_catalog_response)
+    mocker.patch('src.referenced_data_store.fetch_access_rights_from_reference_data',
+                 side_effect=mock_access_rights_catalog_response)
 
 
 @pytest.fixture

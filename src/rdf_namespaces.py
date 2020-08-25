@@ -2,90 +2,113 @@ import abc
 
 
 class NamespaceProperty(metaclass=abc.ABCMeta):
+    JSON_LD = "json_ld"
+    TTL = "turtle"
 
-    @staticmethod
+    def __init__(self, syntax):
+        self.syntax = syntax
+        self.prefix = self.get_prefix()
+
     @abc.abstractmethod
-    def get_prefix_definition():
+    def get_prefix(self):
         pass
 
-    @staticmethod
-    def property_string(prefix: str, from_value: str) -> str:
-        return f"{prefix}{from_value}"
+    def get_property(self, from_value):
+        return f"{self.prefix}{from_value}"
 
 
 class RDF(NamespaceProperty):
-    prefix = "rdf: "
-    type = "a"
+    ttl_prefix = "rdf: "
+    json_ld_prefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
-    @staticmethod
-    def get_prefix_definition() -> str:
-        pass
+    def __init__(self, syntax):
+        super().__init__(syntax)
+        self.type = self.get_property("type")
+
+    def get_prefix(self) -> str:
+        if self.syntax == NamespaceProperty.JSON_LD:
+            return RDF.json_ld_prefix
 
 
 class DCT(NamespaceProperty):
-    prefix = "dct:"
-    format = f"{prefix}format"
-    issued = f"{prefix}issued"
-    publisher = f"{prefix}publisher"
-    accessRights = f"{prefix}accessRights"
-    prefix_definition = "PREFIX dct: <http://purl.org/dc/terms/>"
-    provenance = f"{prefix}provenance"
-    license = f"{prefix}license"
-    source = f"{prefix}source"
+    ttl_prefix = "dct:"
+    ttl_prefix_definition = "PREFIX dct: <http://purl.org/dc/terms/>"
+    json_ld_prefix = "http://purl.org/dc/terms/"
 
-    @staticmethod
-    def get_prefix_definition() -> str:
-        return "PREFIX dct: <http://purl.org/dc/terms/>"
+    def __init__(self, syntax):
+        super().__init__(syntax)
+        self.format = self.get_property("format")
+        self.format = self.get_property("issued")
+        self.publisher = self.get_property("publisher")
+        self.accessRights = self.get_property("accessRights")
+        self.provenance = self.get_property("provenance")
+        self.license = self.get_property("license")
+        self.source = self.get_property("source")
 
-    @staticmethod
-    def create_property(from_value: str, **kwargs) -> str:
-        return NamespaceProperty.property_string(DCT.prefix, from_value)
+    def get_prefix(self) -> str:
+        if self.syntax == NamespaceProperty.JSON_LD:
+            return DCT.json_ld_prefix
+        else:
+            return DCT.ttl_prefix
 
 
 class FOAF(NamespaceProperty):
-    prefix = "foaf:"
-    agent = f"{prefix}Agent"
-    name = f"{prefix}name"
+    ttl_prefix = "foaf:"
+    json_ld_prefix = "http://xmlns.com/foaf/0.1/"
 
-    @staticmethod
-    def get_prefix_definition() -> str:
-        return "PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
+    def __init__(self, syntax):
+        super().__init__(syntax)
+        self.agent = self.get_property("Agent")
+        self.name = self.get_property("name")
 
-    @staticmethod
-    def create_property(from_value: str, **kwargs) -> str:
-        return NamespaceProperty.property_string(FOAF.prefix, from_value)
+    def get_prefix(self) -> str:
+        if self.syntax == NamespaceProperty.JSON_LD:
+            return FOAF.json_ld_prefix
+        else:
+            return FOAF.ttl_prefix
 
 
 class OWL(NamespaceProperty):
-    prefix = "owl:"
-    agent = f"{prefix}Agent"
-    sameAs = f"{prefix}sameAs"
+    ttl_prefix = "owl:"
+    json_ld_prefix = "http://www.w3.org/2002/07/owl#"
 
-    @staticmethod
-    def get_prefix_definition() -> str:
-        return "PREFIX owl: <http://www.w3.org/2002/07/owl%23>"
+    def __init__(self, syntax):
+        super().__init__(syntax)
+        self.sameAs = self.get_property("sameAs")
 
-    @staticmethod
-    def create_property(from_value: str, **kwargs) -> str:
-        return NamespaceProperty.property_string(FOAF.prefix, from_value)
+    def get_prefix(self):
+        if self.syntax == NamespaceProperty.JSON_LD:
+            return OWL.json_ld_prefix
+        else:
+            return OWL.ttl_prefix
 
 
 class DCAT(NamespaceProperty):
-    prefix = "dcat:"
-    theme = f"{prefix}theme"
-    dataset = f"{prefix}Dataset"
-    distribution = f"{prefix}distribution"
+    ttl_prefix = "dcat:"
+    json_ld_prefix = "http://www.w3.org/ns/dcat#"
 
-    @staticmethod
-    def get_prefix_definition() -> str:
-        return "PREFIX dcat: <http://www.w3.org/ns/dcat%23>"
+    def __init__(self, syntax):
+        super().__init__(syntax)
+        self.theme = self.get_property("theme")
+        self.dataset = self.get_property("Dataset")
+        distribution = self.get_property("distribution")
+
+    def get_prefix(self):
+        if self.syntax == NamespaceProperty.JSON_LD:
+            return DCAT.json_ld_prefix
+        else:
+            return DCAT.ttl_prefix
 
 
 class XSD(NamespaceProperty):
+    ttl_prefix = "xsd:"
+    json_ld_prefix = "http://www.w3.org/2001/XMLSchema#"
 
-    @staticmethod
-    def get_prefix_definition() -> str:
-        return "PREFIX xsd: <http://www.w3.org/2001/XMLSchema%23>"
+    def get_prefix(self):
+        if self.syntax == NamespaceProperty.JSON_LD:
+            return XSD.json_ld_prefix
+        else:
+            return XSD.ttl_prefix
 
 
 class SparqlFunctionString:
@@ -98,6 +121,7 @@ class SparqlFunctionString:
     LCASE = "LCASE"
     COUNT = "COUNT"
     COALESCE = "COALESCE"
+
 
 class ContentKeys:
     SRC_ORGANIZATION = "publisher"
@@ -118,3 +142,28 @@ class ContentKeys:
     THEME = "theme"
     ORG_NAME = "name"
     ORGANIZATION_URI = "organization"
+
+
+class OrgCatalogKeys:
+    NAME = "name"
+    URI = "norwegianRegistry"
+    ORG_PATH = "orgPath"
+
+
+class JSON_LD:
+    RDF = RDF(NamespaceProperty.JSON_LD)
+    DCAT = DCAT(NamespaceProperty.JSON_LD)
+    DCT = DCT(NamespaceProperty.JSON_LD)
+    FOAF = FOAF(NamespaceProperty.JSON_LD)
+    OWL = OWL(NamespaceProperty.JSON_LD)
+    XSD = XSD(NamespaceProperty.JSON_LD)
+
+    @staticmethod
+    def rdf_type_equals(rdf_property: str, entry) -> bool:
+        try:
+            if type(entry) is tuple:
+                return entry[1][JSON_LD.RDF.type][0][ContentKeys.VALUE] == rdf_property
+            else:
+                return entry[JSON_LD.RDF.type][0][ContentKeys.VALUE] == rdf_property
+        except KeyError:
+            return False
