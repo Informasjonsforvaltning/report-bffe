@@ -13,9 +13,12 @@ from src.utils import ServiceKey
 
 
 class EsMappings:
+    RECORD = "dcatRecord"
+    VALUE_KEYWORD = ".value.keyword"
     NODE_URI = "nodeUri"
     ORG_PATH = "orgPath"
     LOS_PATH = "losPath"
+    MISSING = "MISSING"
 
 
 def add_key_as_node_uri(key, value):
@@ -69,3 +72,15 @@ def yield_documents(documents):
     # TODO add orgpath and lospath
     for doc in documents:
         yield doc
+
+
+def get_values_from_nested_dict(entry: dict):
+    root_key = list(entry.keys())[0]
+    return entry[root_key]
+
+
+def extend_and_remove_uri_reference(original_list, original_list_references, referenced_entries):
+    reduced_original_list = []
+
+
+    return reduced_original_list

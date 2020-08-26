@@ -38,12 +38,13 @@ class DCT(NamespaceProperty):
     def __init__(self, syntax):
         super().__init__(syntax)
         self.format = self.get_property("format")
-        self.format = self.get_property("issued")
+        self.issued = self.get_property("issued")
         self.publisher = self.get_property("publisher")
         self.accessRights = self.get_property("accessRights")
         self.provenance = self.get_property("provenance")
         self.license = self.get_property("license")
         self.source = self.get_property("source")
+        self.subject = self.get_property("subject")
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_LD:
@@ -60,6 +61,7 @@ class FOAF(NamespaceProperty):
         super().__init__(syntax)
         self.agent = self.get_property("Agent")
         self.name = self.get_property("name")
+        self.primaryTopic = self.get_property("primaryTopic")
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_LD:
@@ -91,7 +93,7 @@ class DCAT(NamespaceProperty):
         super().__init__(syntax)
         self.theme = self.get_property("theme")
         self.dataset = self.get_property("Dataset")
-        distribution = self.get_property("distribution")
+        self.distribution = self.get_property("distribution")
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_LD:
@@ -167,3 +169,21 @@ class JSON_LD:
                 return entry[JSON_LD.RDF.type][0][ContentKeys.VALUE] == rdf_property
         except KeyError:
             return False
+
+    @staticmethod
+    def node_rdf_property_equals(rdf_property: str, equals_value: str, entry) -> bool:
+        values = entry[list(entry.keys())[0]]
+        try:
+            return values[rdf_property][0][ContentKeys.VALUE] == equals_value
+        except KeyError:
+            return False
+
+    @staticmethod
+    def node_uri_equals(node: dict, equals_value: str):
+        node_uri = list(node.keys())[0]
+        return node_uri == equals_value
+
+    @staticmethod
+    def node_uri_in(node: dict, compare_values: list):
+        node_uri = list(node.keys())[0]
+        return node_uri in compare_values
