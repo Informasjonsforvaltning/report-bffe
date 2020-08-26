@@ -94,6 +94,8 @@ class DCAT(NamespaceProperty):
         self.theme = self.get_property("theme")
         self.dataset = self.get_property("Dataset")
         self.distribution = self.get_property("distribution")
+        self.distribution_type = self.get_property("Distribution")
+        self.CatalogRecord = self.get_property("CatalogRecord")
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_LD:
@@ -176,6 +178,8 @@ class JSON_LD:
         try:
             return values[rdf_property][0][ContentKeys.VALUE] == equals_value
         except KeyError:
+            return False
+        except TypeError:
             return False
 
     @staticmethod

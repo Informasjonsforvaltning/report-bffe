@@ -74,13 +74,6 @@ def yield_documents(documents):
         yield doc
 
 
-def get_values_from_nested_dict(entry: dict):
+def get_values_from_nested_dict(entry: dict) -> dict:
     root_key = list(entry.keys())[0]
     return entry[root_key]
-
-
-def extend_and_remove_uri_reference(original_list, original_list_references, referenced_entries):
-    reduced_original_list = []
-
-
-    return reduced_original_list
