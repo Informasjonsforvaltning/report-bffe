@@ -153,7 +153,3 @@ def reduce_record(record: dict):
         if key not in CATALOG_RECORD_AGGREGATION_FIELDS:
             reduced_record.pop(key)
     return reduced_record
-
-
-def perform_datasets_aggregation_query():
-    pass

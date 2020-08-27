@@ -1,8 +1,20 @@
 import abc
 
-from src.elasticsearch.utils import EsMappings
 from src.rdf_namespaces import JSON_LD, ContentKeys
 from src.utils import ServiceKey
+
+
+class EsMappings:
+    FORMAT = "formatCodes"
+    LOS = "los"
+    RECORD = "dcatRecord"
+    VALUE_KEYWORD = ".value.keyword"
+    NODE_URI = "nodeUri"
+    ORG_PATH = "orgPath"
+    LOS_PATH = "losPaths"
+    MISSING = "MISSING"
+    OPEN_LICENSE = "OpenLicense"
+
 
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
@@ -49,7 +61,7 @@ class AggregationQuery:
         los_path_field = f"{EsMappings.LOS}.{EsMappings.LOS_PATH}"
         self.aggregations[ContentKeys.LOS_PATH] = {
             "terms": {
-                "field": los_path_field,
+                "field": f"{los_path_field}.keyword",
                 "missing": "MISSING",
                 "size": 100000
             }
@@ -114,7 +126,7 @@ def open_data_aggregation() -> dict:
                 }
             ]
         }
-        }
+    }
     }
 
 

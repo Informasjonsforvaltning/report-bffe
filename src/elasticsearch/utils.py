@@ -5,23 +5,12 @@ from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
 
 from src.elasticsearch import es_client
+from src.elasticsearch.queries import EsMappings, AggregationQuery
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject, \
     OrganizationStoreNotInitiatedException
 from src.rdf_namespaces import JSON_LD, ContentKeys
 from src.referenced_data_store import get_org_path, get_organizations, get_los_path
 from src.utils import ServiceKey
-
-
-class EsMappings:
-    FORMAT = "formatCodes"
-    LOS = "los"
-    RECORD = "dcatRecord"
-    VALUE_KEYWORD = ".value.keyword"
-    NODE_URI = "nodeUri"
-    ORG_PATH = "orgPath"
-    LOS_PATH = "losPaths"
-    MISSING = "MISSING"
-    OPEN_LICENSE = "OpenLicense"
 
 
 def add_key_as_node_uri(key, value):
@@ -79,6 +68,13 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
         return result
     except BulkIndexError as err:
         logging.error(f"ingest {ServiceKey.DATA_SETS}", err.errors)
+
+
+def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None, theme=None,
+                                          theme_profile=None):
+    query = AggregationQuery(report_type=report_type).build()
+    aggregations = es_client.search(body=query)
+    return aggregations
 
 
 def yield_documents(documents):

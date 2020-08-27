@@ -4,7 +4,7 @@ import pytest
 
 from src.elasticsearch.datasets import insert_datasets, merge_dataset_information
 from src.elasticsearch.queries import AggregationQuery
-from src.elasticsearch.utils import EsMappings
+from src.elasticsearch.utils import EsMappings, elasticsearch_get_report_aggregations
 from src.rdf_namespaces import JSON_LD
 from src.utils import ServiceKey
 
@@ -12,9 +12,10 @@ from src.utils import ServiceKey
 @pytest.mark.unit
 def test_dry_run():
     #  insert_datasets()
-    result = AggregationQuery(ServiceKey.DATA_SETS).build()
-    json_dump = json.dumps(result)
-    x = 0
+    #result = AggregationQuery(ServiceKey.DATA_SETS).build()
+    #json_dump = json.dumps(result)
+    #x = 0
+    result = elasticsearch_get_report_aggregations(ServiceKey.DATA_SETS)
 
 
 @pytest.mark.unit
