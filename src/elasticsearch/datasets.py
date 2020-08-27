@@ -6,9 +6,9 @@ from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, CATALOG_RECORD
 from src.elasticsearch.utils import elasticsearch_ingest, add_foaf_agent_to_organization_store, \
     add_org_and_los_paths_to_document, add_key_as_node_uri, EsMappings, get_values_from_nested_dict
 from src.rdf_namespaces import JSON_LD, ContentKeys
-from src.referenced_data_store import get_open_licenses
+from src.referenced_data_store import get_open_licenses, get_media_types, MediaTypes
 from src.service_requests import fetch_catalog_from_dataset_harvester, \
-    fetch_themes_and_topics_from_reference_data
+    fetch_themes_and_topics_from_reference_data, fetch_media_types_from_reference_data
 from src.utils import FetchFromServiceException, ServiceKey
 
 
@@ -23,19 +23,21 @@ def insert_datasets():
         collection_tasks = asyncio.gather(
             fetch_catalog_from_dataset_harvester(),
             fetch_themes_and_topics_from_reference_data(),
-            get_open_licenses()
+            get_open_licenses(),
+            get_media_types()
         )
-        dataset_rdf, los_themes, open_licenses = loop.run_until_complete(collection_tasks)
+        dataset_rdf, los_themes, open_licenses, media_types = loop.run_until_complete(collection_tasks)
         prepared_docs = loop.run_until_complete(prepare_documents(documents=dataset_rdf,
                                                                   los_themes=los_themes,
-                                                                  open_licenses=open_licenses))
+                                                                  open_licenses=open_licenses,
+                                                                  media_types=media_types))
         elasticsearch_ingest(index_key=ServiceKey.DATA_SETS, documents=prepared_docs)
     except FetchFromServiceException as err:
         logging.error(err.reason)
         return
 
 
-async def prepare_documents(documents: dict, los_themes: List[dict], open_licenses) -> dict:
+async def prepare_documents(documents: dict, los_themes: List[dict], open_licenses, media_types) -> dict:
     documents_list = list(documents.items())
     with_mapped_node_uri = [add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list]
     datasets = [entry for entry in with_mapped_node_uri if
@@ -62,11 +64,12 @@ async def prepare_documents(documents: dict, los_themes: List[dict], open_licens
                                       distributions=distributions,
                                       records=records,
                                       open_licenses=open_licenses,
-                                      license_documents=license_documents)
+                                      license_documents=license_documents,
+                                      media_types=media_types)
             for dataset in with_orgpath]
 
 
-def merge_dataset_information(dataset, distributions, records, open_licenses, license_documents) -> dict:
+def merge_dataset_information(dataset, distributions, records, open_licenses, license_documents, media_types) -> dict:
     dataset_record = [reduce_record(record) for record in records if
                       JSON_LD.node_rdf_property_equals(rdf_property=JSON_LD.FOAF.primaryTopic,
                                                        equals_value=dataset[EsMappings.NODE_URI],
@@ -86,6 +89,8 @@ def merge_dataset_information(dataset, distributions, records, open_licenses, li
             open_licenses=open_licenses,
             license_documents=license_documents
         )
+        dataset[EsMappings.FORMAT] = get_formats_with_codes(dcat_distributions=dataset[JSON_LD.DCAT.distribution],
+                                                            mediatypes=media_types)
     return reduce_dataset(dataset)
 
 
@@ -101,7 +106,6 @@ def has_open_license(dcat_distributions, open_licenses, license_documents) -> bo
         except TypeError:
             continue
 
-
     return False
 
 
@@ -109,8 +113,27 @@ def get_open_license_nodes_from_license_docs(license_documents, open_licenses):
     source_values = [{"uri": list(li.items())[0][0],
                       ContentKeys.VALUE: get_values_from_nested_dict(li).get(JSON_LD.DCT.source)}
                      for li in license_documents]
-    return [doc.get("uri") for doc in source_values if doc.get(ContentKeys.VALUE)[0][ContentKeys.VALUE] in open_licenses]
+    return [doc.get("uri") for doc in source_values if
+            doc.get(ContentKeys.VALUE)[0][ContentKeys.VALUE] in open_licenses]
 
+
+def get_formats_with_codes(dcat_distributions, mediatypes: List[MediaTypes]):
+    distributions_formats = [dist.get(JSON_LD.DCT.format) for dist in dcat_distributions]
+    format_str_values = [formats[0][ContentKeys.VALUE] for formats in distributions_formats if formats is not None]
+    formats = []
+    for str_value in format_str_values:
+        try:
+            media_type_idx = mediatypes.index(str_value)
+            media_type_name = mediatypes[media_type_idx].name
+            formats.append(media_type_name)
+        except ValueError:
+            continue
+
+    return formats
+
+
+def get_distribution_format_str(dist_format, mediatypes):
+    pass
 
 
 def reduce_dataset(dataset: dict):

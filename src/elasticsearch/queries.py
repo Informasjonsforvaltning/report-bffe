@@ -6,7 +6,8 @@ from src.utils import ServiceKey
 
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
-                              JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE]
+                              JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
+                              EsMappings.FORMAT]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
     JSON_LD.DCT.issued
@@ -17,9 +18,9 @@ class AggregationQuery:
     def __init__(self, report_type: ServiceKey):
         self.aggregations = {EsMappings.ORG_PATH: {
             "terms": {
-                "field": "orgPath.keyword",
+                "field": f"{EsMappings.ORG_PATH}.keyword",
                 "missing": "MISSING",
-                "size": 1000000000
+                "size": 100000
             }
         }, ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
                                                              days=7)}
@@ -48,10 +49,19 @@ class AggregationQuery:
         los_path_field = f"{EsMappings.LOS}.{EsMappings.LOS_PATH}"
         self.aggregations[ContentKeys.LOS_PATH] = {
             "terms": {
-                "field": los_path_field
+                "field": los_path_field,
+                "missing": "MISSING",
+                "size": 100000
             }
         }
         self.aggregations[ContentKeys.OPEN_DATA] = open_data_aggregation()
+        self.aggregations[ContentKeys.FORMAT] = {
+            "terms": {
+                "field": f"{EsMappings.FORMAT}.keyword",
+                "missing": "MISSING",
+                "size": 100000
+            }
+        }
 
     def build(self):
         return {

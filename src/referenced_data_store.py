@@ -5,7 +5,7 @@ from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog, \
     fetch_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog, \
-    fetch_open_licences_from_reference_data
+    fetch_open_licences_from_reference_data, fetch_media_types_from_reference_data
 from src.utils import NotInNationalRegistryException
 
 
@@ -53,6 +53,22 @@ class ParsedReferenceData:
         return los_list
 
 
+class MediaTypes:
+
+    def __init__(self, name: str, code: str):
+        self.name = name
+        self.code = code
+
+    def __eq__(self, other):
+        other_lower = other.lower()
+        return other_lower in self.code.lower() or other_lower in self.name.lower()
+
+    @staticmethod
+    def from_reference_data_response(response: List[dict]):
+        return [MediaTypes(name=entry.get("name"),
+                           code=entry.get("code")) for entry in response]
+
+
 @alru_cache
 async def get_rights_statements() -> List[ParsedReferenceData]:
     rights_statements = await fetch_access_rights_from_reference_data()
@@ -78,6 +94,12 @@ async def get_open_licenses() -> List[str]:
             http_uri = "http://" + li.split("https://")[1]
             http_safe_licences.append(http_uri)
     return http_safe_licences
+
+
+@alru_cache
+async def get_media_types() -> List[dict]:
+    media_types = await fetch_media_types_from_reference_data()
+    return MediaTypes.from_reference_data_response(media_types)
 
 
 @alru_cache

@@ -13,6 +13,7 @@ from src.utils import ServiceKey
 
 
 class EsMappings:
+    FORMAT = "formatCodes"
     LOS = "los"
     RECORD = "dcatRecord"
     VALUE_KEYWORD = ".value.keyword"

@@ -117,7 +117,6 @@ async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
             )
 
 
-# from reference data (called seldom, not a crisis if they're slow) !important
 async def fetch_open_licences_from_reference_data() -> List[dict]:
     url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/openlicenses'
     async with AsyncClient() as session:
@@ -134,6 +133,21 @@ async def fetch_open_licences_from_reference_data() -> List[dict]:
 
 async def fetch_access_rights_from_reference_data():
     url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/rightsstatement'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="reference-data get access rights",
+                url=url
+            )
+
+
+# https://fellesdatakatalog.digdir.no/reference-data/codes/mediatypes
+async def fetch_media_types_from_reference_data():
+    url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/mediatypes'
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
