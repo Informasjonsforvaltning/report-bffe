@@ -40,11 +40,24 @@ def test_get_access_rights(event_loop, get_access_rights_mock):
 
 @pytest.mark.unit
 def test_get_los_path(event_loop, get_los_paths_mock):
-    los_path_tasks = asyncio.gather(get_los_path("https://psi.norge.no/los/ord/festival"),
-                                    get_los_path("https://psi.norge.no/los/ord/boligfinansiering"))
+    los_path_tasks = asyncio.gather(get_los_path(["https://psi.norge.no/los/ord/festival"]),
+                                    get_los_path(["https://psi.norge.no/los/ord/boligfinansiering"]))
     single_result, several_paths_result = event_loop.run_until_complete(los_path_tasks)
     assert single_result.__len__() == 1
-    assert single_result.__contains__("kultur-idrett-og-fritid/kultur/festival")
+    assert "kultur-idrett-og-fritid/kultur/festival" in single_result
     assert several_paths_result.__len__() == 2
-    assert several_paths_result.__contains__("bygg-og-eiendom/kjop-og-salg/boligfinansiering")
-    assert several_paths_result.__contains__("sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering")
+    assert "bygg-og-eiendom/kjop-og-salg/boligfinansiering" in several_paths_result
+    assert "sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering" in several_paths_result
+
+
+@pytest.mark.unit
+def test_get_los_path(event_loop, get_los_paths_mock):
+    los_path_tasks = asyncio.gather(get_los_path(["https://psi.norge.no/los/ord/festival"]),
+                                    get_los_path(["https://psi.norge.no/los/ord/boligfinansiering"]))
+    single_result, several_paths_result = event_loop.run_until_complete(los_path_tasks)
+    assert len(single_result[0]["losPaths"]) == 1
+    assert "kultur-idrett-og-fritid/kultur/festival" in single_result[0]["losPaths"]
+    assert len(several_paths_result[0]["losPaths"]) == 2
+    several_paths_los_path_list = several_paths_result[0]["losPaths"]
+    assert "bygg-og-eiendom/kjop-og-salg/boligfinansiering" in several_paths_los_path_list
+    assert "sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering" in several_paths_los_path_list

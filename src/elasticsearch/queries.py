@@ -4,7 +4,7 @@ from src.elasticsearch.utils import EsMappings
 from src.rdf_namespaces import JSON_LD, ContentKeys
 from src.utils import ServiceKey
 
-DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.LOS_PATH, JSON_LD.DCT.accessRights,
+DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
                               JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD]
 
@@ -15,7 +15,6 @@ CATALOG_RECORD_AGGREGATION_FIELDS = [
 
 class AggregationQuery:
     def __init__(self, report_type: ServiceKey):
-        # TODO : new last week
         self.aggregations = {EsMappings.ORG_PATH: {
             "terms": {
                 "field": "orgPath.keyword",
@@ -44,6 +43,12 @@ class AggregationQuery:
                 "exists": {
                     "field": JSON_LD.DCT.subject
                 }
+            }
+        }
+        los_path_field = f"{EsMappings.LOS}.{EsMappings.LOS_PATH}"
+        self.aggregations[ContentKeys.LOS_PATH] = {
+            "terms": {
+                "field": los_path_field
             }
         }
 

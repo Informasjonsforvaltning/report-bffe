@@ -11,7 +11,7 @@ from src.utils import ServiceKey
 
 @pytest.mark.unit
 def test_dry_run():
-    #    insert_datasets()
+    #insert_datasets()
     result = AggregationQuery(ServiceKey.DATA_SETS).build()
     x = json.dumps(result)
     x = 0

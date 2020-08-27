@@ -1,6 +1,6 @@
 import pytest
 
-from src.elasticsearch.utils import add_foaf_agent_to_organization_store, add_org_path_to_document, EsMappings
+from src.elasticsearch.utils import add_foaf_agent_to_organization_store, add_org_and_los_paths_to_document, EsMappings
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject
 from test.unit_mock_data import parsed_org_catalog_mock, mocked_organization_catalog_response
 
@@ -13,7 +13,7 @@ def fetch_organizations_mock(mocker):
 
 @pytest.mark.unit
 def test_add_org_path_to_document_with_dct_publisher_uri(event_loop, fetch_organizations_mock):
-    result = event_loop.run_until_complete(add_org_path_to_document(
+    result = event_loop.run_until_complete(add_org_and_los_paths_to_document(
         dct_publisher_with_national_registry["https://data.norge.no/node/2889"])
     )
     result_content = result
@@ -28,7 +28,7 @@ def test_add_org_path_to_document_with_foaf_agent_uri(event_loop, fetch_organiza
     store_instance.organizations = parsed_org_catalog_mock()
     event_loop.run_until_complete(add_foaf_agent_to_organization_store(agent))
 
-    result = event_loop.run_until_complete(add_org_path_to_document(dct_publisher_with_foaf_agent_ref["https://data.norge.no/node/2889"]))
+    result = event_loop.run_until_complete(add_org_and_los_paths_to_document(dct_publisher_with_foaf_agent_ref["https://data.norge.no/node/2889"]))
     result_content = result
     assert len(result_content.keys()) == 4
     assert EsMappings.ORG_PATH in result_content.keys()

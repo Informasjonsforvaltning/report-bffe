@@ -146,6 +146,7 @@ class ContentKeys:
     THEME = "theme"
     ORG_NAME = "name"
     ORGANIZATION_URI = "organization"
+    LOS_PATH = "losPath"
 
 
 class OrgCatalogKeys:

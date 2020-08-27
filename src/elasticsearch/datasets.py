@@ -1,10 +1,13 @@
 import asyncio
 import logging
+from typing import List
+
 from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, CATALOG_RECORD_AGGREGATION_FIELDS
 from src.elasticsearch.utils import elasticsearch_ingest, add_foaf_agent_to_organization_store, \
-    add_org_path_to_document, add_key_as_node_uri, EsMappings, get_values_from_nested_dict
+    add_org_and_los_paths_to_document, add_key_as_node_uri, EsMappings, get_values_from_nested_dict
 from src.rdf_namespaces import JSON_LD
-from src.service_requests import fetch_catalog_from_dataset_harvester
+from src.service_requests import fetch_catalog_from_dataset_harvester, \
+    fetch_themes_and_topics_from_reference_data
 from src.utils import FetchFromServiceException, ServiceKey
 
 
@@ -16,15 +19,19 @@ def insert_datasets():
         asyncio.set_event_loop(loop)
 
     try:
-        dataset_rdf = loop.run_until_complete(fetch_catalog_from_dataset_harvester())
-        prepared_docs = loop.run_until_complete(prepare_documents(dataset_rdf))
+        collection_tasks = asyncio.gather(
+            fetch_catalog_from_dataset_harvester(),
+            fetch_themes_and_topics_from_reference_data()
+        )
+        dataset_rdf, los_themes = loop.run_until_complete(collection_tasks)
+        prepared_docs = loop.run_until_complete(prepare_documents(dataset_rdf, los_themes))
         elasticsearch_ingest(index_key=ServiceKey.DATA_SETS, documents=prepared_docs)
     except FetchFromServiceException as err:
         logging.error(err.reason)
         return
 
 
-async def prepare_documents(documents: dict) -> dict:
+async def prepare_documents(documents: dict, los_themes: List[dict]) -> dict:
     documents_list = list(documents.items())
     with_mapped_node_uri = [add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list]
     datasets = [entry for entry in with_mapped_node_uri if
@@ -41,12 +48,11 @@ async def prepare_documents(documents: dict) -> dict:
     await foaf_agents_tasks
 
     # add organization references to entry
-    with_orgpath = await asyncio.gather(*[add_org_path_to_document(entry) for entry in datasets])
+    with_orgpath = await asyncio.gather(*[add_org_and_los_paths_to_document(json_ld_values=entry,
+                                                                            los_themes=los_themes) for entry in datasets])
 
-    # TODO lospath
-    # TODO add first harvested
     return [merge_dataset_information(dataset=dataset, distributions=distributions, records=records)
-            for dataset in datasets]
+            for dataset in with_orgpath]
 
 
 def merge_dataset_information(dataset, distributions, records) -> dict:
@@ -64,7 +70,6 @@ def merge_dataset_information(dataset, distributions, records) -> dict:
                                    if JSON_LD.node_uri_in(node, dataset_distribution_node_refs)]
         dataset[JSON_LD.DCAT.distribution] = [dist for dist in dataset_distribution_values + ref_distribution_values if
                                               dist]
-
     return reduce_dataset(dataset)
 
 

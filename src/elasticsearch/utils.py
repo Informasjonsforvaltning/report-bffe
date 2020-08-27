@@ -8,17 +8,19 @@ from src.elasticsearch import es_client
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject, \
     OrganizationStoreNotInitiatedException
 from src.rdf_namespaces import JSON_LD, ContentKeys
-from src.referenced_data_store import get_org_path, get_organizations
+from src.referenced_data_store import get_org_path, get_organizations, get_los_path
 from src.utils import ServiceKey
 
 
 class EsMappings:
+    LOS = "los"
     RECORD = "dcatRecord"
     VALUE_KEYWORD = ".value.keyword"
     NODE_URI = "nodeUri"
     ORG_PATH = "orgPath"
-    LOS_PATH = "losPath"
+    LOS_PATH = "losPaths"
     MISSING = "MISSING"
+    OPEN_LICENSE = "OpenLicense"
 
 
 def add_key_as_node_uri(key, value):
@@ -48,19 +50,29 @@ async def add_foaf_agent_to_organization_store(foaf_agent_dict: dict):
     return True
 
 
-async def add_org_path_to_document(json_ld_values: dict) -> dict:
+async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:
     uri = json_ld_values[JSON_LD.DCT.publisher][0][ContentKeys.VALUE]
     store = OrganizationStore.get_instance()
     try:
         org_path = store.get_orgpath(uri)
         json_ld_values[EsMappings.ORG_PATH] = org_path
-        return json_ld_values
+        return add_los_path_to_document(json_ld_values, los_themes)
     except OrganizationStoreNotInitiatedException:
         await get_organizations()
-        return await add_org_path_to_document(json_ld_values)
+        return await add_org_and_los_paths_to_document(json_ld_values,los_themes)
+
+
+def add_los_path_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:
+    if JSON_LD.DCAT.theme in json_ld_values.keys():
+        los_uris = [theme.get(ContentKeys.VALUE) for theme in json_ld_values.get(JSON_LD.DCAT.theme)]
+        los_paths = get_los_path(uri_list=los_uris, los_themes=los_themes)
+        if len(los_paths) > 0:
+            json_ld_values[EsMappings.LOS] = los_paths
+    return json_ld_values
 
 
 def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
+    es_client.indices.delete(index=index_key, ignore=[400, 404])
     try:
         result = helpers.bulk(client=es_client, index=index_key, actions=yield_documents(documents))
         return result
@@ -69,7 +81,6 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
 
 
 def yield_documents(documents):
-    # TODO add orgpath and lospath
     for doc in documents:
         yield doc
 

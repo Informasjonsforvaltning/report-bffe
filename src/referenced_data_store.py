@@ -1,10 +1,12 @@
+from functools import lru_cache
 from typing import List
 
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject
 from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog, \
-    fetch_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog
+    fetch_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog, \
+    fetch_open_licence_from_reference_data
 from src.utils import NotInNationalRegistryException, ServiceKey
 
 
@@ -59,9 +61,24 @@ async def get_rights_statements() -> List[ParsedReferenceData]:
 
 
 @alru_cache
-async def get_los_paths() -> List[ParsedReferenceData]:
+async def get_los_paths() -> List[dict]:
     los_themes = await fetch_themes_and_topics_from_reference_data()
-    return ParsedReferenceData.from_los_list(los_themes)
+    return los_themes
+
+
+@lru_cache
+def get_open_licenses() -> List[str]:
+    open_licences = fetch_open_licence_from_reference_data()
+    licences: List[str] = [licence.get("uri") for licence in open_licences]
+    http_safe_licences = licences.copy()
+    for li in licences:
+        if li.startswith("http://"):
+            https_uri = "https://" + li.split("http://")[1]
+            http_safe_licences.append(https_uri)
+        elif li.startswith("https://"):
+            http_uri = "http://" + li.split("https://")[1]
+            http_safe_licences.append(http_uri)
+    return http_safe_licences
 
 
 @alru_cache
@@ -116,15 +133,13 @@ async def get_access_rights_code(uri: str) -> str:
         return None
 
 
-async def add_los_path_to_entry(entry: dict) -> dict:
-    pass
-
-
-async def get_los_path(uri: str) -> List[str]:
-    raw_uri = clean_uri(uri)
-    los_paths = await get_los_paths()
-    try:
-        lp_idx = los_paths.index(raw_uri)
-        return los_paths[lp_idx].ref_value
-    except ValueError:
-        return []
+def get_los_path(uri_list: List[str], los_themes: List[dict]) -> List[str]:
+    uri_to_los_path_list = []
+    for uri in uri_list:
+        raw_uri = clean_uri(uri)
+        try:
+            los_paths = [theme for theme in los_themes if theme.get("uri") == raw_uri]
+            uri_to_los_path_list.extend(los_paths)
+        except ValueError:
+            continue
+    return uri_to_los_path_list

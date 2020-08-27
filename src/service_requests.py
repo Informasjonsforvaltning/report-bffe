@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+import requests
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
@@ -13,7 +14,7 @@ service_urls = {
     ServiceKey.DATA_SERVICES: os.getenv('DATASERVICE_HARVESTER_URL') or "http://localhost:8080/apis",
     ServiceKey.DATA_SETS: os.getenv('DATASET_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.CONCEPTS: os.getenv('CONCEPT_HARVESTER_URL') or "http://localhost:8080/concepts",
-    ServiceKey.REFERENCE_DATA: f"{os.getenv('REFERENCE_DATA_URL')}" or "http://localhost:8080/reference-data"
+    ServiceKey.REFERENCE_DATA: os.getenv('REFERENCE_DATA_URL') or "http://localhost:8080/reference-data"
 }
 
 default_headers = {
@@ -109,11 +110,26 @@ async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
             response = await session.get(url=url, timeout=5)
             response.raise_for_status()
             return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
             raise FetchFromServiceException(
                 execution_point="reference-data themes and topics",
                 url=url
             )
+
+
+# from reference data (called seldom, not a crisis if they're slow) !important
+def fetch_open_licence_from_reference_data() -> List[dict]:
+    url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/openlicenses'
+
+    try:
+        response = requests.get(url=url, timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except (ConnectError, HTTPError, ConnectTimeout):
+        raise FetchFromServiceException(
+            execution_point="reference-data themes and topics",
+            url=url
+        )
 
 
 async def fetch_access_rights_from_reference_data():
