@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import List
 
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject
@@ -6,8 +5,8 @@ from asyncstdlib.functools import lru_cache as alru_cache
 from src.service_requests import fetch_access_rights_from_reference_data, fetch_themes_and_topics_from_reference_data, \
     fetch_organization_from_catalog, fetch_organizations_from_organizations_catalog, \
     fetch_generated_org_path_from_organization_catalog, attempt_fetch_organization_by_name_from_catalog, \
-    fetch_open_licence_from_reference_data
-from src.utils import NotInNationalRegistryException, ServiceKey
+    fetch_open_licences_from_reference_data
+from src.utils import NotInNationalRegistryException
 
 
 class ParsedReferenceData:
@@ -66,9 +65,9 @@ async def get_los_paths() -> List[dict]:
     return los_themes
 
 
-@lru_cache
-def get_open_licenses() -> List[str]:
-    open_licences = fetch_open_licence_from_reference_data()
+@alru_cache
+async def get_open_licenses() -> List[str]:
+    open_licences = await fetch_open_licences_from_reference_data()
     licences: List[str] = [licence.get("uri") for licence in open_licences]
     http_safe_licences = licences.copy()
     for li in licences:

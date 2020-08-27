@@ -118,18 +118,18 @@ async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
 
 
 # from reference data (called seldom, not a crisis if they're slow) !important
-def fetch_open_licence_from_reference_data() -> List[dict]:
+async def fetch_open_licences_from_reference_data() -> List[dict]:
     url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/openlicenses'
-
-    try:
-        response = requests.get(url=url, timeout=5)
-        response.raise_for_status()
-        return response.json()
-    except (ConnectError, HTTPError, ConnectTimeout):
-        raise FetchFromServiceException(
-            execution_point="reference-data themes and topics",
-            url=url
-        )
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
+            raise FetchFromServiceException(
+                execution_point="reference-data themes and topics",
+                url=url
+            )
 
 
 async def fetch_access_rights_from_reference_data():

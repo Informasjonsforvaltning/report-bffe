@@ -1,4 +1,5 @@
 import abc
+from typing import List
 
 
 class NamespaceProperty(metaclass=abc.ABCMeta):
@@ -45,6 +46,7 @@ class DCT(NamespaceProperty):
         self.license = self.get_property("license")
         self.source = self.get_property("source")
         self.subject = self.get_property("subject")
+        self.license_document = self.get_property("LicenseDocument")
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_LD:
@@ -115,6 +117,21 @@ class XSD(NamespaceProperty):
             return XSD.ttl_prefix
 
 
+class SKOS(NamespaceProperty):
+    ttl_prefix = "skos:"
+    json_ld_prefix = "http://www.w3.org/2004/02/skos/core#"
+
+    def __init__(self, syntax):
+        super().__init__(syntax)
+        self.concept = self.get_property("Concept")
+
+    def get_prefix(self):
+        if self.syntax == NamespaceProperty.JSON_LD:
+            return SKOS.json_ld_prefix
+        else:
+            return SKOS.ttl_prefix
+
+
 class SparqlFunctionString:
     DISTINCT = "DISTINCT"
     YEAR = "YEAR"
@@ -162,6 +179,7 @@ class JSON_LD:
     FOAF = FOAF(NamespaceProperty.JSON_LD)
     OWL = OWL(NamespaceProperty.JSON_LD)
     XSD = XSD(NamespaceProperty.JSON_LD)
+    SKOS = SKOS(NamespaceProperty.JSON_LD)
 
     @staticmethod
     def rdf_type_equals(rdf_property: str, entry) -> bool:
@@ -172,6 +190,19 @@ class JSON_LD:
                 return entry[JSON_LD.RDF.type][0][ContentKeys.VALUE] == rdf_property
         except KeyError:
             return False
+
+    @staticmethod
+    def rdf_type_in(rdf_property: str, entries: tuple) -> bool:
+        for xsd_type in entries[1].items():
+            if type(xsd_type[1]) == str:
+                return False
+            try:
+                for rdf_type_property in xsd_type[1]:
+                    if rdf_type_property[ContentKeys.VALUE] == rdf_property:
+                        return True
+            except KeyError:
+                continue
+        return True
 
     @staticmethod
     def node_rdf_property_equals(rdf_property: str, equals_value: str, entry) -> bool:

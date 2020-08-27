@@ -6,7 +6,7 @@ from src.utils import ServiceKey
 
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
-                              JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD]
+                              JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
     JSON_LD.DCT.issued
@@ -51,6 +51,7 @@ class AggregationQuery:
                 "field": los_path_field
             }
         }
+        self.aggregations[ContentKeys.OPEN_DATA] = open_data_aggregation()
 
     def build(self):
         return {
@@ -93,17 +94,17 @@ def open_data_aggregation() -> dict:
                     "term": {
                         AggregationQuery.es_keyword_key(
                             JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
-                                                       "-right/PUBLIC "
+                                                       "-right/PUBLIC"
                     }
                 },
                 {
                     "term": {
-                        "openLicense": "true"
+                        EsMappings.OPEN_LICENSE: "true"
                     }
                 }
             ]
         }
-    }
+        }
     }
 
 

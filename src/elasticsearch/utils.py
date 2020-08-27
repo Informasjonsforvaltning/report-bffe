@@ -59,7 +59,7 @@ async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: Li
         return add_los_path_to_document(json_ld_values, los_themes)
     except OrganizationStoreNotInitiatedException:
         await get_organizations()
-        return await add_org_and_los_paths_to_document(json_ld_values,los_themes)
+        return await add_org_and_los_paths_to_document(json_ld_values, los_themes)
 
 
 def add_los_path_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:

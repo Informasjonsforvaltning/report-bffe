@@ -5,7 +5,8 @@ from typing import List
 from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, CATALOG_RECORD_AGGREGATION_FIELDS
 from src.elasticsearch.utils import elasticsearch_ingest, add_foaf_agent_to_organization_store, \
     add_org_and_los_paths_to_document, add_key_as_node_uri, EsMappings, get_values_from_nested_dict
-from src.rdf_namespaces import JSON_LD
+from src.rdf_namespaces import JSON_LD, ContentKeys
+from src.referenced_data_store import get_open_licenses
 from src.service_requests import fetch_catalog_from_dataset_harvester, \
     fetch_themes_and_topics_from_reference_data
 from src.utils import FetchFromServiceException, ServiceKey
@@ -21,17 +22,20 @@ def insert_datasets():
     try:
         collection_tasks = asyncio.gather(
             fetch_catalog_from_dataset_harvester(),
-            fetch_themes_and_topics_from_reference_data()
+            fetch_themes_and_topics_from_reference_data(),
+            get_open_licenses()
         )
-        dataset_rdf, los_themes = loop.run_until_complete(collection_tasks)
-        prepared_docs = loop.run_until_complete(prepare_documents(dataset_rdf, los_themes))
+        dataset_rdf, los_themes, open_licenses = loop.run_until_complete(collection_tasks)
+        prepared_docs = loop.run_until_complete(prepare_documents(documents=dataset_rdf,
+                                                                  los_themes=los_themes,
+                                                                  open_licenses=open_licenses))
         elasticsearch_ingest(index_key=ServiceKey.DATA_SETS, documents=prepared_docs)
     except FetchFromServiceException as err:
         logging.error(err.reason)
         return
 
 
-async def prepare_documents(documents: dict, los_themes: List[dict]) -> dict:
+async def prepare_documents(documents: dict, los_themes: List[dict], open_licenses) -> dict:
     documents_list = list(documents.items())
     with_mapped_node_uri = [add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list]
     datasets = [entry for entry in with_mapped_node_uri if
@@ -42,6 +46,8 @@ async def prepare_documents(documents: dict, los_themes: List[dict]) -> dict:
                JSON_LD.rdf_type_equals(JSON_LD.DCAT.CatalogRecord, entry)]
     distributions = [{entry[0]: entry[1]} for entry in documents_list if
                      JSON_LD.rdf_type_equals(JSON_LD.DCAT.distribution_type, entry)]
+    license_documents = [{entry[0]: entry[1]} for entry in documents_list if
+                         JSON_LD.rdf_type_in(JSON_LD.DCT.license_document, entry)]
 
     # add foaf agents to organization store
     foaf_agents_tasks = asyncio.gather(*[add_foaf_agent_to_organization_store(agent) for agent in foaf_agents])
@@ -49,13 +55,18 @@ async def prepare_documents(documents: dict, los_themes: List[dict]) -> dict:
 
     # add organization references to entry
     with_orgpath = await asyncio.gather(*[add_org_and_los_paths_to_document(json_ld_values=entry,
-                                                                            los_themes=los_themes) for entry in datasets])
+                                                                            los_themes=los_themes) for entry in
+                                          datasets])
 
-    return [merge_dataset_information(dataset=dataset, distributions=distributions, records=records)
+    return [merge_dataset_information(dataset=dataset,
+                                      distributions=distributions,
+                                      records=records,
+                                      open_licenses=open_licenses,
+                                      license_documents=license_documents)
             for dataset in with_orgpath]
 
 
-def merge_dataset_information(dataset, distributions, records) -> dict:
+def merge_dataset_information(dataset, distributions, records, open_licenses, license_documents) -> dict:
     dataset_record = [reduce_record(record) for record in records if
                       JSON_LD.node_rdf_property_equals(rdf_property=JSON_LD.FOAF.primaryTopic,
                                                        equals_value=dataset[EsMappings.NODE_URI],
@@ -70,7 +81,36 @@ def merge_dataset_information(dataset, distributions, records) -> dict:
                                    if JSON_LD.node_uri_in(node, dataset_distribution_node_refs)]
         dataset[JSON_LD.DCAT.distribution] = [dist for dist in dataset_distribution_values + ref_distribution_values if
                                               dist]
+        dataset[EsMappings.OPEN_LICENSE] = has_open_license(
+            dcat_distributions=dataset[JSON_LD.DCAT.distribution],
+            open_licenses=open_licenses,
+            license_documents=license_documents
+        )
     return reduce_dataset(dataset)
+
+
+def has_open_license(dcat_distributions, open_licenses, license_documents) -> bool:
+    open_license_nodes = get_open_license_nodes_from_license_docs(
+        license_documents=license_documents,
+        open_licenses=open_licenses
+    )
+    for license_entry in dcat_distributions:
+        try:
+            if license_entry.get(JSON_LD.DCT.license)[0][ContentKeys.VALUE] in open_licenses:
+                return True
+        except TypeError:
+            continue
+
+
+    return False
+
+
+def get_open_license_nodes_from_license_docs(license_documents, open_licenses):
+    source_values = [{"uri": list(li.items())[0][0],
+                      ContentKeys.VALUE: get_values_from_nested_dict(li).get(JSON_LD.DCT.source)}
+                     for li in license_documents]
+    return [doc.get("uri") for doc in source_values if doc.get(ContentKeys.VALUE)[0][ContentKeys.VALUE] in open_licenses]
+
 
 
 def reduce_dataset(dataset: dict):
