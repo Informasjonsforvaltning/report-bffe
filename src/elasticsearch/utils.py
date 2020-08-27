@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 from typing import List
 
 from elasticsearch import helpers
@@ -62,7 +64,7 @@ def add_los_path_to_document(json_ld_values: dict, los_themes: List[dict]) -> di
 
 
 def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
-    es_client.indices.delete(index=index_key, ignore=[400, 404])
+    recreate_index(index_key=index_key)
     try:
         result = helpers.bulk(client=es_client, index=index_key, actions=yield_documents(documents))
         return result
@@ -72,7 +74,10 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
 
 def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None, theme=None,
                                           theme_profile=None):
-    query = AggregationQuery(report_type=report_type).build()
+    query = AggregationQuery(report_type=report_type,
+                             orgpath=orgpath,
+                             theme=theme,
+                             theme_profile=theme_profile).build()
     aggregations = es_client.search(body=query)
     return aggregations
 
@@ -85,3 +90,16 @@ def yield_documents(documents):
 def get_values_from_nested_dict(entry: dict) -> dict:
     root_key = list(entry.keys())[0]
     return entry[root_key]
+
+
+# noinspection PyBroadException
+def recreate_index(index_key):
+    """delete and recreate an index with settings and mapping from file"""
+    logging.info("reindexing {0}".format(index_key))
+    with open(os.getcwd() + "/mapping/{0}_properties.json".format(index_key)) as mapping:
+        try:
+            es_client.indices.delete(index=index_key, ignore=[400, 404])
+            es_client.indices.create(index=index_key, body=json.load(mapping))
+        except BaseException as err:
+            logging.error("error when attempting to update {0} ".format(index_key))
+        return None

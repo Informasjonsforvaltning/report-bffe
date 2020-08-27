@@ -32,6 +32,8 @@ class ParsedDatapoint:
 
 class ThemeProfile:
     TRANSPORT = "transport"
+    TRANSPORT_THEMES = ["trafikk-og-transport/mobilitetstilbud", "trafikk-og-transport/trafikkinformasjon",
+                        "trafikk-og-transport/veg-og-vegregulering", "trafikk-og-transport/yrkestransport"]
 
 
 class QueryParameter:

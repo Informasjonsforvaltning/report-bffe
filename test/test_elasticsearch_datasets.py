@@ -1,21 +1,24 @@
 import json
+import os
 
 import pytest
 
 from src.elasticsearch.datasets import insert_datasets, merge_dataset_information
 from src.elasticsearch.queries import AggregationQuery
-from src.elasticsearch.utils import EsMappings, elasticsearch_get_report_aggregations
+from src.elasticsearch.utils import EsMappings, elasticsearch_get_report_aggregations, recreate_index
 from src.rdf_namespaces import JSON_LD
-from src.utils import ServiceKey
+from src.utils import ServiceKey, ThemeProfile
 
 
 @pytest.mark.unit
-def test_dry_run():
+def test_dry_run(mock_cwd):
     #  insert_datasets()
-    #result = AggregationQuery(ServiceKey.DATA_SETS).build()
-    #json_dump = json.dumps(result)
-    #x = 0
-    result = elasticsearch_get_report_aggregations(ServiceKey.DATA_SETS)
+    result = AggregationQuery(report_type=ServiceKey.DATA_SETS, theme_profile=ThemeProfile.TRANSPORT)
+    json_dump = json.dumps(result.build())
+    x = 0
+
+
+# result = elasticsearch_get_report_aggregations(ServiceKey.DATA_SETS)
 
 
 @pytest.mark.unit
@@ -1092,3 +1095,10 @@ def test_merge_dataset_information_with_mixed_distributions():
     assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
     assert result["http://www.w3.org/ns/dcat#distribution"][1][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
     assert result["http://www.w3.org/ns/dcat#distribution"][2][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
+
+
+@pytest.fixture
+def mock_cwd(mocker):
+    project_root = os.getcwd().split("/test")[0]
+    return mocker.patch('src.elasticsearch.os.getcwd',
+                        return_value=project_root)

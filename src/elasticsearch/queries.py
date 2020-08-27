@@ -1,7 +1,8 @@
 import abc
+import json
 
 from src.rdf_namespaces import JSON_LD, ContentKeys
-from src.utils import ServiceKey
+from src.utils import ServiceKey, ThemeProfile
 
 
 class EsMappings:
@@ -27,18 +28,33 @@ CATALOG_RECORD_AGGREGATION_FIELDS = [
 
 
 class AggregationQuery:
-    def __init__(self, report_type: ServiceKey):
+    def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None):
         self.aggregations = {EsMappings.ORG_PATH: {
             "terms": {
-                "field": f"{EsMappings.ORG_PATH}.keyword",
+                "field": EsMappings.ORG_PATH,
                 "missing": "MISSING",
                 "size": 100000
             }
         }, ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
                                                              days=7)}
-
         if report_type == ServiceKey.DATA_SETS:
             self.__add_datasets_aggregation()
+        self.query = None
+        self.__add_filters(orgpath, theme, theme_profile)
+
+    def __add_filters(self, orgpath, themes, theme_profile):
+        if orgpath or themes or theme_profile:
+            self.query = {
+                "bool": {
+                    "filter": []
+                }
+            }
+            if themes:
+                self.query["bool"]["filter"].extend(get_los_path_filter(themes_str=themes))
+            if orgpath:
+                self.query["bool"]["filter"].append(get_org_path_filter(orgpath))
+            if theme_profile:
+                self.query["bool"]["filter"].append(get_theme_profile_filter(ThemeProfile.TRANSPORT))
 
     def __add_datasets_aggregation(self):
         self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = AggregationQuery.json_ld_terms_aggregation(
@@ -76,10 +92,13 @@ class AggregationQuery:
         }
 
     def build(self):
-        return {
+        body = {
             "size": 0,
             "aggregations": self.aggregations
         }
+        if self.query:
+            body["query"] = self.query
+        return body
 
     @staticmethod
     def es_keyword_key(json_ld_key: str):
@@ -140,3 +159,44 @@ def get_last_x_days_filter(key: str, days: int):
             }
         }
     }}
+
+
+def get_los_path_filter(themes_str: str = None, profile_themes_list=None):
+    if themes_str is not None:
+        themes_list = themes_str.split(",")
+    elif profile_themes_list is not None:
+        themes_list = profile_themes_list
+    else:
+        return
+    terms = []
+    for theme in themes_list:
+        terms.append({
+            "term": {
+                "los.losPaths.keyword": theme
+            }
+        })
+    return terms
+
+
+def get_org_path_filter(org_path: str):
+    return {
+        "term": {
+            EsMappings.ORG_PATH: org_path
+        }
+    }
+
+
+def get_theme_profile_filter(profile: ThemeProfile):
+    if profile == ThemeProfile.TRANSPORT:
+        should_list = get_los_path_filter(profile_themes_list=ThemeProfile.TRANSPORT_THEMES)
+        return {
+            "bool": {
+                "must": [
+                    {
+                        "bool": {
+                            "should": should_list
+                        }
+                    }
+                ]
+            }
+        }
