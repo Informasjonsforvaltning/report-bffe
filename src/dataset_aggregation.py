@@ -1,5 +1,3 @@
-import asyncio
-
 from src.elasticsearch.queries import EsMappings
 from src.elasticsearch.utils import elasticsearch_get_report_aggregations
 from src.rdf_namespaces import ContentKeys

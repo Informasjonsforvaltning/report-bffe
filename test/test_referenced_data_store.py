@@ -50,7 +50,7 @@ def test_get_los_path(event_loop, get_los_paths_mock):
     assert "sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering" in several_paths_result
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_get_los_path(event_loop, get_los_paths_mock):
     los_path_tasks = asyncio.gather(get_los_path(["https://psi.norge.no/los/ord/festival"]),
                                     get_los_path(["https://psi.norge.no/los/ord/boligfinansiering"]))

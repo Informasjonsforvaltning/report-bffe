@@ -78,7 +78,7 @@ def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None,
                              orgpath=orgpath,
                              theme=theme,
                              theme_profile=theme_profile).build()
-    aggregations = es_client.search(body=query)
+    aggregations = es_client.search(index=report_type, body=query)
     return aggregations
 
 

@@ -5,8 +5,8 @@ from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 
+from src.elasticsearch.scheduler import schedule_updates
 from src.endpoints import Ping, Ready, Report, TimeSeries
-
 
 def create_app(test_config=None):
     # Create and configure the app
@@ -32,5 +32,6 @@ def create_app(test_config=None):
     api.add_resource(Ping, '/ping')
     api.add_resource(Report, '/report/<string:content_type>')
     api.add_resource(TimeSeries, '/timeseries/<string:content_type>')
+    schedule_updates()
 
     return app

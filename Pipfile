@@ -17,6 +17,7 @@ gunicorn = "*"
 asyncstdlib = "*"
 httpx = "*"
 elasticsearch = "*"
+apscheduler = "*"
 
 [requires]
 python_version = "3.8"

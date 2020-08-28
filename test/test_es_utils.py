@@ -11,7 +11,7 @@ def fetch_organizations_mock(mocker):
                  return_value=mocked_organization_catalog_response)
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_add_org_path_to_document_with_dct_publisher_uri(event_loop, fetch_organizations_mock):
     result = event_loop.run_until_complete(add_org_and_los_paths_to_document(
         dct_publisher_with_national_registry["https://data.norge.no/node/2889"])
@@ -22,13 +22,14 @@ def test_add_org_path_to_document_with_dct_publisher_uri(event_loop, fetch_organ
     assert result_content[EsMappings.ORG_PATH] == "/STAT/972417858/991825827"
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_add_org_path_to_document_with_foaf_agent_uri(event_loop, fetch_organizations_mock):
     store_instance: OrganizationStore = OrganizationStore.get_instance()
     store_instance.organizations = parsed_org_catalog_mock()
     event_loop.run_until_complete(add_foaf_agent_to_organization_store(agent))
 
-    result = event_loop.run_until_complete(add_org_and_los_paths_to_document(dct_publisher_with_foaf_agent_ref["https://data.norge.no/node/2889"]))
+    result = event_loop.run_until_complete(
+        add_org_and_los_paths_to_document(dct_publisher_with_foaf_agent_ref["https://data.norge.no/node/2889"]))
     result_content = result
     assert len(result_content.keys()) == 4
     assert EsMappings.ORG_PATH in result_content.keys()
@@ -49,16 +50,6 @@ def test_add_to_org_store_foaf_agent(event_loop, fetch_organizations_mock):
     assert result.name == expected_name
     assert result.org_path == expected_org_path
     assert result.same_as == expected_same_as
-
-
-@pytest.mark.unit
-def test_prepare_los_themes_without_parent():
-    pass
-
-
-@pytest.mark.unit
-def test_prepare_los_themes_with_parent():
-    pass
 
 
 dct_publisher_with_national_registry = {

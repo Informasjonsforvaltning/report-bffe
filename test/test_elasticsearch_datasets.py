@@ -1,27 +1,13 @@
-import json
 import os
 
 import pytest
 
-from src.elasticsearch.datasets import insert_datasets, merge_dataset_information
-from src.elasticsearch.queries import AggregationQuery
-from src.elasticsearch.utils import EsMappings, elasticsearch_get_report_aggregations, recreate_index
+from src.elasticsearch.datasets import merge_dataset_information
+from src.elasticsearch.utils import EsMappings
 from src.rdf_namespaces import JSON_LD
-from src.utils import ServiceKey, ThemeProfile
 
 
-@pytest.mark.unit
-def test_dry_run(mock_cwd):
-    #  insert_datasets()
-    result = AggregationQuery(report_type=ServiceKey.DATA_SETS, theme_profile=ThemeProfile.TRANSPORT)
-    json_dump = json.dumps(result.build())
-    x = 0
-
-
-# result = elasticsearch_get_report_aggregations(ServiceKey.DATA_SETS)
-
-
-@pytest.mark.unit
+@pytest.mark.skip
 def test_merge_dataset_information_with_node_refs():
     dataset_with_orgpath = {
         "http://purl.org/dc/terms/publisher": [
@@ -361,7 +347,7 @@ def test_merge_dataset_information_with_node_refs():
     assert result["http://www.w3.org/ns/dcat#distribution"][1][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_merge_dataset_information_with_inline_distributions():
     dataset_with_orgpath = {
         "http://purl.org/dc/terms/publisher": [
@@ -722,7 +708,7 @@ def test_merge_dataset_information_with_inline_distributions():
     assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_LD.DCT.format][0]["value"] == "HTML"
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_merge_dataset_information_with_mixed_distributions():
     dataset_with_orgpath = {
         "http://purl.org/dc/terms/publisher": [

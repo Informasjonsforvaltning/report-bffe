@@ -8,11 +8,11 @@ from src.elasticsearch.utils import elasticsearch_ingest, add_foaf_agent_to_orga
 from src.rdf_namespaces import JSON_LD, ContentKeys
 from src.referenced_data_store import get_open_licenses, get_media_types, MediaTypes
 from src.service_requests import fetch_catalog_from_dataset_harvester, \
-    fetch_themes_and_topics_from_reference_data, fetch_media_types_from_reference_data
+    fetch_themes_and_topics_from_reference_data
 from src.utils import FetchFromServiceException, ServiceKey
 
 
-def insert_datasets():
+def insert_datasets(cancel_method):
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -34,7 +34,7 @@ def insert_datasets():
         elasticsearch_ingest(index_key=ServiceKey.DATA_SETS, documents=prepared_docs)
     except FetchFromServiceException as err:
         logging.error(err.reason)
-        return
+        cancel_method()
 
 
 async def prepare_documents(documents: dict, los_themes: List[dict], open_licenses, media_types) -> dict:
