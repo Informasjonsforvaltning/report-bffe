@@ -8,6 +8,7 @@ from flask_cors import CORS
 from src.elasticsearch.scheduler import schedule_updates
 from src.endpoints import Ping, Ready, Report, TimeSeries
 
+
 def create_app(test_config=None):
     # Create and configure the app
     load_dotenv(override=True)

@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import atexit
 from time import sleep
@@ -8,6 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import pytz
 from elasticsearch import NotFoundError, Elasticsearch
+from urllib3.exceptions import NewConnectionError
 
 from src.elasticsearch.datasets import insert_datasets
 
@@ -50,7 +52,7 @@ class Update:
                 return False
         except NotFoundError:
             pass
-        except elasticsearch.exceptions.ConnectionError:
+        except (elasticsearch.exceptions.ConnectionError, ConnectionRefusedError, NewConnectionError):
             sleep(5)
             Update.start_update(connection_attempts + 1)
         result = es_client.index(index="updates", body=update.doc())
@@ -74,7 +76,8 @@ class Update:
             return jobs_in_progress["hits"]["total"]["value"] > 0
         except NotFoundError:
             return False
-        except elasticsearch.exceptions.ConnectionError:
+        except (elasticsearch.exceptions.ConnectionError, ConnectionRefusedError, NewConnectionError):
+            logging.error(f"Connection error checking for jobs in progress. Attempts: {connection_attempts}")
             sleep(5)
             return Update.is_running(connection_attempts + 1)
 
