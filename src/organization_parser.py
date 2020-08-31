@@ -1,46 +1,52 @@
+import logging
 from typing import List
 
-from src.rdf_namespaces import OrgCatalogKeys, ContentKeys, JSON_LD
+from src.rdf_namespaces import OrgCatalogKeys, ContentKeys
 from src.utils import NATIONAL_REGISTRY_PATTERN
 
 
 class OrganizationReferencesObject:
-    def __init__(self, org_uri: str, org_path: str = None, same_as: str = None, name: str = None):
+    def __init__(self, org_uri: str = None, org_path: str = None, same_as_entry: str = None, name: str = None):
         self.org_uri: str = org_uri
         self.org_path: str = org_path
-        self.same_as: str = same_as
+        self.same_as: List[str] = list()
+        if same_as_entry:
+            self.same_as.append(same_as_entry)
         self.name: str = name
 
     def update_orgpath(self, org_path):
         self.org_path = org_path
 
-    def update_same_as(self, foaf_same_as):
-        self.same_as = foaf_same_as
-
-    def has_national_registry_uri(self):
-        prefix = self.org_uri.split(":")[1]
-        return prefix == NATIONAL_REGISTRY_PATTERN
-
     def __eq__(self, other):
         if type(other) == OrganizationReferencesObject:
-            same_uri = OrganizationReferencesObject.__eq_on_http(self.org_uri, other.org_uri)
-            if same_uri:
-                return True
-            else:
-                if self.same_as is not None:
-                    return OrganizationReferencesObject.__eq_on_http(self.same_as, other.org_uri)
+            if self.org_uri:
+                if self.__eq_on_org_uri(other):
+                    return True
                 else:
-                    if other.same_as is not None:
-                        return OrganizationReferencesObject.__eq_on_http(self.org_uri, other.same_as)
-                    else:
-                        return False
+                    return self.__eq_on_same_as(other)
         elif type(other) == str:
-            if other.startswith("http"):
-                return OrganizationReferencesObject.__eq_on_http(self.org_uri, other)
-            else:
+            if not self.org_path:
                 return False
+            else:
+                return self.org_path == other
         else:
             return False
+
+    def __eq_on_org_uri(self, other: 'OrganizationReferencesObject'):
+        if not other.org_uri:
+            return False
+        return OrganizationReferencesObject.__eq_on_national_registry(
+            self.org_uri,
+            other.org_uri)
+
+    def __eq_on_same_as(self, other: 'OrganizationReferencesObject'):
+        if not self.same_as:
+            return False
+        if not other.same_as:
+            return False
+        else:
+            matches = [org for org in self.same_as if org in other.same_as]
+            return len(matches) > 0
 
     @staticmethod
     def __eq_on_http(uri_1: str, uri_2: str) -> bool:
@@ -69,17 +75,43 @@ class OrganizationReferencesObject:
         return [OrganizationReferencesObject.from_organization_catalog_single_response(org) for org in organizations]
 
     @staticmethod
-    def from_json_ld_values(ld_org_uri_value: List[dict], ld_same_as_value: List[dict] = None):
-        org_uri: str = ld_org_uri_value[0][ContentKeys.VALUE]
-        same_as: str = None
-        org_path: str = None
-        if ld_same_as_value:
-            same_as = ld_same_as_value[0][ContentKeys.VALUE]
-        return OrganizationReferencesObject(org_uri, org_path, same_as)
+    def from_sparql_query_result(organization: dict) -> 'OrganizationReferencesObject':
+        keys = organization.keys()
+        if not organization.get(ContentKeys.ORG_NAME).get(ContentKeys.VALUE):
+            logging.error("organization without name in sparql query result")
+
+        name = organization.get(ContentKeys.ORG_NAME).get(ContentKeys.VALUE)
+        reference_object = OrganizationReferencesObject(name=name)
+        if ContentKeys.PUBLISHER in keys:
+            publisher_uri = organization.get(ContentKeys.PUBLISHER).get(ContentKeys.VALUE)
+            if OrganizationReferencesObject.is_national_registry_uri(publisher_uri):
+                reference_object.org_uri = publisher_uri
+            else:
+                reference_object.same_as.append(publisher_uri)
+        if ContentKeys.SAME_AS in keys:
+            same_as_uri = organization.get(ContentKeys.SAME_AS).get(ContentKeys.VALUE)
+            if OrganizationReferencesObject.is_national_registry_uri(same_as_uri):
+                reference_object.org_uri = same_as_uri
+            else:
+                reference_object.same_as.append(reference_object)
+        return reference_object
+
+    @staticmethod
+    def from_dct_publisher(org_uri):
+        if org_uri:
+            if OrganizationReferencesObject.is_national_registry_uri(org_uri):
+                return OrganizationReferencesObject(org_uri=org_uri)
+            else:
+                return OrganizationReferencesObject(same_as_entry=org_uri)
+        else:
+            return None
 
     @staticmethod
     def is_national_registry_uri(uri):
-        return NATIONAL_REGISTRY_PATTERN in uri
+        if uri is None:
+            return False
+        prefix = uri.split(":")[1]
+        return NATIONAL_REGISTRY_PATTERN in prefix
 
     @staticmethod
     def resolve_id(uri: str):
@@ -93,7 +125,6 @@ class OrganizationStore:
     def __init__(self):
         if OrganizationStore.__instance__ is None:
             self.organizations: List = None
-            self.modified = False
             OrganizationStore.__instance__ = self
         else:
             raise OrganizationStoreExistsException()
@@ -103,11 +134,15 @@ class OrganizationStore:
             self.organizations = organizations
 
     def add_organization(self, organization: OrganizationReferencesObject):
-        if not self.organizations:
-            self.organizations = []
-        if organization.org_uri not in [org.org_uri for org in self.organizations]:
+        if self.organizations is None:
+            self.organizations = list()
+        try:
+            org_idx = self.organizations.index(organization)
+        except ValueError:
             self.organizations.append(organization)
-            self.modified = True
+            org_idx = self.organizations.index(organization)
+        if len(organization.same_as) > 0:
+            self.organizations[org_idx].same_as.extend(organization.same_as)
 
     def get_orgpath(self, uri: str) -> str:
         try:
@@ -117,6 +152,17 @@ class OrganizationStore:
             return None
         except AttributeError:
             raise OrganizationStoreNotInitiatedException()
+
+    def get_organization(self, org) -> OrganizationReferencesObject:
+        try:
+            return self.organizations[self.organizations.index(org)]
+        except ValueError:
+            return None
+
+    def add_all_publishers(self, publishers: List[dict]):
+        for reference in publishers["results"]["bindings"]:
+            self.add_organization(
+                OrganizationReferencesObject.from_sparql_query_result(reference))
 
     @staticmethod
     def get_instance() -> 'OrganizationStore':

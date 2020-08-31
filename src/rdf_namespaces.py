@@ -14,6 +14,10 @@ class NamespaceProperty(metaclass=abc.ABCMeta):
     def get_prefix(self):
         pass
 
+    @staticmethod
+    def get_ttl_ns_definition():
+        pass
+
     def get_property(self, from_value):
         return f"{self.prefix}{from_value}"
 
@@ -24,11 +28,16 @@ class RDF(NamespaceProperty):
 
     def __init__(self, syntax):
         super().__init__(syntax)
-        self.type = self.get_property("type")
+        if self.syntax == NamespaceProperty.JSON_LD:
+            self.type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+        else:
+            self.type = "a"
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_LD:
             return RDF.json_ld_prefix
+        else:
+            return self.ttl_prefix
 
 
 class DCT(NamespaceProperty):
@@ -47,6 +56,10 @@ class DCT(NamespaceProperty):
         self.source = self.get_property("source")
         self.subject = self.get_property("subject")
         self.license_document = self.get_property("LicenseDocument")
+
+    @staticmethod
+    def get_ttl_ns_definition():
+        return "dct: <http://purl.org/dc/terms/>"
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_LD:
@@ -71,6 +84,10 @@ class FOAF(NamespaceProperty):
         else:
             return FOAF.ttl_prefix
 
+    @staticmethod
+    def get_ttl_ns_definition():
+        return "foaf: <http://xmlns.com/foaf/0.1/>"
+
 
 class OWL(NamespaceProperty):
     ttl_prefix = "owl:"
@@ -85,6 +102,10 @@ class OWL(NamespaceProperty):
             return OWL.json_ld_prefix
         else:
             return OWL.ttl_prefix
+
+    @staticmethod
+    def get_ttl_ns_definition():
+        return "owl: <http://www.w3.org/2002/07/owl%23>"
 
 
 class DCAT(NamespaceProperty):
@@ -145,6 +166,8 @@ class SparqlFunctionString:
 
 
 class ContentKeys:
+    SAME_AS = "sameAs"
+    PUBLISHER = "publisher"
     SRC_ORGANIZATION = "publisher"
     FORMAT = "format"
     WITH_SUBJECT = "withSubject"

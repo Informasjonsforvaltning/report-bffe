@@ -122,7 +122,7 @@ updates_last_x_minutes_query = {
         "range": {
             "end_time": {
                 "time_zone": "+01:00",
-                "gte": f"now-{update_interval}m/m",
+                "gte": f"now-{update_interval}s/s",
                 "lte": "now"
             }
         }

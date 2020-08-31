@@ -118,26 +118,31 @@ async def get_organization_from_organization_catalog(uri: str, name: str) -> Org
             org = await fetch_organization_from_catalog(OrganizationReferencesObject.resolve_id(uri=uri), name)
         else:
             org = await attempt_fetch_organization_by_name_from_catalog(name)
-
         parsed_org = OrganizationReferencesObject.from_organization_catalog_single_response(org)
 
     except NotInNationalRegistryException:
         orgpath = await fetch_generated_org_path_from_organization_catalog(name)
         parsed_org = OrganizationReferencesObject(name=name, org_uri=uri, org_path=orgpath)
-
-    OrganizationStore.get_instance().add_organization(parsed_org)
+    if parsed_org is not None:
+        OrganizationStore.get_instance().add_organization(parsed_org)
     return parsed_org
 
 
-async def get_org_path(uri: str, name: str) -> str:
-    raw_uri = clean_uri(uri)
+async def get_organization(organization: OrganizationReferencesObject) -> OrganizationReferencesObject:
+    if organization is None:
+        return None
     try:
         org_catalog = await get_organizations()
-        org_idx: OrganizationReferencesObject = org_catalog.index(raw_uri)
-        return org_catalog[org_idx].org_path
+        org_idx = org_catalog.index(organization)
+        organization: OrganizationReferencesObject = org_catalog[org_idx]
+        if organization.org_path is None:
+            return await get_organization_from_organization_catalog(uri=organization.org_uri, name=organization.name)
+        else:
+            return organization
     except ValueError:
-        org: OrganizationReferencesObject = await get_organization_from_organization_catalog(uri=raw_uri, name=name)
-        return org.org_path
+        org: OrganizationReferencesObject = await get_organization_from_organization_catalog(uri=organization.org_uri,
+                                                                                             name=organization.name)
+        return org
 
 
 def clean_uri(uri_from_sparql: str):

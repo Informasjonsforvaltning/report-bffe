@@ -1,15 +1,13 @@
 import os
 from typing import List
-
-import requests
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
+from src.sparql import get_dataset_publisher_query
 from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException, ThemeProfile
 
 service_urls = {
-    ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "https://organization-catalogue.staging"
-                                                                       ".fellesdatakatalog.digdir.no",
+    ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080",
     ServiceKey.INFO_MODELS: os.getenv('INFORMATIONMODELS_HARVESTER_URL') or "http://localhost:8080/informationmodels",
     ServiceKey.DATA_SERVICES: os.getenv('DATASERVICE_HARVESTER_URL') or "http://localhost:8080/apis",
     ServiceKey.DATA_SETS: os.getenv('DATASET_HARVESTER_URL') or "http://localhost:8080",
@@ -49,6 +47,11 @@ async def fetch_organization_from_catalog(national_reg_id: str, name: str) -> di
                 execution_point="get organization by id",
                 url=url
             )
+        except (ConnectTimeout, ConnectError):
+            raise FetchFromServiceException(
+                execution_point="connection error to organization catalog",
+                url=url
+            )
         except HTTPError as err:
             if err.response.status_code == 404:
                 return await attempt_fetch_organization_by_name_from_catalog(name)
@@ -60,6 +63,8 @@ async def fetch_organization_from_catalog(national_reg_id: str, name: str) -> di
 
 
 async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
+    if name is None:
+        raise NotInNationalRegistryException("No name")
     url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations?name={name.upper()}'
     async with AsyncClient() as session:
         try:
@@ -84,6 +89,8 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
 
 
 async def fetch_generated_org_path_from_organization_catalog(name: str):
+    if name is None:
+        return None
     url: str = f'{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations/orgpath/{name.upper()}'
     async with AsyncClient() as session:
         try:
@@ -145,7 +152,6 @@ async def fetch_access_rights_from_reference_data():
             )
 
 
-# https://fellesdatakatalog.digdir.no/reference-data/codes/mediatypes
 async def fetch_media_types_from_reference_data():
     url = f'{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/mediatypes'
     async with AsyncClient() as session:
@@ -155,7 +161,7 @@ async def fetch_media_types_from_reference_data():
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
-                execution_point="reference-data get access rights",
+                execution_point="reference-data get mediatypes rights",
                 url=url
             )
 
@@ -164,10 +170,25 @@ async def fetch_catalog_from_dataset_harvester() -> dict:
     url = f'{service_urls.get(ServiceKey.DATA_SETS)}/catalogs'
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, timeout=5)
+            response = await session.get(url=url, headers={"Accept": "application/rdf+json"}, timeout=60)
             response.raise_for_status()
             return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
+            raise FetchFromServiceException(
+                execution_point="fetching dataset catalog",
+                url=url
+            )
+
+
+async def fetch_publishers_from_dataset_harvester() -> dict:
+    publisher_query = get_dataset_publisher_query()
+    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/sparql/select?query={publisher_query}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
             raise FetchFromServiceException(
                 execution_point="fetching dataset catalog",
                 url=url

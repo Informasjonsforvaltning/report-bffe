@@ -3,12 +3,13 @@ import logging
 from typing import List
 
 from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, CATALOG_RECORD_AGGREGATION_FIELDS
-from src.elasticsearch.utils import elasticsearch_ingest, add_foaf_agent_to_organization_store, \
-    add_org_and_los_paths_to_document, add_key_as_node_uri, EsMappings, get_values_from_nested_dict
+from src.elasticsearch.utils import elasticsearch_ingest, add_org_and_los_paths_to_document, add_key_as_node_uri, \
+    EsMappings, get_values_from_nested_dict, get_all_organizations_with_publisher
+from src.organization_parser import OrganizationStore
 from src.rdf_namespaces import JSON_LD, ContentKeys
 from src.referenced_data_store import get_open_licenses, get_media_types, MediaTypes
 from src.service_requests import fetch_catalog_from_dataset_harvester, \
-    fetch_themes_and_topics_from_reference_data
+    fetch_themes_and_topics_from_reference_data, fetch_publishers_from_dataset_harvester
 from src.utils import FetchFromServiceException, ServiceKey
 
 
@@ -24,26 +25,28 @@ def insert_datasets(cancel_method):
             fetch_catalog_from_dataset_harvester(),
             fetch_themes_and_topics_from_reference_data(),
             get_open_licenses(),
-            get_media_types()
+            get_media_types(),
+            fetch_publishers_from_dataset_harvester()
         )
-        dataset_rdf, los_themes, open_licenses, media_types = loop.run_until_complete(collection_tasks)
+        dataset_rdf, los_themes, open_licenses, media_types, publishers = loop.run_until_complete(collection_tasks)
         prepared_docs = loop.run_until_complete(prepare_documents(documents=dataset_rdf,
                                                                   los_themes=los_themes,
                                                                   open_licenses=open_licenses,
-                                                                  media_types=media_types))
+                                                                  media_types=media_types,
+                                                                  publishers=publishers))
         elasticsearch_ingest(index_key=ServiceKey.DATA_SETS, documents=prepared_docs)
     except FetchFromServiceException as err:
         logging.error(err.reason)
         cancel_method()
 
 
-async def prepare_documents(documents: dict, los_themes: List[dict], open_licenses, media_types) -> dict:
+async def prepare_documents(documents: dict, los_themes: List[dict], open_licenses, media_types, publishers) -> dict:
+    await get_all_organizations_with_publisher(publishers)
+
     documents_list = list(documents.items())
     with_mapped_node_uri = [add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list]
     datasets = [entry for entry in with_mapped_node_uri if
                 JSON_LD.rdf_type_equals(JSON_LD.DCAT.dataset, entry)]
-    foaf_agents = [{entry[0]: entry[1]} for entry in documents_list if
-                   JSON_LD.rdf_type_equals(JSON_LD.FOAF.agent, entry)]
     records = [{entry[0]: entry[1]} for entry in documents_list if
                JSON_LD.rdf_type_equals(JSON_LD.DCAT.CatalogRecord, entry)]
     distributions = [{entry[0]: entry[1]} for entry in documents_list if
@@ -51,9 +54,7 @@ async def prepare_documents(documents: dict, los_themes: List[dict], open_licens
     license_documents = [{entry[0]: entry[1]} for entry in documents_list if
                          JSON_LD.rdf_type_in(JSON_LD.DCT.license_document, entry)]
 
-    # add foaf agents to organization store
-    foaf_agents_tasks = asyncio.gather(*[add_foaf_agent_to_organization_store(agent) for agent in foaf_agents])
-    await foaf_agents_tasks
+    # add publishers from sparql_query to organization store
 
     # add organization references to entry
     with_orgpath = await asyncio.gather(*[add_org_and_los_paths_to_document(json_ld_values=entry,

@@ -1,23 +1,7 @@
 import asyncio
 import pytest
 
-from src.referenced_data_store import get_org_path, get_access_rights_code, get_los_path
-
-
-@pytest.mark.unit
-def test_get_org_path_in_org_catalog(event_loop, get_organizations_mock):
-    result = event_loop.run_until_complete(
-        get_org_path(uri="<https://data.brreg.no/enhetsregisteret/api/enheter/974760673>",
-                     name="Statens Håpefulle"))
-    assert result == "/STAT/912660680/974760673"
-
-
-@pytest.mark.unit
-def test_get_org_path_in_national_registry(get_organizations_mock, get_organization_from_service_mock, event_loop):
-    result = event_loop.run_until_complete(
-        get_org_path(uri="<https://data.brreg.no/enhetsregisteret/api/enheter/971040238>",
-                     name="Yes ma'm"))
-    assert result == "/STAT/972417858/971040238"
+from src.referenced_data_store import get_access_rights_code, get_los_path
 
 
 @pytest.mark.unit

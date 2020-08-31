@@ -11,7 +11,7 @@ from src.elasticsearch.queries import EsMappings, AggregationQuery
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject, \
     OrganizationStoreNotInitiatedException
 from src.rdf_namespaces import JSON_LD, ContentKeys
-from src.referenced_data_store import get_org_path, get_organizations, get_los_path
+from src.referenced_data_store import get_organizations, get_los_path, get_organization
 from src.utils import ServiceKey
 
 
@@ -20,34 +20,20 @@ def add_key_as_node_uri(key, value):
     return value
 
 
-async def add_foaf_agent_to_organization_store(foaf_agent_dict: dict):
-    store = OrganizationStore.get_instance()
-    uri = list(foaf_agent_dict.keys())[0]
-    values = foaf_agent_dict[uri]
-    same_as = None
-    keys = values.keys()
-    if JSON_LD.OWL.sameAs in keys:
-        same_as = values[JSON_LD.OWL.sameAs][0][ContentKeys.VALUE]
-    name = values[JSON_LD.FOAF.name][0][ContentKeys.VALUE]
-    if same_as:
-        org_path = await get_org_path(uri=same_as, name=name)
-    else:
-        org_path = await get_org_path(uri=uri, name=name)
-    store.add_organization(organization=OrganizationReferencesObject(
-        org_uri=uri,
-        same_as=same_as,
-        org_path=org_path,
-        name=name
-    ))
-    return True
+async def get_all_organizations_with_publisher(publishers):
+    await get_organizations()
+    OrganizationStore.get_instance().add_all_publishers(publishers)
 
 
 async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:
     uri = json_ld_values[JSON_LD.DCT.publisher][0][ContentKeys.VALUE]
-    store = OrganizationStore.get_instance()
+
     try:
-        org_path = store.get_orgpath(uri)
-        json_ld_values[EsMappings.ORG_PATH] = org_path
+        ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
+        referenced_organization = await get_organization(ref_object)
+        if referenced_organization:
+            org_path = referenced_organization.org_path
+            json_ld_values[EsMappings.ORG_PATH] = org_path
         return add_los_path_to_document(json_ld_values, los_themes)
     except OrganizationStoreNotInitiatedException:
         await get_organizations()
