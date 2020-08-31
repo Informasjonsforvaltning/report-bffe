@@ -6,6 +6,7 @@ from src.utils import ServiceKey, ThemeProfile
 
 
 class EsMappings:
+    TIME_SERIES = "timeseries"
     FORMAT = "formatCodes"
     LOS = "los"
     RECORD = "dcatRecord"
@@ -27,22 +28,12 @@ CATALOG_RECORD_AGGREGATION_FIELDS = [
 ]
 
 
-class AggregationQuery:
-    def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None):
-        self.aggregations = {EsMappings.ORG_PATH: {
-            "terms": {
-                "field": EsMappings.ORG_PATH,
-                "missing": "MISSING",
-                "size": 100000
-            }
-        }, ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
-                                                             days=7)}
-        if report_type == ServiceKey.DATA_SETS:
-            self.__add_datasets_aggregation()
+class Query(metaclass=abc.ABCMeta):
+    def __init__(self):
+        self.aggregations = None
         self.query = None
-        self.__add_filters(orgpath, theme, theme_profile)
 
-    def __add_filters(self, orgpath, themes, theme_profile):
+    def add_filters(self, orgpath, themes, theme_profile):
         if orgpath or themes or theme_profile:
             self.query = {
                 "bool": {
@@ -55,6 +46,32 @@ class AggregationQuery:
                 self.query["bool"]["filter"].append(get_org_path_filter(orgpath))
             if theme_profile:
                 self.query["bool"]["filter"].append(get_theme_profile_filter(ThemeProfile.TRANSPORT))
+
+    def build(self):
+        body = {
+            "size": 0,
+            "aggregations": self.aggregations
+        }
+        if self.query:
+            body["query"] = self.query
+        return body
+
+
+class AggregationQuery(Query):
+    def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None):
+        super().__init__()
+        self.aggregations = {EsMappings.ORG_PATH: {
+            "terms": {
+                "field": EsMappings.ORG_PATH,
+                "missing": "MISSING",
+                "size": 100000
+            }
+        }, ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
+                                                             days=7)}
+        if report_type == ServiceKey.DATA_SETS:
+            self.__add_datasets_aggregation()
+        self.query = None
+        self.add_filters(orgpath, theme, theme_profile)
 
     def __add_datasets_aggregation(self):
         self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = AggregationQuery.json_ld_terms_aggregation(
@@ -91,15 +108,6 @@ class AggregationQuery:
             }
         }
 
-    def build(self):
-        body = {
-            "size": 0,
-            "aggregations": self.aggregations
-        }
-        if self.query:
-            body["query"] = self.query
-        return body
-
     @staticmethod
     def es_keyword_key(json_ld_key: str):
         return f"{json_ld_key}{EsMappings.VALUE_KEYWORD}"
@@ -115,6 +123,21 @@ class AggregationQuery:
                 "size": size or 10
             }
         }
+
+
+class TimeSeriesQuery(Query):
+    def __init__(self, orgpath, theme, theme_profile):
+        super().__init__()
+        self.aggregations = {
+            f"{EsMappings.TIME_SERIES}": {
+                "date_histogram": {
+                    "field": "dcatRecord.http://purl.org/dc/terms/issued.value",
+                    "calendar_interval": "month",
+                    "format": "dd.MM.yyyy"
+                }
+            }
+        }
+        self.add_filters(orgpath, theme, theme_profile)
 
 
 def org_path_aggregation() -> dict:

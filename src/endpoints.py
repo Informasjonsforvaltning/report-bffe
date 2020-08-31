@@ -33,7 +33,7 @@ class Report(Resource):
 class TimeSeries(Resource):
     def get(self, content_type):
         try:
-            result: TimeSeriesResponse = get_time_series(ServiceKey.get_key(content_type))
+            result: TimeSeriesResponse = get_time_series(ServiceKey.get_key(content_type), args=request.args)
             return result.json()
         except NotAServiceKeyException:
             abort(400)

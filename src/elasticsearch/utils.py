@@ -7,7 +7,7 @@ from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
 
 from src.elasticsearch import es_client
-from src.elasticsearch.queries import EsMappings, AggregationQuery
+from src.elasticsearch.queries import EsMappings, AggregationQuery, TimeSeriesQuery
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject, \
     OrganizationStoreNotInitiatedException
 from src.rdf_namespaces import JSON_LD, ContentKeys
@@ -58,16 +58,6 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
         logging.error(f"ingest {ServiceKey.DATA_SETS}", err.errors)
 
 
-def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None, theme=None,
-                                          theme_profile=None):
-    query = AggregationQuery(report_type=report_type,
-                             orgpath=orgpath,
-                             theme=theme,
-                             theme_profile=theme_profile).build()
-    aggregations = es_client.search(index=report_type, body=query)
-    return aggregations
-
-
 def yield_documents(documents):
     for doc in documents:
         yield doc
@@ -89,3 +79,21 @@ def recreate_index(index_key):
         except BaseException as err:
             logging.error("error when attempting to update {0} ".format(index_key))
         return None
+
+
+def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None, theme=None,
+                                          theme_profile=None):
+    query = AggregationQuery(report_type=report_type,
+                             orgpath=orgpath,
+                             theme=theme,
+                             theme_profile=theme_profile).build()
+    aggregations = es_client.search(index=report_type, body=query)
+    return aggregations
+
+
+def elasticsearch_get_time_series(report_type: ServiceKey, org_path=None, theme=None,
+                                  theme_profile=None):
+    query = TimeSeriesQuery(orgpath=org_path, theme_profile=theme_profile, theme=theme
+                            ).build()
+    aggregations = es_client.search(index=report_type, body=query)
+    return aggregations

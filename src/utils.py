@@ -1,3 +1,8 @@
+from datetime import datetime
+
+from src.rdf_namespaces import ContentKeys
+
+
 class ServiceKey:
     ORGANIZATIONS = "organizations"
     INFO_MODELS = "informationmodels"
@@ -25,9 +30,38 @@ class ServiceKey:
 NATIONAL_REGISTRY_PATTERN = "data.brreg.no/enhetsregisteret"
 
 
-class ParsedDatapoint:
-    def __init__(self):
-        pass
+class ParsedDataPoint:
+    def __init__(self, es_bucket=None, month=None, year=None):
+        if es_bucket is not None:
+            self.y_axis = es_bucket["doc_count"]
+            self.x_axis = es_bucket["key_as_string"]
+            self.month, self.year = self.parse_date()
+        else:
+            self.y_axis = 0,
+            self.x_axis = f"01.{month}.{year}"
+            self.year = year
+            self.month = month
+
+    def response_dict(self):
+        return {
+            ContentKeys.TIME_SERIES_Y_AXIS: self.y_axis,
+            ContentKeys.TIME_SERIES_X_AXIS: self.x_axis
+        }
+
+    def parse_date(self):
+        date = datetime.strptime(self.x_axis, "%d.%m.%Y")
+        return date.month, date.year
+
+    def get_next_month(self):
+        next_month = self.month + 1
+        next_year = self.year
+        if next_month == 13:
+            next_month = 1
+            next_year += 1
+        return ParsedDataPoint(month=next_month, year=next_year)
+
+    def __eq__(self, other: 'ParsedDataPoint'):
+        return self.month == other.month and self.year == other.year
 
 
 class ThemeProfile:

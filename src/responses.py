@@ -1,5 +1,7 @@
 from typing import List
 
+from src.utils import ParsedDataPoint
+
 
 class Response:
     def __init__(self, totalObjects, newLastWeek, catalogs: list):
@@ -86,9 +88,9 @@ class DataSetResponse(Response):
 
 
 class TimeSeriesResponse:
-    def __init__(self, parsed_data_points):
+    def __init__(self, parsed_data_points: ParsedDataPoint):
         self.time_series = []
-        # self.last_data_point: ParsedDataPoint = None
+        self.last_data_point: ParsedDataPoint = None
         for data_point in parsed_data_points:
             self.add(data_point)
         self.add_months_from_last_data_point_to_now()
