@@ -2,6 +2,7 @@ import pytest
 
 from src.rdf_namespaces import ContentKeys
 from src.responses import InformationModelResponse, ConceptResponse, TimeSeriesResponse
+from src.utils import ParsedDataPoint
 from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 
@@ -83,28 +84,48 @@ def test_concept_response():
 
 @pytest.mark.unit
 def test_time_series_response():
+    es_bucket_november = {
+        "key_as_string": "01.11.2019",
+        "doc_count": 8
+    }
+    es_bucket_january = {
+        "key_as_string": "01.01.2020",
+        "doc_count": 2
+    }
+    es_bucket_april = {
+        "key_as_string": "01.04.2020",
+        "doc_count": 1
+    }
+    es_bucket_may = {
+        "key_as_string": "01.05.2020",
+        "doc_count": 1
+    }
+    es_bucket_june = {
+        "key_as_string": "01.06.2020",
+        "doc_count": 3
+    }
     parsed_series = [
-        # ParsedDataPoint(month=11, year=2019, count=8),
-        # ParsedDataPoint(month=1, year=2020, count=2),
-        # ParsedDataPoint(month=4, year=2020, count=1),
-        # ParsedDataPoint(month=5, year=2020, count=1),
-        # ParsedDataPoint(month=6, year=2020, count=3)
+        ParsedDataPoint(es_bucket_november),
+        ParsedDataPoint(es_bucket_january),
+        ParsedDataPoint(es_bucket_april),
+        ParsedDataPoint(es_bucket_may),
+        ParsedDataPoint(es_bucket_june)
     ]
     result = TimeSeriesResponse(parsed_series).json()
-    #assert len(result) == 10
-    #assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "01.11.2019"
-    #assert result[1][ContentKeys.TIME_SERIES_X_AXIS] == "01.12.2019"
-    #assert result[2][ContentKeys.TIME_SERIES_X_AXIS] == "01.01.2020"
-    #assert result[3][ContentKeys.TIME_SERIES_X_AXIS] == "01.02.2020"
-    #assert result[4][ContentKeys.TIME_SERIES_X_AXIS] == "01.03.2020"
-    #assert result[5][ContentKeys.TIME_SERIES_X_AXIS] == "01.04.2020"
-    #assert result[6][ContentKeys.TIME_SERIES_X_AXIS] == "01.05.2020"
-    #assert result[7][ContentKeys.TIME_SERIES_X_AXIS] == "01.06.2020"
-    #assert result[0][ContentKeys.TIME_SERIES_Y_AXIS] == 8
-    #assert result[1][ContentKeys.TIME_SERIES_Y_AXIS] == 0
-    #assert result[2][ContentKeys.TIME_SERIES_Y_AXIS] == 2
-    #assert result[3][ContentKeys.TIME_SERIES_Y_AXIS] == 0
-    #assert result[4][ContentKeys.TIME_SERIES_Y_AXIS] == 0
-    #assert result[5][ContentKeys.TIME_SERIES_Y_AXIS] == 1
-    #assert result[6][ContentKeys.TIME_SERIES_Y_AXIS] == 1
-    #assert result[7][ContentKeys.TIME_SERIES_Y_AXIS] == 3
+    assert len(result) == 11
+    assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "01.11.2019"
+    assert result[1][ContentKeys.TIME_SERIES_X_AXIS] == "01.12.2019"
+    assert result[2][ContentKeys.TIME_SERIES_X_AXIS] == "01.01.2020"
+    assert result[3][ContentKeys.TIME_SERIES_X_AXIS] == "01.02.2020"
+    assert result[4][ContentKeys.TIME_SERIES_X_AXIS] == "01.03.2020"
+    assert result[5][ContentKeys.TIME_SERIES_X_AXIS] == "01.04.2020"
+    assert result[6][ContentKeys.TIME_SERIES_X_AXIS] == "01.05.2020"
+    assert result[7][ContentKeys.TIME_SERIES_X_AXIS] == "01.06.2020"
+    assert result[0][ContentKeys.TIME_SERIES_Y_AXIS] == 8
+    assert result[1][ContentKeys.TIME_SERIES_Y_AXIS] == 0
+    assert result[2][ContentKeys.TIME_SERIES_Y_AXIS] == 2
+    assert result[3][ContentKeys.TIME_SERIES_Y_AXIS] == 0
+    assert result[4][ContentKeys.TIME_SERIES_Y_AXIS] == 0
+    assert result[5][ContentKeys.TIME_SERIES_Y_AXIS] == 1
+    assert result[6][ContentKeys.TIME_SERIES_Y_AXIS] == 1
+    assert result[7][ContentKeys.TIME_SERIES_Y_AXIS] == 3
