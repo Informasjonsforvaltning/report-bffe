@@ -42,14 +42,15 @@ class Update:
         self.id = None
 
     @staticmethod
-    def start_update(connection_attempts=0):
+    def start_update(connection_attempts=0, ignore_previous_updates=False):
         if connection_attempts == 4:
             return
         update = Update()
         try:
-            jobs_completed_for_intervall = es_client.search(index="updates", body=updates_last_x_minutes_query)
-            if jobs_completed_for_intervall["hits"]["total"]["value"] > 0:
-                return False
+            if not ignore_previous_updates:
+                jobs_completed_for_intervall = es_client.search(index="updates", body=updates_last_x_minutes_query)
+                if jobs_completed_for_intervall["hits"]["total"]["value"] > 0:
+                    return False
         except NotFoundError:
             pass
         except (elasticsearch.exceptions.ConnectionError, ConnectionRefusedError, NewConnectionError):

@@ -5,7 +5,6 @@ from typing import List
 from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, CATALOG_RECORD_AGGREGATION_FIELDS
 from src.elasticsearch.utils import elasticsearch_ingest, add_org_and_los_paths_to_document, add_key_as_node_uri, \
     EsMappings, get_values_from_nested_dict, get_all_organizations_with_publisher
-from src.organization_parser import OrganizationStore
 from src.rdf_namespaces import JSON_LD, ContentKeys
 from src.referenced_data_store import get_open_licenses, get_media_types, MediaTypes
 from src.service_requests import fetch_catalog_from_dataset_harvester, \
@@ -54,8 +53,6 @@ async def prepare_documents(documents: dict, los_themes: List[dict], open_licens
     license_documents = [{entry[0]: entry[1]} for entry in documents_list if
                          JSON_LD.rdf_type_in(JSON_LD.DCT.license_document, entry)]
 
-    # add publishers from sparql_query to organization store
-
     # add organization references to entry
     with_orgpath = await asyncio.gather(*[add_org_and_los_paths_to_document(json_ld_values=entry,
                                                                             los_themes=los_themes) for entry in
@@ -102,7 +99,10 @@ def has_open_license(dcat_distributions, open_licenses, license_documents) -> bo
     )
     for license_entry in dcat_distributions:
         try:
-            if license_entry.get(JSON_LD.DCT.license)[0][ContentKeys.VALUE] in open_licenses:
+            licence_value = license_entry.get(JSON_LD.DCT.license)[0][ContentKeys.VALUE]
+            if licence_value in open_licenses:
+                return True
+            elif licence_value in open_license_nodes:
                 return True
         except TypeError:
             continue
