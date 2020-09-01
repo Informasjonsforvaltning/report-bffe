@@ -2,6 +2,7 @@ from flask import request
 from flask_restful import Resource, abort
 
 from src.aggregation import get_report
+from src.elasticsearch import get_all_update_entries
 from src.responses import TimeSeriesResponse
 from src.timeseries import get_time_series
 from src.utils import ServiceKey, NotAServiceKeyException, FetchFromServiceException
@@ -10,6 +11,11 @@ from src.utils import ServiceKey, NotAServiceKeyException, FetchFromServiceExcep
 class Ping(Resource):
     def get(self):
         return 200
+
+
+class Updates(Resource):
+    def get(self):
+        return get_all_update_entries()
 
 
 class Ready(Resource):
