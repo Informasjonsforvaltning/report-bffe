@@ -86,13 +86,13 @@ async def get_open_licenses() -> List[str]:
     open_licences = await fetch_open_licences_from_reference_data()
     licences: List[str] = [licence.get("uri") for licence in open_licences]
     http_safe_licences = licences.copy()
-    for li in licences:
-        if li.startswith("http://"):
-            https_uri = "https://" + li.split("http://")[1]
-            http_safe_licences.append(https_uri)
-        elif li.startswith("https://"):
-            http_uri = "http://" + li.split("https://")[1]
-            http_safe_licences.append(http_uri)
+    #for li in licences:
+    #    if li.startswith("http://"):
+    #        https_uri = "https://" + li.split("http://")[1]
+    #        http_safe_licences.append(https_uri)
+    #    elif li.startswith("https://"):
+    #        http_uri = "http://" + li.split("https://")[1]
+    #        http_safe_licences.append(http_uri)
     return http_safe_licences
 
 
