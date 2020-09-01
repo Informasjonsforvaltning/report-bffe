@@ -59,20 +59,45 @@ paths:
         name: contentType
         in: path
         required: true
-  '/report/organization/{orgPath}':
+      - schema:
+          type: string
+          enum:
+            - orgPath
+            - theme
+          name: filters
+          in: query
+
+  '/timeseries/{contentType}':
     get:
-      summary: Your GET endpoint
-      tags: []
+      operationId: getTimeSeriesReportForContentType
+      summary: endpoint for timeSeries report on specific contentType
+      description: ''
       responses:
         '200':
           description: OK
-      operationId: get-report-organization
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/TimeSeriesReport'
     parameters:
       - schema:
           type: string
-        name: orgPath
+          enum:
+            - datasets
+            - concepts
+            - informationmodels
+            - dataservices
+        name: contentType
         in: path
         required: true
+      - schema:
+          type: string
+          enum:
+            - orgPath
+            - theme
+          name: filters
+          in: query
 components:
   schemas:
     Report:
@@ -83,10 +108,6 @@ components:
           type: string
         newLastWeek:
           type: string
-        organizations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Organization'
         catalogs:
           description: Count objects of each catalog
           type: array
@@ -127,7 +148,7 @@ components:
           type: string
         en:
           type: string
-    Organization:
+    Catalog:
       title: Organizations
       type: object
       properties:
@@ -135,14 +156,13 @@ components:
           type: integer
         orgPath:
           type: string
-          format: uri
     DataSetsReport:
       title: DataSetsReport
       allOf:
         - $ref: '#/components/schemas/Report'
         - type: object
           properties:
-            distirbutionCountForType:
+            formats:
               type: array
               item:
                 $ref: '#/components/schemas/KeyWithCountObject'
@@ -181,18 +201,18 @@ components:
             formats:
               type: array
               items:
-                $ref: '#/components/schemas/Format'
+                $ref: '#/components/schemas/KeyWithCountObject'
       description: ''
       type: object
-    Format:
-      title: Format
-      type: object
+    TimeSeriesReport:
+      title: TimeSeriesReport
       properties:
-        title:
-          type: string
-        count:
-          type: number
-          format: float
+        timeSeries:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataPoint'
+      description: ''
+      type: object
     KeyWithCountObject:
       type: object
       properties:
@@ -226,3 +246,11 @@ components:
           $ref: '#/components/schemas/DataSetsReport'
         dataservices:
           $ref: '#/components/schemas/DataServicesReport'
+    DataPoint:
+      type: object
+      properties:
+        xAxis:
+          type: string
+        yAxis:
+          type: number
+          format: float

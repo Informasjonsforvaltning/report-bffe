@@ -7,8 +7,9 @@ import multiprocessing
 load_dotenv()
 
 PORT = env.get("HOST_PORT", "8080")
-DEBUG_MODE = env.get("DEBUG_MODE", False)
+DEBUG_MODE = env.get("DEBUG_MODE", True)
 LOG_LEVEL = env.get("LOG_LEVEL", "info")
+preload_app = True
 
 # Gunicorn config
 bind = ":" + PORT

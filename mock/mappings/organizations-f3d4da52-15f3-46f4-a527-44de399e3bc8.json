@@ -1,0 +1,29 @@
+{
+  "id" : "f3d4da52-15f3-46f4-a527-44de399e3bc8",
+  "name" : "organizations",
+  "request" : {
+    "url" : "/organizations?name=KOMMUNENE",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Vary" : [ "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers" ],
+      "X-Content-Type-Options" : "nosniff",
+      "X-XSS-Protection" : "1; mode=block",
+      "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma" : "no-cache",
+      "Expires" : "0",
+      "Strict-Transport-Security" : "max-age=31536000 ; includeSubDomains",
+      "X-Frame-Options" : "DENY",
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 19 Aug 2020 06:01:16 GMT",
+      "Via" : "1.1 google",
+      "Alt-Svc" : "clear"
+    }
+  },
+  "uuid" : "f3d4da52-15f3-46f4-a527-44de399e3bc8",
+  "persistent" : true,
+  "insertionIndex" : 12
+}
