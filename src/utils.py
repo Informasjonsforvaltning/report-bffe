@@ -38,7 +38,11 @@ class ParsedDataPoint:
             self.month, self.year = self.parse_date()
         else:
             self.y_axis = 0
-            self.x_axis = f"01.{month}.{year}"
+            if month < 10:
+                self.x_axis = f"01.0{month}.{year}"
+            else:
+                self.x_axis = f"01.{month}.{year}"
+
             self.year = year
             self.month = month
 
