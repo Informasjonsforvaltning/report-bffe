@@ -3,6 +3,7 @@ from flask_restful import Resource, abort
 
 from src.aggregation import get_report
 from src.elasticsearch import get_all_update_entries
+from src.elasticsearch.scheduler import Update
 from src.responses import TimeSeriesResponse
 from src.timeseries import get_time_series
 from src.utils import ServiceKey, NotAServiceKeyException, FetchFromServiceException
@@ -16,6 +17,14 @@ class Ping(Resource):
 class Updates(Resource):
     def get(self):
         return get_all_update_entries()
+
+    def post(self):
+        try:
+            should_ignore = request.args["ignore_previous"]
+        except KeyError:
+            should_ignore = False
+        Update.start_update(ignore_previous_updates=should_ignore)
+        return 200
 
 
 class Ready(Resource):
