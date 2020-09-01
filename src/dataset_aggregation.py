@@ -54,9 +54,13 @@ def get_es_aggregation(es_hits: dict, content_key):
 
 async def map_access_rights_to_code(access_right: dict):
     rdf_key = access_right["key"]
-    code_key = await get_access_rights_code(rdf_key)
+    if rdf_key == EsMappings.MISSING:
+        code_key = EsMappings.MISSING
+    else:
+        code_key = await get_access_rights_code(rdf_key)
     return {
-        code_key: access_right["count"]
+        "key": code_key,
+        "count": access_right["count"]
     }
 
 

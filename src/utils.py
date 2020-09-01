@@ -37,7 +37,7 @@ class ParsedDataPoint:
             self.x_axis = es_bucket["key_as_string"]
             self.month, self.year = self.parse_date()
         else:
-            self.y_axis = 0,
+            self.y_axis = 0
             self.x_axis = f"01.{month}.{year}"
             self.year = year
             self.month = month
@@ -62,6 +62,10 @@ class ParsedDataPoint:
 
     def __eq__(self, other: 'ParsedDataPoint'):
         return self.month == other.month and self.year == other.year
+
+    @staticmethod
+    def from_date_time(date: datetime):
+        return ParsedDataPoint(month=date.month, year=date.year)
 
 
 class ThemeProfile:

@@ -1,5 +1,3 @@
-import asyncio
-
 from src.elasticsearch.queries import EsMappings
 from src.elasticsearch.utils import elasticsearch_get_time_series
 from src.responses import TimeSeriesResponse
