@@ -164,8 +164,9 @@ def get_los_path(uri_list: List[str], los_themes: List[dict]) -> List[str]:
     for uri in uri_list:
         raw_uri = clean_uri(uri)
         try:
-            los_paths = [theme for theme in los_themes if theme.get("uri") == raw_uri]
-            uri_to_los_path_list.extend(los_paths)
+            theme_reference = [theme["losPaths"] for theme in los_themes if theme.get("uri") == raw_uri]
+            if len(theme_reference) > 0:
+                uri_to_los_path_list.extend(*theme_reference)
         except ValueError:
             continue
     return uri_to_los_path_list

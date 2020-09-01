@@ -91,10 +91,9 @@ class AggregationQuery(Query):
                 }
             }
         }
-        los_path_field = f"{EsMappings.LOS}.{EsMappings.LOS_PATH}"
         self.aggregations[ContentKeys.LOS_PATH] = {
             "terms": {
-                "field": f"{los_path_field}.keyword",
+                "field": EsMappings.LOS,
                 "missing": "MISSING",
                 "size": 100000
             }
@@ -195,7 +194,7 @@ def get_los_path_filter(themes_str: str = None, profile_themes_list=None):
     for theme in themes_list:
         terms.append({
             "term": {
-                "los.losPaths.keyword": theme
+                EsMappings.LOS: theme
             }
         })
     return terms
