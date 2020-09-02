@@ -129,7 +129,7 @@ class AggregationQuery(Query):
 
 
 class TimeSeriesQuery(Query):
-    def __init__(self, orgpath, theme, theme_profile):
+    def __init__(self, orgpath, theme, theme_profile, organization_id):
         super().__init__()
         self.aggregations = {
             f"{EsMappings.TIME_SERIES}": {
@@ -140,7 +140,7 @@ class TimeSeriesQuery(Query):
                 }
             }
         }
-        self.add_filters(orgpath, theme, theme_profile)
+        self.add_filters(orgpath, theme, theme_profile, organization_id)
 
 
 def org_path_aggregation() -> dict:

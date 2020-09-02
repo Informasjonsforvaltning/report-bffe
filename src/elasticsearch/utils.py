@@ -95,8 +95,8 @@ def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None,
 
 
 def elasticsearch_get_time_series(report_type: ServiceKey, org_path=None, theme=None,
-                                  theme_profile=None):
-    query = TimeSeriesQuery(orgpath=org_path, theme_profile=theme_profile, theme=theme
-                            ).build()
+                                  theme_profile=None, organization_id=None):
+    query = TimeSeriesQuery(orgpath=org_path, theme_profile=theme_profile, theme=theme,
+                            organization_id=organization_id).build()
     aggregations = es_client.search(index=report_type, body=query)
     return aggregations
