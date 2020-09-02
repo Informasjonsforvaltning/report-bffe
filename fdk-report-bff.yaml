@@ -59,13 +59,28 @@ paths:
         name: contentType
         in: path
         required: true
-      - schema:
+      - in: query
+        name: orgPath
+        schema:
+          type: string
+        description: filter on fdk-org-path value
+      - in: query
+        name: themeprofile
+        schema:
           type: string
           enum:
-            - orgPath
-            - theme
-          name: filters
-          in: query
+            - transport
+        description: filter on content for themed page
+      - in: query
+        name: theme
+        schema:
+          type: string
+        description: filter on los themes by fdk-los-paths
+      - in: query
+        name: organizationId
+        schema:
+          type: string
+        description: filter on organizationId from national registry
 
   '/timeseries/{contentType}':
     get:
@@ -91,13 +106,28 @@ paths:
         name: contentType
         in: path
         required: true
-      - schema:
+      - in: query
+        name: orgPath
+        schema:
+          type: string
+        description: filter on fdk-org-path value
+      - in: query
+        name: themeprofile
+        schema:
           type: string
           enum:
-            - orgPath
-            - theme
-          name: filters
-          in: query
+            - transport
+        description: filter on content for themed page
+      - in: query
+        name: theme
+        schema:
+          type: string
+        description: filter on los themes by fdk-los-paths
+      - in: query
+        name: organizationId
+        schema:
+          type: string
+        description: filter on organizationId from national registry
 components:
   schemas:
     Report:
@@ -164,9 +194,8 @@ components:
           properties:
             formats:
               type: array
-              item:
+              items:
                 $ref: '#/components/schemas/KeyWithCountObject'
-              items: {}
             nationalComponent:
               type: number
               format: float

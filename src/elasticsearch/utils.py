@@ -84,11 +84,12 @@ def recreate_index(index_key):
 
 
 def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None, theme=None,
-                                          theme_profile=None):
+                                          theme_profile=None, organization_id=None):
     query = AggregationQuery(report_type=report_type,
                              orgpath=orgpath,
                              theme=theme,
-                             theme_profile=theme_profile).build()
+                             theme_profile=theme_profile,
+                             organization_id=organization_id).build()
     aggregations = es_client.search(index=report_type, body=query)
     return aggregations
 

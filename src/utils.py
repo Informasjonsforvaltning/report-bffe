@@ -79,6 +79,7 @@ class ThemeProfile:
 
 
 class QueryParameter:
+    ORGANIZATION_ID = "organizationId"
     THEME_PROFILE = "themeprofile"
     ORG_PATH = "orgPath"
     THEME = "theme"
