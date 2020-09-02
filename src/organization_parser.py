@@ -24,6 +24,8 @@ class OrganizationReferencesObject:
                     return True
                 else:
                     return self.__eq_on_same_as(other)
+            elif self.same_as and other.same_as:
+                return self.__eq_on_same_as(other)
         elif type(other) == str:
             if not self.org_path:
                 return False

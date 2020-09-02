@@ -314,6 +314,29 @@ def test_eq_on_org_uri():
 
 
 @pytest.mark.unit
+def test_eq_on_both_with_same_as_and_no_org_uri():
+    same_as_with_name = OrganizationReferencesObject(
+        name="Geovekst",
+        same_as_entry="https://register.geonorge.no/organisasjoner/geovekst/7ac1627a-2e25-4dad-9213-c04a15a462e4"
+    )
+    same_as_without_name_https = OrganizationReferencesObject(
+        same_as_entry="https://register.geonorge.no/organisasjoner/geovekst/7ac1627a-2e25-4dad-9213-c04a15a462e4"
+    )
+    same_as_without_name_no_match = OrganizationReferencesObject(
+        same_as_entry="https://register.geonorge.no/organisasjoner/geov/7ac1627a-4dad-9213-c04a15a462e4"
+    )
+    same_as_without_name_http = OrganizationReferencesObject(
+        same_as_entry="https://register.geonorge.no/organisasjoner/geovekst/7ac1627a-2e25-4dad-9213-c04a15a462e4"
+    )
+
+    assert same_as_without_name_http == same_as_with_name
+    assert same_as_without_name_https == same_as_with_name
+    assert same_as_without_name_no_match != same_as_with_name
+    assert same_as_without_name_http == same_as_without_name_https
+
+
+
+@pytest.mark.unit
 def test_add_all_publishers():
     store = OrganizationStore.get_instance()
     store.organizations = []
@@ -323,21 +346,21 @@ def test_add_all_publishers():
         org_path="STAT/129745/964948798"
     )
     aas_from_sparql = OrganizationReferencesObject.from_sparql_query_result(
-            {
-                "name": {
-                    "type": "literal",
-                    "value": "Ås kommune"
-                },
-                "publisher": {
-                    "type": "uri",
-                    "value": "https://register.geonorge.no/organisasjoner/as-kommune/c084d983-080d-43b9-8c9a-344191a7405a"
-                },
-                "sameAs": {
-                    "type": "literal",
-                    "value": "http://data.brreg.no/enhetsregisteret/enhet/964948798"
-                }
+        {
+            "name": {
+                "type": "literal",
+                "value": "Ås kommune"
+            },
+            "publisher": {
+                "type": "uri",
+                "value": "https://register.geonorge.no/organisasjoner/as-kommune/c084d983-080d-43b9-8c9a-344191a7405a"
+            },
+            "sameAs": {
+                "type": "literal",
+                "value": "http://data.brreg.no/enhetsregisteret/enhet/964948798"
             }
-        )
+        }
+    )
     not_in_list = OrganizationReferencesObject(
         org_uri="https://data.brreg.no/enhetsregisteret/44444448888888",
         name="not an org"
