@@ -33,7 +33,9 @@ async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: Li
         referenced_organization = await get_organization(ref_object)
         if referenced_organization:
             org_path = referenced_organization.org_path
+            org_id = OrganizationReferencesObject.resolve_id(referenced_organization.org_uri)
             json_ld_values[EsMappings.ORG_PATH] = org_path
+            json_ld_values[EsMappings.ORGANIZATION_ID] = org_id
         return add_los_path_to_document(json_ld_values, los_themes)
     except OrganizationStoreNotInitiatedException:
         await get_organizations()
@@ -82,18 +84,19 @@ def recreate_index(index_key):
 
 
 def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None, theme=None,
-                                          theme_profile=None):
+                                          theme_profile=None, organization_id=None):
     query = AggregationQuery(report_type=report_type,
                              orgpath=orgpath,
                              theme=theme,
-                             theme_profile=theme_profile).build()
+                             theme_profile=theme_profile,
+                             organization_id=organization_id).build()
     aggregations = es_client.search(index=report_type, body=query)
     return aggregations
 
 
 def elasticsearch_get_time_series(report_type: ServiceKey, org_path=None, theme=None,
-                                  theme_profile=None):
-    query = TimeSeriesQuery(orgpath=org_path, theme_profile=theme_profile, theme=theme
-                            ).build()
+                                  theme_profile=None, organization_id=None):
+    query = TimeSeriesQuery(orgpath=org_path, theme_profile=theme_profile, theme=theme,
+                            organization_id=organization_id).build()
     aggregations = es_client.search(index=report_type, body=query)
     return aggregations

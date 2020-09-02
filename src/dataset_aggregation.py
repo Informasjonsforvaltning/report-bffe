@@ -8,11 +8,12 @@ from src.responses import DataSetResponse
 from src.utils import ServiceKey
 
 
-def create_dataset_report(orgpath, theme, theme_profile):
+def create_dataset_report(orgpath, theme, theme_profile, organization_id):
     es_report = elasticsearch_get_report_aggregations(report_type=ServiceKey.DATA_SETS,
                                                       orgpath=orgpath,
                                                       theme=theme,
-                                                      theme_profile=theme_profile)
+                                                      theme_profile=theme_profile,
+                                                      organization_id=organization_id)
 
     rdf_access_rights_bucket = get_es_aggregation(es_report, ContentKeys.ACCESS_RIGHTS_CODE)
     try:

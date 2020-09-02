@@ -7,7 +7,7 @@ from test.unit_mock_data import mock_access_rights_catalog_response
 
 @pytest.mark.unit
 def test_get_datasets(mock_es_report, get_access_rights_mock):
-    result: DataSetResponse = create_dataset_report(None, None, None)
+    result: DataSetResponse = create_dataset_report(None, None, None, None)
     assert 6 == len(result.formats)
     assert 35 == int(result.withSubject)
     assert 0 == int(result.newLastWeek)

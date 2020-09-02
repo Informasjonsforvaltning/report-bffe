@@ -6,6 +6,7 @@ from src.utils import ServiceKey, ThemeProfile
 
 
 class EsMappings:
+    ORGANIZATION_ID = "orgId"
     TIME_SERIES = "timeseries"
     FORMAT = "formatCodes"
     LOS = "los"
@@ -18,7 +19,7 @@ class EsMappings:
     OPEN_LICENSE = "OpenLicense"
 
 
-DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.LOS, JSON_LD.DCT.accessRights,
+DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
                               JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
                               EsMappings.FORMAT]
@@ -33,8 +34,8 @@ class Query(metaclass=abc.ABCMeta):
         self.aggregations = None
         self.query = None
 
-    def add_filters(self, orgpath, themes, theme_profile):
-        if orgpath or themes or theme_profile:
+    def add_filters(self, orgpath, themes, theme_profile, organization_id):
+        if orgpath or themes or theme_profile or organization_id:
             self.query = {
                 "bool": {
                     "filter": []
@@ -46,6 +47,8 @@ class Query(metaclass=abc.ABCMeta):
                 self.query["bool"]["filter"].append(get_org_path_filter(orgpath))
             if theme_profile:
                 self.query["bool"]["filter"].append(get_theme_profile_filter(ThemeProfile.TRANSPORT))
+            if organization_id:
+                self.query["bool"]["filter"].append(get_term_query(EsMappings.ORGANIZATION_ID, organization_id))
 
     def build(self):
         body = {
@@ -58,7 +61,8 @@ class Query(metaclass=abc.ABCMeta):
 
 
 class AggregationQuery(Query):
-    def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None):
+    def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None,
+                 organization_id=None):
         super().__init__()
         self.aggregations = {EsMappings.ORG_PATH: {
             "terms": {
@@ -71,7 +75,7 @@ class AggregationQuery(Query):
         if report_type == ServiceKey.DATA_SETS:
             self.__add_datasets_aggregation()
         self.query = None
-        self.add_filters(orgpath, theme, theme_profile)
+        self.add_filters(orgpath, theme, theme_profile, organization_id)
 
     def __add_datasets_aggregation(self):
         self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = AggregationQuery.json_ld_terms_aggregation(
@@ -125,7 +129,7 @@ class AggregationQuery(Query):
 
 
 class TimeSeriesQuery(Query):
-    def __init__(self, orgpath, theme, theme_profile):
+    def __init__(self, orgpath, theme, theme_profile, organization_id):
         super().__init__()
         self.aggregations = {
             f"{EsMappings.TIME_SERIES}": {
@@ -136,7 +140,7 @@ class TimeSeriesQuery(Query):
                 }
             }
         }
-        self.add_filters(orgpath, theme, theme_profile)
+        self.add_filters(orgpath, theme, theme_profile, organization_id)
 
 
 def org_path_aggregation() -> dict:
@@ -222,3 +226,13 @@ def get_theme_profile_filter(profile: ThemeProfile):
                 ]
             }
         }
+
+
+def get_term_query(field, value) -> dict:
+    return {
+        "term": {
+            f"{field}.keyword": {
+                "value": value
+            }
+        }
+    }
