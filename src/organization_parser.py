@@ -115,8 +115,11 @@ class OrganizationReferencesObject:
 
     @staticmethod
     def resolve_id(uri: str):
-        uri_parts = uri.split("/")
-        return uri_parts[-1]
+        if uri:
+            uri_parts = uri.split("/")
+            return uri_parts[-1]
+        else:
+            return None
 
 
 class OrganizationStore:

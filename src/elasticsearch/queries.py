@@ -6,6 +6,7 @@ from src.utils import ServiceKey, ThemeProfile
 
 
 class EsMappings:
+    ORGANIZATION_ID = "orgId"
     TIME_SERIES = "timeseries"
     FORMAT = "formatCodes"
     LOS = "los"
@@ -18,7 +19,7 @@ class EsMappings:
     OPEN_LICENSE = "OpenLicense"
 
 
-DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.LOS, JSON_LD.DCT.accessRights,
+DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH,EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
                               JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
                               EsMappings.FORMAT]

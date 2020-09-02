@@ -33,7 +33,9 @@ async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: Li
         referenced_organization = await get_organization(ref_object)
         if referenced_organization:
             org_path = referenced_organization.org_path
+            org_id = OrganizationReferencesObject.resolve_id(referenced_organization.org_uri)
             json_ld_values[EsMappings.ORG_PATH] = org_path
+            json_ld_values[EsMappings.ORGANIZATION_ID] = org_id
         return add_los_path_to_document(json_ld_values, los_themes)
     except OrganizationStoreNotInitiatedException:
         await get_organizations()
