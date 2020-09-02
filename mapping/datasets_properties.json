@@ -11,6 +11,17 @@
                           "ignore_above": 256
                       }
                   }
+              },
+            "los": {
+                  "type": "text",
+                "analyzer": "path-analyzer",
+                "fielddata": true,
+                  "fields": {
+                      "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                      }
+                  }
               }
           }
       },
