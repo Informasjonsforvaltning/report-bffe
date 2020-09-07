@@ -63,3 +63,11 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 ```
 restart terminal
+
+### ElasticSearch: no indexed data
+
+`To manually index data, post request:`
+
+```
+http://localhost:8000/updates?ignore_previous=true
+```
