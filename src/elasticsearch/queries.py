@@ -222,6 +222,14 @@ def get_theme_profile_filter(profile: ThemeProfile):
                         "bool": {
                             "should": should_list
                         }
+                    },
+                    {
+                        "term": {
+                                AggregationQuery.es_keyword_key(
+                                    JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
+                                                               "-right/PUBLIC"
+                            }
+
                     }
                 ]
             }
