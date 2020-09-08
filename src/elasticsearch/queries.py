@@ -135,8 +135,7 @@ class TimeSeriesQuery(Query):
             f"{EsMappings.TIME_SERIES}": {
                 "date_histogram": {
                     "field": "dcatRecord.http://purl.org/dc/terms/issued.value",
-                    "calendar_interval": "month",
-                    "format": "dd.MM.yyyy"
+                    "calendar_interval": "month"
                 }
             }
         }

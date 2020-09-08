@@ -18,6 +18,7 @@ asyncstdlib = "*"
 httpx = "*"
 elasticsearch = "*"
 apscheduler = "*"
+python-dateutil = "*"
 
 [requires]
 python_version = "3.8"

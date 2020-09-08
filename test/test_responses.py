@@ -85,23 +85,23 @@ def test_concept_response():
 @pytest.mark.unit
 def test_time_series_response():
     es_bucket_november = {
-        "key_as_string": "01.11.2019",
+        "key_as_string": "2019-11-01T00:00:00.000Z",
         "doc_count": 8
     }
     es_bucket_january = {
-        "key_as_string": "01.01.2020",
+        "key_as_string": "2020-01-01T00:00:00.000Z",
         "doc_count": 2
     }
     es_bucket_april = {
-        "key_as_string": "01.04.2020",
+        "key_as_string": "2020-04-01T00:00:00.000Z",
         "doc_count": 1
     }
     es_bucket_may = {
-        "key_as_string": "01.05.2020",
+        "key_as_string": "2020-05-01T00:00:00.000Z",
         "doc_count": 1
     }
     es_bucket_june = {
-        "key_as_string": "01.06.2020",
+        "key_as_string": "2020-06-01T00:00:00.000Z",
         "doc_count": 3
     }
     parsed_series = [
@@ -113,14 +113,14 @@ def test_time_series_response():
     ]
     result = TimeSeriesResponse(parsed_series).json()
     assert len(result) == 11
-    assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "01.11.2019"
-    assert result[1][ContentKeys.TIME_SERIES_X_AXIS] == "01.12.2019"
-    assert result[2][ContentKeys.TIME_SERIES_X_AXIS] == "01.01.2020"
-    assert result[3][ContentKeys.TIME_SERIES_X_AXIS] == "01.02.2020"
-    assert result[4][ContentKeys.TIME_SERIES_X_AXIS] == "01.03.2020"
-    assert result[5][ContentKeys.TIME_SERIES_X_AXIS] == "01.04.2020"
-    assert result[6][ContentKeys.TIME_SERIES_X_AXIS] == "01.05.2020"
-    assert result[7][ContentKeys.TIME_SERIES_X_AXIS] == "01.06.2020"
+    assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "2019-11-01T00:00:00.000Z"
+    assert result[1][ContentKeys.TIME_SERIES_X_AXIS] == "2019-12-01T00:00:00.000Z"
+    assert result[2][ContentKeys.TIME_SERIES_X_AXIS] == "2020-01-01T00:00:00.000Z"
+    assert result[3][ContentKeys.TIME_SERIES_X_AXIS] == "2020-02-01T00:00:00.000Z"
+    assert result[4][ContentKeys.TIME_SERIES_X_AXIS] == "2020-03-01T00:00:00.000Z"
+    assert result[5][ContentKeys.TIME_SERIES_X_AXIS] == "2020-04-01T00:00:00.000Z"
+    assert result[6][ContentKeys.TIME_SERIES_X_AXIS] == "2020-05-01T00:00:00.000Z"
+    assert result[7][ContentKeys.TIME_SERIES_X_AXIS] == "2020-06-01T00:00:00.000Z"
     assert result[0][ContentKeys.TIME_SERIES_Y_AXIS] == 8
     assert result[1][ContentKeys.TIME_SERIES_Y_AXIS] == 0
     assert result[2][ContentKeys.TIME_SERIES_Y_AXIS] == 2

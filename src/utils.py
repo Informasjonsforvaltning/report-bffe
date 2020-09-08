@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+from dateutil import parser
 
 from src.rdf_namespaces import ContentKeys
 
@@ -39,11 +40,13 @@ class ParsedDataPoint:
             self.month, self.year = self.parse_date()
         else:
             self.y_axis = 0
+            next_date = None
             if month < 10:
-                self.x_axis = f"01.0{month}.{year}"
+                next_date = f"01.0{month}.{year}"
             else:
-                self.x_axis = f"01.{month}.{year}"
+                next_date = f"01.{month}.{year}"
 
+            self.x_axis = datetime.strptime(next_date, '%d.%m.%Y').isoformat() + ".000Z"
             self.year = year
             self.month = month
 
@@ -54,7 +57,7 @@ class ParsedDataPoint:
         }
 
     def parse_date(self):
-        date = datetime.strptime(self.x_axis, "%d.%m.%Y")
+        date = parser.parse(self.x_axis)
         return date.month, date.year
 
     def get_next_month(self):
