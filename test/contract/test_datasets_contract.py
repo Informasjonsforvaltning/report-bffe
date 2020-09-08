@@ -1,4 +1,5 @@
 from datetime import datetime
+from dateutil import parser
 
 import pytest
 from requests import get
@@ -40,10 +41,10 @@ class TestDatasetsReport:
         result = get(url=dataset_time_series_url)
         assert result.status_code == 200
         time_series = result.json()
-        assert time_series[0]["xAxis"] == "01.08.2020"
+        assert time_series[0]["xAxis"] == "2020-08-01T00:00:00.000Z"
         assert time_series[0]["yAxis"] == 1251
         last_date = time_series[len(time_series) - 1]["xAxis"]
-        dt = datetime.strptime(last_date, '%d.%m.%Y')
+        dt = parser.parse(last_date)
         now = datetime.now()
         assert dt.month == now.month
         assert dt.year == now.year
