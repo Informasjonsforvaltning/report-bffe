@@ -27,6 +27,7 @@ class TestDatasetsReport:
         assert "themesAndTopicsCount" in keys
         assert "orgPaths" in keys
         assert len(content.get("orgPaths")) > len(content.get("catalogs"))
+        assert len(content.get("catalogs")) > 1
         assert content.get("totalObjects") == 1251
         assert content.get("nationalComponent") > 0
         assert content.get("opendata") > 0
@@ -41,7 +42,7 @@ class TestDatasetsReport:
         assert result.status_code == 200
         content = result.json()
         assert content["totalObjects"] == 110
-        for org in content["catalogs"]:
+        for org in content["orgPaths"]:
             exp_orgpath_parts = "/STAT/972417858/971040238".split("/")
             for orgpath_part in org.get("key").split("/"):
                 assert orgpath_part in exp_orgpath_parts

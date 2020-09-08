@@ -6,6 +6,7 @@ from src.utils import ServiceKey, ThemeProfile
 
 
 class EsMappings:
+    PART_OF_CATALOG = "partOfCatalog"
     BUCKETS = "buckets"
     AGGREGATIONS = "aggregations"
     ORGANIZATION_ID = "orgId"
@@ -24,10 +25,10 @@ class EsMappings:
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
                               JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
-                              EsMappings.FORMAT]
+                              EsMappings.FORMAT, EsMappings.PART_OF_CATALOG]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
-    JSON_LD.DCT.issued
+    JSON_LD.DCT.issued, JSON_LD.DCT.isPartOf,JSON_LD.FOAF.primaryTopic
 ]
 
 
@@ -78,7 +79,7 @@ class AggregationQuery(Query):
                                                               days=7),
             ContentKeys.CATALOGS: {
                     "terms": {
-                        "field": f"{EsMappings.ORG_PATH}.keyword",
+                        "field": f"{EsMappings.PART_OF_CATALOG}.keyword",
                         "missing": "MISSING",
                         "size": 100000
                     }

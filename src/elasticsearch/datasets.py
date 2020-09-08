@@ -3,6 +3,7 @@ import logging
 from typing import List
 
 from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, CATALOG_RECORD_AGGREGATION_FIELDS
+from src.elasticsearch.rdf_reference_mappers import RdfReferenceMapper
 from src.elasticsearch.utils import elasticsearch_ingest, add_org_and_los_paths_to_document, add_key_as_node_uri, \
     EsMappings, get_values_from_nested_dict, get_all_organizations_with_publisher
 from src.rdf_namespaces import JSON_LD, ContentKeys
@@ -46,14 +47,13 @@ async def prepare_documents(documents: dict, los_themes: List[dict], open_licens
     documents_list = list(documents.items())
     with_mapped_node_uri = [add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list]
     datasets = [entry for entry in with_mapped_node_uri if
-                JSON_LD.rdf_type_equals(JSON_LD.DCAT.dataset, entry)]
-    records = [{entry[0]: entry[1]} for entry in documents_list if
-               JSON_LD.rdf_type_equals(JSON_LD.DCAT.CatalogRecord, entry)]
+                JSON_LD.rdf_type_equals(JSON_LD.DCAT.type_dataset, entry)]
     distributions = [{entry[0]: entry[1]} for entry in documents_list if
                      JSON_LD.rdf_type_equals(JSON_LD.DCAT.distribution_type, entry)]
     license_documents = [{entry[0]: entry[1]} for entry in documents_list if
                          JSON_LD.rdf_type_in(JSON_LD.DCT.license_document, entry)]
 
+    reference_mapper = RdfReferenceMapper(documents_list)
     # add organization references to entry
     with_orgpath = await asyncio.gather(*[add_org_and_los_paths_to_document(json_ld_values=entry,
                                                                             los_themes=los_themes) for entry in
@@ -61,21 +61,21 @@ async def prepare_documents(documents: dict, los_themes: List[dict], open_licens
 
     return [merge_dataset_information(dataset=dataset,
                                       distributions=distributions,
-                                      records=records,
                                       open_licenses=open_licenses,
                                       license_documents=license_documents,
-                                      media_types=media_types)
+                                      media_types=media_types,
+                                      reference_mapper=reference_mapper)
             for dataset in with_orgpath]
 
 
-def merge_dataset_information(dataset, distributions, records, open_licenses, license_documents, media_types) -> dict:
-    dataset_record = [reduce_record(record) for record in records if
-                      JSON_LD.node_rdf_property_equals(rdf_property=JSON_LD.FOAF.primaryTopic,
-                                                       equals_value=dataset[EsMappings.NODE_URI],
-                                                       entry=record
-                                                       )]
-    dataset[EsMappings.RECORD] = dataset_record[0]
-
+def merge_dataset_information(dataset, distributions, open_licenses,
+                              license_documents, media_types, reference_mapper) -> dict:
+    dataset_record = reference_mapper.get_catalog_record_for_dataset(dataset[EsMappings.NODE_URI])
+    dataset[EsMappings.RECORD] = dataset_record
+    dataset[EsMappings.PART_OF_CATALOG] = reference_mapper.get_dataset_catalog_name(
+        record_part_of_uri=dataset_record.get(JSON_LD.DCT.isPartOf)[0][ContentKeys.VALUE],
+        dataset_node_uri=dataset[EsMappings.NODE_URI]
+    )
     if dataset.get(JSON_LD.DCAT.distribution):
         dataset_distribution_node_refs = [entry.get("value") for entry in dataset[JSON_LD.DCAT.distribution]]
         dataset_distribution_values = [entry.get(JSON_LD.RDF.type) for entry in dataset[JSON_LD.DCAT.distribution]]
@@ -132,10 +132,6 @@ def get_formats_with_codes(dcat_distributions, mediatypes: List[MediaTypes]):
             continue
 
     return formats
-
-
-def get_distribution_format_str(dist_format, mediatypes):
-    pass
 
 
 def reduce_dataset(dataset: dict):
