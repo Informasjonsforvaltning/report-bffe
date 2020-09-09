@@ -148,7 +148,9 @@ components:
           type: array
             items:
               $ref: '#/components/schemas/KeyWithCountObject'
-
+        organizationCount:
+          type: int
+          description: Number of organizations with datasets in Felles Datakatlaog
     InformationModelsReport:
       title: InformationModelReport
       allOf:

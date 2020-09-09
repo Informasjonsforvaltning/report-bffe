@@ -26,7 +26,10 @@ class TestDatasetsReport:
         assert "accessRights" in keys
         assert "themesAndTopicsCount" in keys
         assert "orgPaths" in keys
+        assert "organizationCount" in keys
         assert len(content.get("orgPaths")) > len(content.get("catalogs"))
+        assert content.get("organizationCount") < len(content.get("orgPaths"))
+        assert content.get("organizationCount") > len(content.get("catalogs"))
         assert len(content.get("catalogs")) > 1
         assert content.get("totalObjects") == 1251
         assert content.get("nationalComponent") > 0
@@ -68,6 +71,7 @@ class TestDatasetsReport:
         assert len(result_paths) > 0
         for path in result_paths:
             assert path["key"] in accepted_paths
+        assert result.json().get("organizationCount") == 4
 
     @pytest.mark.contract
     def test_time_series_has_correct_format(self, wait_for_ready):

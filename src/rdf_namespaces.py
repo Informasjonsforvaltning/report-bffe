@@ -192,6 +192,7 @@ class ContentKeys:
     ORGANIZATION_URI = "organization"
     LOS_PATH = "losPath"
     CATALOGS = "catalogs"
+    ORGANIZATION_COUNT = "organizationCount"
 
 
 class OrgCatalogKeys:

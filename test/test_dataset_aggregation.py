@@ -16,6 +16,7 @@ def test_get_datasets(mock_es_report, get_access_rights_mock):
     assert 8 == int(result.nationalComponent)
     assert 4 == len(result.accessRights)
     assert 5 == len(result.catalogs)
+    assert result.organizationCount == 45
 
 
 mock_es_result = {
@@ -265,6 +266,9 @@ mock_es_result = {
         "new_last_week": {
             "meta": {},
             "doc_count": 0
+        },
+        "organizationCount": {
+            "value": 45
         }
     }
 }

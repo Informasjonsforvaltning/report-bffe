@@ -6,11 +6,15 @@ from src.utils import ParsedDataPoint, ThemeProfile
 
 
 class Response:
-    def __init__(self, totalObjects, newLastWeek, catalogs: list, org_paths: list):
+    def __init__(self, totalObjects: int, organizationCount: int,
+                 newLastWeek: int,
+                 catalogs: List[dict],
+                 org_paths: List[dict]):
         self.totalObjects = totalObjects
         self.newLastWeek = newLastWeek
         self.catalogs = catalogs or []
         self.orgPaths = org_paths or []
+        self.organizationCount = organizationCount
 
     def populate_from_es(self, es_result: dict) -> 'Response':
         self.totalObjects = es_result["page"]["totalElements"]
@@ -62,6 +66,7 @@ class DataSetResponse(Response):
     def __init__(self,
                  dist_formats: List[dict],
                  total: str,
+                 organizationCount: int,
                  new_last_week: str,
                  opendata: str,
                  national_component: str,
@@ -74,7 +79,8 @@ class DataSetResponse(Response):
         super().__init__(totalObjects=total,
                          newLastWeek=new_last_week,
                          catalogs=catalogs,
-                         org_paths=org_paths
+                         org_paths=org_paths,
+                         organizationCount=organizationCount
                          )
 
         self.opendata = opendata

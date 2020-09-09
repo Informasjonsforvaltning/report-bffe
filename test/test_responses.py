@@ -7,7 +7,7 @@ from src.utils import ThemeProfile
 from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_information_model_response():
     es_result = {
         "_embedded": {
@@ -75,7 +75,7 @@ def test_information_model_response():
     assert len(result.catalogs) == 6
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_concept_response():
     result = ConceptResponse.from_es(concepts_aggregation, concepts_in_use)
     assert len(result.mostInUse) == 3
@@ -216,10 +216,12 @@ def test_dataset_with_theme_profile():
         new_last_week=1,
         national_component=2,
         dist_formats=[],
-        theme_profile=ThemeProfile.TRANSPORT
+        theme_profile=ThemeProfile.TRANSPORT,
+        organizationCount=5
     )
 
     assert len(result.themesAndTopicsCount) == 4
     assert len(result.catalogs) == 3
     assert result.totalObjects == 21
     assert result.withSubject == 19
+    assert result.organizationCount == 5

@@ -28,7 +28,7 @@ DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, E
                               EsMappings.FORMAT, EsMappings.PART_OF_CATALOG]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
-    JSON_LD.DCT.issued, JSON_LD.DCT.isPartOf,JSON_LD.FOAF.primaryTopic
+    JSON_LD.DCT.issued, JSON_LD.DCT.isPartOf, JSON_LD.FOAF.primaryTopic
 ]
 
 
@@ -78,13 +78,17 @@ class AggregationQuery(Query):
             ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
                                                               days=7),
             ContentKeys.CATALOGS: {
-                    "terms": {
-                        "field": f"{EsMappings.PART_OF_CATALOG}.keyword",
-                        "missing": "MISSING",
-                        "size": 100000
-                    }
+                "terms": {
+                    "field": f"{EsMappings.PART_OF_CATALOG}.keyword",
+                    "missing": "MISSING",
+                    "size": 100000
+                }
+            },
+            ContentKeys.ORGANIZATION_COUNT: {
+                "cardinality": {
+                    "field": f"{EsMappings.ORGANIZATION_ID}.keyword"
+                }
             }
-
         }
         if report_type == ServiceKey.DATA_SETS:
             self.__add_datasets_aggregation()
@@ -238,10 +242,10 @@ def get_theme_profile_filter(profile: ThemeProfile):
                     },
                     {
                         "term": {
-                                AggregationQuery.es_keyword_key(
-                                    JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
-                                                               "-right/PUBLIC"
-                            }
+                            AggregationQuery.es_keyword_key(
+                                JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
+                                                           "-right/PUBLIC"
+                        }
 
                     }
                 ]
