@@ -40,7 +40,6 @@ class ParsedDataPoint:
             self.month, self.year = self.parse_date()
         else:
             self.y_axis = last_month_count
-            self.y_axis = 0
             next_date = None
             if month < 10:
                 next_date = f"01.0{month}.{year}"
