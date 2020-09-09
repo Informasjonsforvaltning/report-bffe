@@ -15,6 +15,7 @@ class TestDatasetsReport:
     def test_report_has_correct_format(self, wait_for_ready):
         result = get(url=dataset_report_url)
         assert result.status_code == 200
+        content = result.json()
         keys = result.json().keys()
         assert "totalObjects" in keys
         assert "newLastWeek" in keys
@@ -24,6 +25,19 @@ class TestDatasetsReport:
         assert "withSubject" in keys
         assert "accessRights" in keys
         assert "themesAndTopicsCount" in keys
+        assert "orgPaths" in keys
+        assert "organizationCount" in keys
+        assert len(content.get("orgPaths")) > len(content.get("catalogs"))
+        assert content.get("organizationCount") < len(content.get("orgPaths"))
+        assert content.get("organizationCount") > len(content.get("catalogs"))
+        assert len(content.get("catalogs")) > 1
+        assert content.get("totalObjects") == 1251
+        assert content.get("nationalComponent") > 0
+        assert content.get("opendata") > 0
+        assert len(content.get("catalogs")) > 0
+        assert content.get("withSubject") > 0
+        assert len(content.get("accessRights")) == 4
+        assert len(content.get("themesAndTopicsCount")) > 0
 
     @pytest.mark.contract
     def test_report_filter_on_orgPath(self, wait_for_ready):
@@ -31,10 +45,33 @@ class TestDatasetsReport:
         assert result.status_code == 200
         content = result.json()
         assert content["totalObjects"] == 110
-        for org in content["catalogs"]:
+        for org in content["orgPaths"]:
             exp_orgpath_parts = "/STAT/972417858/971040238".split("/")
             for orgpath_part in org.get("key").split("/"):
                 assert orgpath_part in exp_orgpath_parts
+
+    @pytest.mark.contract
+    def test_organization_id_filter(self, wait_for_ready):
+        test_org_id = "950037687"
+        exp_org_path = ["/PRIVAT/950037687", "/PRIVAT"]
+        result = get(url=f"{dataset_report_url}?organizationId={test_org_id}")
+        assert result.status_code == 200
+        content = result.json()
+        assert len(content) > 0
+        for orgpath in content.get("orgPaths"):
+            assert orgpath["key"] in exp_org_path
+
+    @pytest.mark.contract
+    def test_theme_profile_los_path_filter(self, wait_for_ready):
+        accepted_paths = ["trafikk-og-transport", "trafikk-og-transport/mobilitetstilbud",
+                          "trafikk-og-transport/trafikkinformasjon",
+                          "trafikk-og-transport/veg-og-vegregulering", "trafikk-og-transport/yrkestransport"]
+        result = get(url=f"{dataset_report_url}?themeprofile=transport")
+        result_paths = result.json().get("themesAndTopicsCount")
+        assert len(result_paths) > 0
+        for path in result_paths:
+            assert path["key"] in accepted_paths
+        assert result.json().get("organizationCount") == 4
 
     @pytest.mark.contract
     def test_time_series_has_correct_format(self, wait_for_ready):

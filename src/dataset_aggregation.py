@@ -32,11 +32,13 @@ def create_dataset_report(orgpath, theme, theme_profile, organization_id):
         dist_formats=get_es_aggregation(es_report, ContentKeys.FORMAT),
         opendata=get_es_aggregation(es_report, ContentKeys.OPEN_DATA),
         national_component=get_es_aggregation(es_report, ContentKeys.NATIONAL_COMPONENT),
-        catalogs=get_es_aggregation(es_report, EsMappings.ORG_PATH),
+        org_paths=get_es_aggregation(es_report, EsMappings.ORG_PATH),
         themes=get_es_aggregation(es_report, ContentKeys.LOS_PATH),
         with_subject=get_es_aggregation(es_report, ContentKeys.WITH_SUBJECT),
-        access_rights=mapped_access_rights
-
+        access_rights=mapped_access_rights,
+        catalogs=get_es_aggregation(es_report, ContentKeys.CATALOGS),
+        theme_profile=theme_profile,
+        organizationCount=get_es_cardinality_aggregation(es_report, ContentKeys.ORGANIZATION_COUNT)
     )
 
 
@@ -51,6 +53,10 @@ def get_es_aggregation(es_hits: dict, content_key):
     else:
         buckets = es_hits.get("aggregations").get(content_key)["buckets"]
         return rename_doc_count_to_count(buckets)
+
+
+def get_es_cardinality_aggregation(es_hits: dict, content_key):
+    return es_hits.get("aggregations").get(content_key)["value"]
 
 
 async def map_access_rights_to_code(access_right: dict):

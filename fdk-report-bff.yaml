@@ -143,7 +143,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/KeyWithCountObject'
-
+        orgPaths:
+          description: Count objects for each catalog aggregated on org paths
+          type: array
+            items:
+              $ref: '#/components/schemas/KeyWithCountObject'
+        organizationCount:
+          type: int
+          description: Number of organizations with datasets in Felles Datakatlaog
     InformationModelsReport:
       title: InformationModelReport
       allOf:

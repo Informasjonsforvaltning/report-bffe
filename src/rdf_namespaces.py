@@ -56,6 +56,8 @@ class DCT(NamespaceProperty):
         self.source = self.get_property("source")
         self.subject = self.get_property("subject")
         self.license_document = self.get_property("LicenseDocument")
+        self.isPartOf = self.get_property("isPartOf")
+        self.title = self.get_property("title")
 
     @staticmethod
     def get_ttl_ns_definition():
@@ -115,10 +117,12 @@ class DCAT(NamespaceProperty):
     def __init__(self, syntax):
         super().__init__(syntax)
         self.theme = self.get_property("theme")
-        self.dataset = self.get_property("Dataset")
+        self.type_dataset = self.get_property("Dataset")
+        self.dataset = self.get_property("dataset")
         self.distribution = self.get_property("distribution")
         self.distribution_type = self.get_property("Distribution")
         self.CatalogRecord = self.get_property("CatalogRecord")
+        self.type_catalog = self.get_property("Catalog")
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_LD:
@@ -187,6 +191,8 @@ class ContentKeys:
     ORG_NAME = "name"
     ORGANIZATION_URI = "organization"
     LOS_PATH = "losPath"
+    CATALOGS = "catalogs"
+    ORGANIZATION_COUNT = "organizationCount"
 
 
 class OrgCatalogKeys:

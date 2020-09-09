@@ -6,6 +6,9 @@ from src.utils import ServiceKey, ThemeProfile
 
 
 class EsMappings:
+    PART_OF_CATALOG = "partOfCatalog"
+    BUCKETS = "buckets"
+    AGGREGATIONS = "aggregations"
     ORGANIZATION_ID = "orgId"
     TIME_SERIES = "timeseries"
     FORMAT = "formatCodes"
@@ -22,10 +25,10 @@ class EsMappings:
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_LD.DCT.accessRights,
                               JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
                               JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
-                              EsMappings.FORMAT]
+                              EsMappings.FORMAT, EsMappings.PART_OF_CATALOG]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
-    JSON_LD.DCT.issued
+    JSON_LD.DCT.issued, JSON_LD.DCT.isPartOf, JSON_LD.FOAF.primaryTopic
 ]
 
 
@@ -64,14 +67,29 @@ class AggregationQuery(Query):
     def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None,
                  organization_id=None):
         super().__init__()
-        self.aggregations = {EsMappings.ORG_PATH: {
-            "terms": {
-                "field": EsMappings.ORG_PATH,
-                "missing": "MISSING",
-                "size": 100000
+        self.aggregations = {
+            EsMappings.ORG_PATH: {
+                "terms": {
+                    "field": EsMappings.ORG_PATH,
+                    "missing": "MISSING",
+                    "size": 100000
+                }
+            },
+            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
+                                                              days=7),
+            ContentKeys.CATALOGS: {
+                "terms": {
+                    "field": f"{EsMappings.PART_OF_CATALOG}.keyword",
+                    "missing": "MISSING",
+                    "size": 100000
+                }
+            },
+            ContentKeys.ORGANIZATION_COUNT: {
+                "cardinality": {
+                    "field": f"{EsMappings.ORGANIZATION_ID}.keyword"
+                }
             }
-        }, ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
-                                                             days=7)}
+        }
         if report_type == ServiceKey.DATA_SETS:
             self.__add_datasets_aggregation()
         self.query = None
@@ -224,10 +242,10 @@ def get_theme_profile_filter(profile: ThemeProfile):
                     },
                     {
                         "term": {
-                                AggregationQuery.es_keyword_key(
-                                    JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
-                                                               "-right/PUBLIC"
-                            }
+                            AggregationQuery.es_keyword_key(
+                                JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
+                                                           "-right/PUBLIC"
+                        }
 
                     }
                 ]

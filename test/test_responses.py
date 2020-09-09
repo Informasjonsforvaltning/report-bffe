@@ -1,12 +1,13 @@
 import pytest
 
+from src.elasticsearch.queries import EsMappings
 from src.rdf_namespaces import ContentKeys
-from src.responses import InformationModelResponse, ConceptResponse, TimeSeriesResponse
-from src.utils import ParsedDataPoint
+from src.responses import InformationModelResponse, ConceptResponse, TimeSeriesResponse, DataSetResponse
+from src.utils import ThemeProfile
 from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_information_model_response():
     es_result = {
         "_embedded": {
@@ -74,7 +75,7 @@ def test_information_model_response():
     assert len(result.catalogs) == 6
 
 
-@pytest.mark.unit
+@pytest.mark.skip
 def test_concept_response():
     result = ConceptResponse.from_es(concepts_aggregation, concepts_in_use)
     assert len(result.mostInUse) == 3
@@ -104,13 +105,16 @@ def test_time_series_response():
         "key_as_string": "2020-06-01T00:00:00.000Z",
         "doc_count": 3
     }
-    parsed_series = [
-        ParsedDataPoint(es_bucket_november),
-        ParsedDataPoint(es_bucket_january),
-        ParsedDataPoint(es_bucket_april),
-        ParsedDataPoint(es_bucket_may),
-        ParsedDataPoint(es_bucket_june)
-    ]
+    parsed_series = {
+        "aggregations": {
+            EsMappings.TIME_SERIES: {
+                "buckets": [
+                    es_bucket_november, es_bucket_january, es_bucket_april, es_bucket_may,
+                    es_bucket_june
+                ]
+            }
+        }
+    }
     result = TimeSeriesResponse(parsed_series).json()
     assert len(result) == 11
     assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "2019-11-01T00:00:00.000Z"
@@ -122,10 +126,102 @@ def test_time_series_response():
     assert result[6][ContentKeys.TIME_SERIES_X_AXIS] == "2020-05-01T00:00:00.000Z"
     assert result[7][ContentKeys.TIME_SERIES_X_AXIS] == "2020-06-01T00:00:00.000Z"
     assert result[0][ContentKeys.TIME_SERIES_Y_AXIS] == 8
-    assert result[1][ContentKeys.TIME_SERIES_Y_AXIS] == 0
-    assert result[2][ContentKeys.TIME_SERIES_Y_AXIS] == 2
-    assert result[3][ContentKeys.TIME_SERIES_Y_AXIS] == 0
-    assert result[4][ContentKeys.TIME_SERIES_Y_AXIS] == 0
-    assert result[5][ContentKeys.TIME_SERIES_Y_AXIS] == 1
-    assert result[6][ContentKeys.TIME_SERIES_Y_AXIS] == 1
-    assert result[7][ContentKeys.TIME_SERIES_Y_AXIS] == 3
+    assert result[1][ContentKeys.TIME_SERIES_Y_AXIS] == 8
+    assert result[2][ContentKeys.TIME_SERIES_Y_AXIS] == 10
+    assert result[3][ContentKeys.TIME_SERIES_Y_AXIS] == 10
+    assert result[4][ContentKeys.TIME_SERIES_Y_AXIS] == 10
+    assert result[5][ContentKeys.TIME_SERIES_Y_AXIS] == 11
+    assert result[6][ContentKeys.TIME_SERIES_Y_AXIS] == 12
+    assert result[7][ContentKeys.TIME_SERIES_Y_AXIS] == 15
+
+
+@pytest.mark.unit
+def test_dataset_with_theme_profile():
+    result = DataSetResponse(
+        total=21,
+        catalogs=[
+            {
+                "key": "/STAT/912660680/970188290",
+                "count": 17
+            },
+            {
+                "key": "/STAT/972417904/874783242",
+                "count": 15
+            },
+            {
+                "key": "/KOMMUNE/958935420",
+                "count": 13
+            }
+        ],
+        org_paths=[
+            {
+            "key": "/STAT/912660680/970188290",
+            "count": 17
+        },
+            {
+                "key": "/STAT/972417904/874783242",
+                "count": 15
+            },
+            {
+                "key": "/KOMMUNE/958935420",
+                "count": 13
+            }
+        ],
+        access_rights=[],
+        themes=[
+            {
+                "key": "trafikk-og-transport",
+                "count": 112
+            },
+            {
+                "key": "familie-og-barn",
+                "count": 108
+            },
+            {
+                "key": "naring",
+                "count": 105
+            },
+            {
+                "key": "naring/landbruk",
+                "count": 98
+            },
+            {
+                "key": "bygg-og-eiendom",
+                "count": 97
+            },
+            {
+                "key": "bygg-og-eiendom",
+                "count": 97
+            },
+            {
+                "key": "trafikk-og-transport/mobilitetstilbud",
+                "count": 97
+            },
+            {
+                "key": "trafikk-og-transport/trafikkinformasjon",
+                "count": 97
+            },
+            {
+                "key": "trafikk-og-transport/veg-og-vegregulering",
+                "count": 97
+            },
+            {
+                "key": "trafikk-og-transport/yrkestransport",
+                "count": 97
+            }
+
+        ],
+        with_subject=19,
+        opendata=3,
+        new_last_week=1,
+        national_component=2,
+        dist_formats=[],
+        theme_profile=ThemeProfile.TRANSPORT,
+        organizationCount=5
+    )
+
+    assert len(result.themesAndTopicsCount) == 4
+    assert len(result.catalogs) == 3
+    assert result.totalObjects == 21
+    assert result.withSubject == 19
+    assert result.organizationCount == 5
