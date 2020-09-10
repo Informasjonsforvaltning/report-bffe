@@ -10,7 +10,7 @@ from src.elasticsearch import es_client
 from src.elasticsearch.queries import EsMappings, AggregationQuery, TimeSeriesQuery
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject, \
     OrganizationStoreNotInitiatedException
-from src.rdf_namespaces import JSON_LD, ContentKeys
+from src.rdf_namespaces import JSON_RDF, ContentKeys
 from src.referenced_data_store import get_organizations, get_los_path, get_organization
 from src.utils import ServiceKey
 
@@ -26,7 +26,7 @@ async def get_all_organizations_with_publisher(publishers):
 
 
 async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:
-    uri = json_ld_values[JSON_LD.DCT.publisher][0][ContentKeys.VALUE]
+    uri = json_ld_values[JSON_RDF.dct.publisher][0][ContentKeys.VALUE]
 
     try:
         ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
@@ -43,8 +43,8 @@ async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: Li
 
 
 def add_los_path_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:
-    if JSON_LD.DCAT.theme in json_ld_values.keys():
-        los_uris = [theme.get(ContentKeys.VALUE) for theme in json_ld_values.get(JSON_LD.DCAT.theme)]
+    if JSON_RDF.dcat.theme in json_ld_values.keys():
+        los_uris = [theme.get(ContentKeys.VALUE) for theme in json_ld_values.get(JSON_RDF.dcat.theme)]
         los_paths = get_los_path(uri_list=los_uris, los_themes=los_themes)
         if len(los_paths) > 0:
             json_ld_values[EsMappings.LOS] = los_paths

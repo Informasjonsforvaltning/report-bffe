@@ -4,7 +4,7 @@ import pytest
 
 from src.elasticsearch.datasets import merge_dataset_information
 from src.elasticsearch.utils import EsMappings
-from src.rdf_namespaces import JSON_LD
+from src.rdf_namespaces import JSON_RDF
 
 
 @pytest.mark.skip
@@ -343,8 +343,8 @@ def test_merge_dataset_information_with_node_refs():
             "http://xmlns.com/foaf/0.1/primaryTopic"][0]["value"] == result[EsMappings.NODE_URI]
     assert len(dataset_with_orgpath["http://www.w3.org/ns/dcat#distribution"]) == 2
     expected_dist_formats = ["SOSI", "GML"]
-    assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
-    assert result["http://www.w3.org/ns/dcat#distribution"][1][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
+    assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_RDF.dct.format][0]["value"] in expected_dist_formats
+    assert result["http://www.w3.org/ns/dcat#distribution"][1][JSON_RDF.dct.format][0]["value"] in expected_dist_formats
 
 
 @pytest.mark.skip
@@ -705,7 +705,7 @@ def test_merge_dataset_information_with_inline_distributions():
                                        distributions=distributions,
                                        records=meta_data_list)
     assert len(dataset_with_orgpath["http://www.w3.org/ns/dcat#distribution"]) == 1
-    assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_LD.DCT.format][0]["value"] == "HTML"
+    assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_RDF.dct.format][0]["value"] == "HTML"
 
 
 @pytest.mark.skip
@@ -1074,13 +1074,12 @@ def test_merge_dataset_information_with_mixed_distributions():
             ]}}
     ]
     result = merge_dataset_information(dataset=dataset_with_orgpath,
-                                       distributions=distributions,
-                                       records=meta_data_list)
+                                       distributions=distributions)
     assert len(dataset_with_orgpath["http://www.w3.org/ns/dcat#distribution"]) == 3
     expected_dist_formats = ["SOSI", "GML", "HTML"]
-    assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
-    assert result["http://www.w3.org/ns/dcat#distribution"][1][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
-    assert result["http://www.w3.org/ns/dcat#distribution"][2][JSON_LD.DCT.format][0]["value"] in expected_dist_formats
+    assert result["http://www.w3.org/ns/dcat#distribution"][0][JSON_RDF.dct.format][0]["value"] in expected_dist_formats
+    assert result["http://www.w3.org/ns/dcat#distribution"][1][JSON_RDF.dct.format][0]["value"] in expected_dist_formats
+    assert result["http://www.w3.org/ns/dcat#distribution"][2][JSON_RDF.dct.format][0]["value"] in expected_dist_formats
 
 
 @pytest.fixture

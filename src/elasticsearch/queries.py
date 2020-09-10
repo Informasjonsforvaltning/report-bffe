@@ -1,7 +1,7 @@
 import abc
 import json
 
-from src.rdf_namespaces import JSON_LD, ContentKeys
+from src.rdf_namespaces import JSON_RDF, ContentKeys
 from src.utils import ServiceKey, ThemeProfile
 
 
@@ -22,13 +22,13 @@ class EsMappings:
     OPEN_LICENSE = "OpenLicense"
 
 
-DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_LD.DCT.accessRights,
-                              JSON_LD.DCT.provenance, JSON_LD.DCT.subject, JSON_LD.DCAT.distribution,
-                              JSON_LD.DCAT.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
+DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_RDF.dct.accessRights,
+                              JSON_RDF.dct.provenance, JSON_RDF.dct.subject, JSON_RDF.dcat.distribution,
+                              JSON_RDF.dcat.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
                               EsMappings.FORMAT, EsMappings.PART_OF_CATALOG]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
-    JSON_LD.DCT.issued, JSON_LD.DCT.isPartOf, JSON_LD.FOAF.primaryTopic
+    JSON_RDF.dct.issued, JSON_RDF.dct.isPartOf, JSON_RDF.foaf.primaryTopic
 ]
 
 
@@ -75,7 +75,7 @@ class AggregationQuery(Query):
                     "size": 100000
                 }
             },
-            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_LD.DCT.issued}.value",
+            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_RDF.dct.issued}.value",
                                                               days=7),
             ContentKeys.CATALOGS: {
                 "terms": {
@@ -97,19 +97,19 @@ class AggregationQuery(Query):
 
     def __add_datasets_aggregation(self):
         self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = AggregationQuery.json_ld_terms_aggregation(
-            JSON_LD.DCT.accessRights)
+            JSON_RDF.dct.accessRights)
         self.aggregations[ContentKeys.NATIONAL_COMPONENT] = {
             "filter": {
                 "term": {
                     AggregationQuery.es_keyword_key(
-                        JSON_LD.DCT.provenance): "http://data.brreg.no/datakatalog/provinens/nasjonal"
+                        JSON_RDF.dct.provenance): "http://data.brreg.no/datakatalog/provinens/nasjonal"
                 }
             }
         }
         self.aggregations[ContentKeys.WITH_SUBJECT] = {
             "filter": {
                 "exists": {
-                    "field": JSON_LD.DCT.subject
+                    "field": JSON_RDF.dct.subject
                 }
             }
         }
@@ -177,7 +177,7 @@ def open_data_aggregation() -> dict:
                 {
                     "term": {
                         AggregationQuery.es_keyword_key(
-                            JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
+                            JSON_RDF.dct.accessRights): "http://publications.europa.eu/resource/authority/access"
                                                        "-right/PUBLIC"
                     }
                 },
@@ -243,7 +243,7 @@ def get_theme_profile_filter(profile: ThemeProfile):
                     {
                         "term": {
                             AggregationQuery.es_keyword_key(
-                                JSON_LD.DCT.accessRights): "http://publications.europa.eu/resource/authority/access"
+                                JSON_RDF.dct.accessRights): "http://publications.europa.eu/resource/authority/access"
                                                            "-right/PUBLIC"
                         }
 

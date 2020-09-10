@@ -69,6 +69,30 @@ class MediaTypes:
                            code=entry.get("code")) for entry in response]
 
 
+class OpenLicense:
+    def __init__(self, open_license_uri):
+        self.uri = open_license_uri
+        self.base_uri = OpenLicense.get_base_uri(open_license_uri)
+
+    def __eq__(self, other):
+        if type(other) == str:
+            other_base = OpenLicense.get_base_uri(other)
+            return other_base == self.base_uri
+        else:
+            return self.base_uri == other.get_base_uri
+
+    @staticmethod
+    def get_base_uri(uri: str):
+        try:
+            http_safe = uri.split("//")[1].strip()
+            if http_safe.endswith("/"):
+                return http_safe[0:-1]
+            else:
+                return http_safe
+        except IndexError:
+            return uri
+
+
 @alru_cache
 async def get_rights_statements() -> List[ParsedReferenceData]:
     rights_statements = await fetch_access_rights_from_reference_data()
@@ -83,17 +107,9 @@ async def get_los_paths() -> List[dict]:
 
 @alru_cache
 async def get_open_licenses() -> List[str]:
-    open_licences = await fetch_open_licences_from_reference_data()
-    licences: List[str] = [licence.get("uri") for licence in open_licences]
-    http_safe_licences = licences.copy()
-    for li in licences:
-        if li.startswith("http://"):
-            https_uri = "https://" + li.split("http://")[1]
-            http_safe_licences.append(https_uri)
-        elif li.startswith("https://"):
-            http_uri = "http://" + li.split("https://")[1]
-            http_safe_licences.append(http_uri)
-    return http_safe_licences
+    open_licenses_response = await fetch_open_licences_from_reference_data()
+    licences: List[str] = [OpenLicense(licence.get("uri")) for licence in open_licenses_response]
+    return licences
 
 
 @alru_cache
