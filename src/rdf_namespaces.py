@@ -24,7 +24,7 @@ class NamespaceProperty(metaclass=abc.ABCMeta):
 
 class RDF(NamespaceProperty):
     ttl_prefix = "rdf: "
-    json_ld_prefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    json_rdf_prefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -35,7 +35,7 @@ class RDF(NamespaceProperty):
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_RDF:
-            return RDF.json_ld_prefix
+            return RDF.json_rdf_prefix
         else:
             return self.ttl_prefix
 
@@ -43,7 +43,7 @@ class RDF(NamespaceProperty):
 class DCT(NamespaceProperty):
     ttl_prefix = "dct:"
     ttl_prefix_definition = "PREFIX dct: <http://purl.org/dc/terms/>"
-    json_ld_prefix = "http://purl.org/dc/terms/"
+    json_rdf_prefix = "http://purl.org/dc/terms/"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -65,14 +65,14 @@ class DCT(NamespaceProperty):
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_RDF:
-            return DCT.json_ld_prefix
+            return DCT.json_rdf_prefix
         else:
             return DCT.ttl_prefix
 
 
 class FOAF(NamespaceProperty):
     ttl_prefix = "foaf:"
-    json_ld_prefix = "http://xmlns.com/foaf/0.1/"
+    json_rdf_prefix = "http://xmlns.com/foaf/0.1/"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -82,7 +82,7 @@ class FOAF(NamespaceProperty):
 
     def get_prefix(self) -> str:
         if self.syntax == NamespaceProperty.JSON_RDF:
-            return FOAF.json_ld_prefix
+            return FOAF.json_rdf_prefix
         else:
             return FOAF.ttl_prefix
 
@@ -93,7 +93,7 @@ class FOAF(NamespaceProperty):
 
 class OWL(NamespaceProperty):
     ttl_prefix = "owl:"
-    json_ld_prefix = "http://www.w3.org/2002/07/owl#"
+    json_rdf_prefix = "http://www.w3.org/2002/07/owl#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -101,7 +101,7 @@ class OWL(NamespaceProperty):
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_RDF:
-            return OWL.json_ld_prefix
+            return OWL.json_rdf_prefix
         else:
             return OWL.ttl_prefix
 
@@ -112,7 +112,7 @@ class OWL(NamespaceProperty):
 
 class DCAT(NamespaceProperty):
     ttl_prefix = "dcat:"
-    json_ld_prefix = "http://www.w3.org/ns/dcat#"
+    json_rdf_prefix = "http://www.w3.org/ns/dcat#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -126,25 +126,25 @@ class DCAT(NamespaceProperty):
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_RDF:
-            return DCAT.json_ld_prefix
+            return DCAT.json_rdf_prefix
         else:
             return DCAT.ttl_prefix
 
 
 class XSD(NamespaceProperty):
     ttl_prefix = "xsd:"
-    json_ld_prefix = "http://www.w3.org/2001/XMLSchema#"
+    json_rdf_prefix = "http://www.w3.org/2001/XMLSchema#"
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_RDF:
-            return XSD.json_ld_prefix
+            return XSD.json_rdf_prefix
         else:
             return XSD.ttl_prefix
 
 
 class SKOS(NamespaceProperty):
     ttl_prefix = "skos:"
-    json_ld_prefix = "http://www.w3.org/2004/02/skos/core#"
+    json_rdf_prefix = "http://www.w3.org/2004/02/skos/core#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -152,7 +152,7 @@ class SKOS(NamespaceProperty):
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_RDF:
-            return SKOS.json_ld_prefix
+            return SKOS.json_rdf_prefix
         else:
             return SKOS.ttl_prefix
 

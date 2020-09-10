@@ -76,10 +76,9 @@ class OpenLicense:
 
     def __eq__(self, other):
         if type(other) == str:
-            other_base = OpenLicense.get_base_uri(other)
-            return other_base == self.base_uri
+            return self.base_uri == OpenLicense.get_base_uri(other)
         else:
-            return self.base_uri == other.get_base_uri
+            return self.uri == other.uri
 
     @staticmethod
     def get_base_uri(uri: str):
