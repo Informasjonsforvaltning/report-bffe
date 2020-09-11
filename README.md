@@ -40,7 +40,7 @@
 
 ### *Note*
 *The first time you run the application, it might take some time before the port is available due to an
-of data in elasticsearch*    
+update of data in elasticsearch*    
 
 ###Task automation
 A number of repeating tasks are automated for convenience using [Invoke](http://www.pyinvoke.org/). (See section "Invoke tasks" for more info)
@@ -107,6 +107,8 @@ restart terminal
 ### FetchServiceException when updating data
  1. Check if mock server is running:  `GET /http://localhost:8080/organizations`  
  2. If no response restart containers
+
+For other mock data issues see [mock_data.md in readme resources](readme_resources/mock_data.md)
 
 ### ConnectionError etc when updating data
 1. Check if elasticsearch is running and avaiable `GET http://localhost:9200/`
