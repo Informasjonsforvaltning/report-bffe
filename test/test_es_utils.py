@@ -1,7 +1,5 @@
 import pytest
-
-from src.service_requests import fetch_catalog_from_dataset_harvester
-from test.unit_mock_data import parsed_org_catalog_mock, mocked_organization_catalog_response
+from test.unit_mock_data import mocked_organization_catalog_response
 
 
 @pytest.fixture

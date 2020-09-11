@@ -1,7 +1,8 @@
 import pytest
 
 from src.elasticsearch.rdf_reference_mappers import CatalogReference, RdfReferenceMapper, CatalogRecords
-from src.rdf_namespaces import JSON_RDF, ContentKeys
+from src.rdf_namespaces import JSON_RDF
+from src.utils import ContentKeys
 from src.referenced_data_store import OpenLicense
 
 

@@ -2,7 +2,37 @@ from datetime import datetime
 from typing import List
 from dateutil import parser
 
-from src.rdf_namespaces import ContentKeys
+
+class ContentKeys:
+    SAME_AS = "sameAs"
+    PUBLISHER = "publisher"
+    SRC_ORGANIZATION = "publisher"
+    FORMAT = "format"
+    WITH_SUBJECT = "withSubject"
+    OPEN_DATA = "opendata"
+    TOTAL = "total"
+    NEW_LAST_WEEK = "new_last_week"
+    NATIONAL_COMPONENT = "nationalComponent"
+    ORGANIZATION = "organization"
+    COUNT = "count"
+    VALUE = "value"
+    ACCESS_RIGHTS_CODE = "code"
+    TIME_SERIES_MONTH = "month"
+    TIME_SERIES_YEAR = "year"
+    TIME_SERIES_Y_AXIS = "yAxis"
+    TIME_SERIES_X_AXIS = "xAxis"
+    THEME = "theme"
+    ORG_NAME = "name"
+    ORGANIZATION_URI = "organization"
+    LOS_PATH = "losPath"
+    CATALOGS = "catalogs"
+    ORGANIZATION_COUNT = "organizationCount"
+
+
+class OrgCatalogKeys:
+    NAME = "name"
+    URI = "norwegianRegistry"
+    ORG_PATH = "orgPath"
 
 
 class ServiceKey:

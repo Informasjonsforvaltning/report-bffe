@@ -6,7 +6,8 @@ from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, CATALOG_RECORD
 from src.elasticsearch.rdf_reference_mappers import RdfReferenceMapper
 from src.elasticsearch.utils import elasticsearch_ingest, add_org_and_los_paths_to_document, add_key_as_node_uri, \
     EsMappings, get_values_from_nested_dict, get_all_organizations_with_publisher
-from src.rdf_namespaces import JSON_RDF, ContentKeys
+from src.rdf_namespaces import JSON_RDF
+from src.utils import ContentKeys
 from src.referenced_data_store import get_open_licenses, get_media_types, MediaTypes
 from src.service_requests import fetch_catalog_from_dataset_harvester, \
     fetch_themes_and_topics_from_reference_data, fetch_publishers_from_dataset_harvester
@@ -50,26 +51,20 @@ async def prepare_documents(documents: dict, los_themes: List[dict], open_licens
                 JSON_RDF.rdf_type_equals(JSON_RDF.dcat.type_dataset, entry)]
     distributions = [{entry[0]: entry[1]} for entry in documents_list if
                      JSON_RDF.rdf_type_equals(JSON_RDF.dcat.distribution_type, entry)]
-    license_documents = [{entry[0]: entry[1]} for entry in documents_list if
-                         JSON_RDF.rdf_type_in(JSON_RDF.dct.license_document, entry)]
 
     reference_mapper = RdfReferenceMapper(documents_list, open_licenses=open_licenses)
-    # add organization references to entry
-    with_orgpath = await asyncio.gather(*[add_org_and_los_paths_to_document(json_ld_values=entry,
+    with_orgpath = await asyncio.gather(*[add_org_and_los_paths_to_document(json_rdf_values=entry,
                                                                             los_themes=los_themes) for entry in
                                           datasets])
 
     return [merge_dataset_information(dataset=dataset,
                                       distributions=distributions,
-                                      open_licenses=open_licenses,
-                                      license_documents=license_documents,
                                       media_types=media_types,
                                       reference_mapper=reference_mapper)
             for dataset in with_orgpath]
 
 
-def merge_dataset_information(dataset, distributions, open_licenses,
-                              license_documents, media_types, reference_mapper) -> dict:
+def merge_dataset_information(dataset, distributions, media_types, reference_mapper) -> dict:
     dataset_record = reference_mapper.get_catalog_record_for_dataset(dataset[EsMappings.NODE_URI])
     dataset[EsMappings.RECORD] = dataset_record
     dataset[EsMappings.PART_OF_CATALOG] = reference_mapper.get_dataset_catalog_name(
@@ -115,13 +110,3 @@ def reduce_dataset(dataset: dict):
         if key not in DATASET_AGGREGATION_FIELDS:
             reduced_dict.pop(key)
     return reduced_dict
-
-
-def reduce_record(record: dict):
-    record_values = get_values_from_nested_dict(record)
-    reduced_record = record_values.copy()
-    for items in record_values.items():
-        key = items[0]
-        if key not in CATALOG_RECORD_AGGREGATION_FIELDS:
-            reduced_record.pop(key)
-    return reduced_record

@@ -6,23 +6,22 @@ import requests
 from urllib3.exceptions import MaxRetryError, NewConnectionError
 
 from test.unit_mock_data import mock_los_path_reference_response, mock_access_rights_catalog_response, \
-    single_parsed_org_mock, parsed_brreg_org, parsed_org_catalog_mock, mocked_organization_catalog_response
+    single_parsed_org_mock, parsed_org_catalog_mock
 
 
 @pytest.fixture(scope="session")
-def wait_for_ready(connection_attempts=0):
+def wait_for_ready():
     timeout = time.time() + 60
     attempts = 0
     while True:
         try:
             response = requests.get("http://localhost:8000/ready")
             if response.status_code == 200:
-                # wait for wiremock
                 time.sleep(2)
                 break
             if time.time() > timeout:
                 pytest.fail(
-                    'Test function setup: timed out while waiting for organization-bff, last response '
+                    'Test function setup: timed out while waiting for reports-bff ready response, last response '
                     'was {0}'.format(response.status_code))
             time.sleep(1)
         except (requests.exceptions.ConnectionError, ConnectionRefusedError, MaxRetryError, NewConnectionError):

@@ -2,7 +2,8 @@ from typing import List
 
 from src.elasticsearch.queries import CATALOG_RECORD_AGGREGATION_FIELDS, EsMappings
 from src.elasticsearch.utils import get_values_from_nested_dict
-from src.rdf_namespaces import JSON_RDF, ContentKeys
+from src.rdf_namespaces import JSON_RDF
+from src.utils import ContentKeys
 
 
 class CatalogRecords:

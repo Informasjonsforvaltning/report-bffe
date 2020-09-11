@@ -1,7 +1,6 @@
-from src.elasticsearch.queries import EsMappings
 from src.elasticsearch.utils import elasticsearch_get_time_series
 from src.responses import TimeSeriesResponse
-from src.utils import ServiceKey, QueryParameter, ParsedDataPoint
+from src.utils import ServiceKey, QueryParameter
 
 
 def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
