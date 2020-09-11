@@ -1,7 +1,8 @@
 import pytest
 
 from src.elasticsearch.rdf_reference_mappers import CatalogReference, RdfReferenceMapper, CatalogRecords
-from src.rdf_namespaces import JSON_LD, ContentKeys
+from src.rdf_namespaces import JSON_RDF, ContentKeys
+from src.referenced_data_store import OpenLicense
 
 
 @pytest.mark.unit
@@ -260,10 +261,10 @@ def test_catalog_reference_eq_on_dataset_uri():
 
 
 @pytest.mark.unit
-def test_reference_mapper_for_catalogs():
+def test_reference_mapper_for_catalogs(empty_open_licence_b_nodes_patch):
     result = RdfReferenceMapper(
-        document_list=mock_records + mock_catalogs + mock_datasets + mock_distributions + mock_licence_documents
-    )
+        document_list=mock_records + mock_catalogs + mock_datasets + mock_distributions + mock_licence_documents,
+        open_licenses=mock_open_licenses)
 
     assert len(result.catalogs) == 4
     assert len(result.catalog_records) == 4
@@ -280,22 +281,29 @@ def test_reference_mapper_for_catalogs():
 
 
 @pytest.mark.unit
-def test_get_record_for_dataset():
+def test_get_record_for_dataset(empty_open_licence_b_nodes_patch):
     mapper = RdfReferenceMapper(
-        document_list=mock_records + mock_catalogs + mock_datasets + mock_distributions + mock_licence_documents
+        document_list=mock_records + mock_catalogs + mock_datasets + mock_distributions + mock_licence_documents,
+        open_licenses=mock_open_licenses
     )
 
     result = mapper.get_catalog_record_for_dataset(dataset_uri="https://data.norge.no/node/1589")
     result_keys = result.keys()
-    assert JSON_LD.DCT.issued in result_keys
-    assert JSON_LD.DCT.isPartOf in result_keys
-    assert JSON_LD.FOAF.primaryTopic in result_keys
-    assert result[JSON_LD.DCT.isPartOf][0][ContentKeys.VALUE] == "https://datasets.staging.fellesdatakatalog.digdir.no/catalogs/a4153a19-50f9-332b-b7ae-fe3273cbada7"
-    assert result[JSON_LD.FOAF.primaryTopic][0][ContentKeys.VALUE] == "https://data.norge.no/node/1589"
-    assert result[JSON_LD.DCT.issued][0][ContentKeys.VALUE] == '2020-08-19T09:39:29.822Z'
+    assert JSON_RDF.dct.issued in result_keys
+    assert JSON_RDF.dct.isPartOf in result_keys
+    assert JSON_RDF.foaf.primaryTopic in result_keys
+    assert result[JSON_RDF.dct.isPartOf][0][
+               ContentKeys.VALUE] == "https://datasets.staging.fellesdatakatalog.digdir.no/catalogs/a4153a19-50f9-332b-b7ae-fe3273cbada7"
+    assert result[JSON_RDF.foaf.primaryTopic][0][ContentKeys.VALUE] == "https://data.norge.no/node/1589"
+    assert result[JSON_RDF.dct.issued][0][ContentKeys.VALUE] == '2020-08-19T09:39:29.822Z'
     exp_no_result = mapper.get_catalog_record_for_dataset(dataset_uri="https://data.norge.no/node/99887766")
     assert exp_no_result is None
 
+
+@pytest.fixture
+def empty_open_licence_b_nodes_patch(mocker):
+    mocker.patch("src.elasticsearch.rdf_reference_mappers.RdfReferenceMapper.get_open_license_nodes_from_license_docs",
+                 return_value=[])
 
 
 mock_records = [
@@ -780,3 +788,35 @@ mock_catalogs = [
         ]
     })
 ]
+mock_open_licenses = [
+    OpenLicense("http://creativecommons.org/licenses/by/4.0/"),
+    OpenLicense("http://creativecommons.org/licenses/by/4.0/deed.no"),
+    OpenLicense("http://creativecommons.org/publicdomain/zero/1.0/"),
+    OpenLicense("http://data.norge.no/nlod/"),
+    OpenLicense("http://data.norge.no/nlod/no/"),
+    OpenLicense("http://data.norge.no/nlod/no/1.0"),
+    OpenLicense("http://data.norge.no/nlod/no/2.0")
+]
+mock_distribution_b_node_in_dataset = {
+    "http://www.w3.org/ns/dcat#distribution": [{
+        "type": "uri",
+        "value": "https://dataut.vegvesen.no/dataset/66adf913-c48e-40e7-a7fb-586e542c42ff/resource/0a51c171-5330-4e13"
+                 "-8bdc-e15fefd7c822 "
+    }],
+    "http://purl.org/dc/terms/identifier": [{
+        "type": "literal",
+        "value": "http://vegvesen.no/datasett/id_ikke_permanent/elveg-vbase"
+    }
+    ],
+    "http://purl.org/dc/terms/title": [{
+        "type": "literal",
+        "value": "Kart over vegnett \u2013 Elveg",
+        "lang": "nb"
+    }
+        , {
+            "type": "literal",
+            "value": "Map over road networks - Elveg",
+            "lang": "en"
+        }
+    ]
+}

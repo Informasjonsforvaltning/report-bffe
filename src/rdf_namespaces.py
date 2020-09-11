@@ -3,7 +3,7 @@ from typing import List
 
 
 class NamespaceProperty(metaclass=abc.ABCMeta):
-    JSON_LD = "json_ld"
+    JSON_RDF = "json_rdf"
     TTL = "turtle"
 
     def __init__(self, syntax):
@@ -24,18 +24,18 @@ class NamespaceProperty(metaclass=abc.ABCMeta):
 
 class RDF(NamespaceProperty):
     ttl_prefix = "rdf: "
-    json_ld_prefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    json_rdf_prefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
-        if self.syntax == NamespaceProperty.JSON_LD:
+        if self.syntax == NamespaceProperty.JSON_RDF:
             self.type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         else:
             self.type = "a"
 
     def get_prefix(self) -> str:
-        if self.syntax == NamespaceProperty.JSON_LD:
-            return RDF.json_ld_prefix
+        if self.syntax == NamespaceProperty.JSON_RDF:
+            return RDF.json_rdf_prefix
         else:
             return self.ttl_prefix
 
@@ -43,7 +43,7 @@ class RDF(NamespaceProperty):
 class DCT(NamespaceProperty):
     ttl_prefix = "dct:"
     ttl_prefix_definition = "PREFIX dct: <http://purl.org/dc/terms/>"
-    json_ld_prefix = "http://purl.org/dc/terms/"
+    json_rdf_prefix = "http://purl.org/dc/terms/"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -64,15 +64,15 @@ class DCT(NamespaceProperty):
         return "dct: <http://purl.org/dc/terms/>"
 
     def get_prefix(self) -> str:
-        if self.syntax == NamespaceProperty.JSON_LD:
-            return DCT.json_ld_prefix
+        if self.syntax == NamespaceProperty.JSON_RDF:
+            return DCT.json_rdf_prefix
         else:
             return DCT.ttl_prefix
 
 
 class FOAF(NamespaceProperty):
     ttl_prefix = "foaf:"
-    json_ld_prefix = "http://xmlns.com/foaf/0.1/"
+    json_rdf_prefix = "http://xmlns.com/foaf/0.1/"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -81,8 +81,8 @@ class FOAF(NamespaceProperty):
         self.primaryTopic = self.get_property("primaryTopic")
 
     def get_prefix(self) -> str:
-        if self.syntax == NamespaceProperty.JSON_LD:
-            return FOAF.json_ld_prefix
+        if self.syntax == NamespaceProperty.JSON_RDF:
+            return FOAF.json_rdf_prefix
         else:
             return FOAF.ttl_prefix
 
@@ -93,15 +93,15 @@ class FOAF(NamespaceProperty):
 
 class OWL(NamespaceProperty):
     ttl_prefix = "owl:"
-    json_ld_prefix = "http://www.w3.org/2002/07/owl#"
+    json_rdf_prefix = "http://www.w3.org/2002/07/owl#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
         self.sameAs = self.get_property("sameAs")
 
     def get_prefix(self):
-        if self.syntax == NamespaceProperty.JSON_LD:
-            return OWL.json_ld_prefix
+        if self.syntax == NamespaceProperty.JSON_RDF:
+            return OWL.json_rdf_prefix
         else:
             return OWL.ttl_prefix
 
@@ -112,7 +112,7 @@ class OWL(NamespaceProperty):
 
 class DCAT(NamespaceProperty):
     ttl_prefix = "dcat:"
-    json_ld_prefix = "http://www.w3.org/ns/dcat#"
+    json_rdf_prefix = "http://www.w3.org/ns/dcat#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
@@ -125,34 +125,34 @@ class DCAT(NamespaceProperty):
         self.type_catalog = self.get_property("Catalog")
 
     def get_prefix(self):
-        if self.syntax == NamespaceProperty.JSON_LD:
-            return DCAT.json_ld_prefix
+        if self.syntax == NamespaceProperty.JSON_RDF:
+            return DCAT.json_rdf_prefix
         else:
             return DCAT.ttl_prefix
 
 
 class XSD(NamespaceProperty):
     ttl_prefix = "xsd:"
-    json_ld_prefix = "http://www.w3.org/2001/XMLSchema#"
+    json_rdf_prefix = "http://www.w3.org/2001/XMLSchema#"
 
     def get_prefix(self):
-        if self.syntax == NamespaceProperty.JSON_LD:
-            return XSD.json_ld_prefix
+        if self.syntax == NamespaceProperty.JSON_RDF:
+            return XSD.json_rdf_prefix
         else:
             return XSD.ttl_prefix
 
 
 class SKOS(NamespaceProperty):
     ttl_prefix = "skos:"
-    json_ld_prefix = "http://www.w3.org/2004/02/skos/core#"
+    json_rdf_prefix = "http://www.w3.org/2004/02/skos/core#"
 
     def __init__(self, syntax):
         super().__init__(syntax)
         self.concept = self.get_property("Concept")
 
     def get_prefix(self):
-        if self.syntax == NamespaceProperty.JSON_LD:
-            return SKOS.json_ld_prefix
+        if self.syntax == NamespaceProperty.JSON_RDF:
+            return SKOS.json_rdf_prefix
         else:
             return SKOS.ttl_prefix
 
@@ -201,22 +201,22 @@ class OrgCatalogKeys:
     ORG_PATH = "orgPath"
 
 
-class JSON_LD:
-    RDF = RDF(NamespaceProperty.JSON_LD)
-    DCAT = DCAT(NamespaceProperty.JSON_LD)
-    DCT = DCT(NamespaceProperty.JSON_LD)
-    FOAF = FOAF(NamespaceProperty.JSON_LD)
-    OWL = OWL(NamespaceProperty.JSON_LD)
-    XSD = XSD(NamespaceProperty.JSON_LD)
-    SKOS = SKOS(NamespaceProperty.JSON_LD)
+class JSON_RDF:
+    rdf = RDF(NamespaceProperty.JSON_RDF)
+    dcat = DCAT(NamespaceProperty.JSON_RDF)
+    dct = DCT(NamespaceProperty.JSON_RDF)
+    foaf = FOAF(NamespaceProperty.JSON_RDF)
+    owl = OWL(NamespaceProperty.JSON_RDF)
+    xsd = XSD(NamespaceProperty.JSON_RDF)
+    skos = SKOS(NamespaceProperty.JSON_RDF)
 
     @staticmethod
     def rdf_type_equals(rdf_property: str, entry) -> bool:
         try:
             if type(entry) is tuple:
-                return entry[1][JSON_LD.RDF.type][0][ContentKeys.VALUE] == rdf_property
+                return entry[1][JSON_RDF.rdf.type][0][ContentKeys.VALUE] == rdf_property
             else:
-                return entry[JSON_LD.RDF.type][0][ContentKeys.VALUE] == rdf_property
+                return entry[JSON_RDF.rdf.type][0][ContentKeys.VALUE] == rdf_property
         except KeyError:
             return False
 

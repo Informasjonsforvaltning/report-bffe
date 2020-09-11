@@ -1,7 +1,8 @@
 import asyncio
 import pytest
 
-from src.referenced_data_store import get_access_rights_code, get_los_path
+from src.referenced_data_store import get_access_rights_code, get_los_path, get_open_licenses, OpenLicense
+from test.unit_mock_data import open_licenses_mock_reponse
 
 
 @pytest.mark.unit
@@ -20,6 +21,26 @@ def test_get_access_rights(event_loop, get_access_rights_mock):
     assert public == "PUBLIC"
     assert non_public == "NON_PUBLIC"
     assert not_a_code is None
+
+
+@pytest.mark.unit
+def test_get_safe_base_uri_for_open_license():
+    expected_result = "creativecommons.org/licenses/by/4.0"
+    assert OpenLicense.get_base_uri("http://creativecommons.org/licenses/by/4.0/") == expected_result
+    assert OpenLicense.get_base_uri("https://creativecommons.org/licenses/by/4.0/") == expected_result
+    assert OpenLicense.get_base_uri("https://creativecommons.org/licenses/by/4.0") == expected_result
+
+
+@pytest.mark.unit
+def test_get_open_licenses(event_loop, fetch_open_licenses_mock):
+    result = event_loop.run_until_complete(get_open_licenses())
+    assert len(result) == 7
+    assert "http://creativecommons.org/licenses/by/4.0/" in result
+    assert "https://creativecommons.org/licenses/by/4.0/" in result
+    assert "http://creativecommons.org/licenses/by/4.0" in result
+    assert "http://creativecommons.org/licenses/by/4.0/deed.no" in result
+    assert "http://creativecommons.org/licenses/by/4.0/deed.no/" in result
+    assert "http://creativecommons.org/licenses/by/4.0/deed" not in result
 
 
 @pytest.mark.unit
@@ -45,3 +66,9 @@ def test_get_los_path(event_loop, get_los_paths_mock):
     several_paths_los_path_list = several_paths_result[0]["losPaths"]
     assert "bygg-og-eiendom/kjop-og-salg/boligfinansiering" in several_paths_los_path_list
     assert "sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering" in several_paths_los_path_list
+
+
+@pytest.fixture
+def fetch_open_licenses_mock(mocker):
+    mocker.patch('src.referenced_data_store.fetch_open_licences_from_reference_data',
+                 side_effect=open_licenses_mock_reponse)

@@ -72,6 +72,7 @@ class TestDatasetsReport:
         for path in result_paths:
             assert path["key"] in accepted_paths
         assert result.json().get("organizationCount") == 4
+        assert result.json().get("opendata") == 20
 
     @pytest.mark.contract
     def test_time_series_has_correct_format(self, wait_for_ready):
