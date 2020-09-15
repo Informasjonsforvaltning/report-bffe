@@ -1,5 +1,6 @@
-from src.rdf_namespaces import NamespaceProperty, DCT, FOAF, OWL, RDF, ContentKeys
+from src.rdf_namespaces import NamespaceProperty, DCT, FOAF, OWL, RDF
 from src.sparql.builder import SparqlSelect, SparqlWhere, SparqlGraphTerm, SparqlOptional, SparqlBuilder
+from src.utils import ContentKeys
 
 
 def build_dataset_publisher_query():

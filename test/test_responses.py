@@ -1,7 +1,7 @@
 import pytest
 
 from src.elasticsearch.queries import EsMappings
-from src.rdf_namespaces import ContentKeys
+from src.utils import ContentKeys
 from src.responses import InformationModelResponse, ConceptResponse, TimeSeriesResponse, DataSetResponse
 from src.utils import ThemeProfile
 from test.unit_mock_data import concepts_aggregation, concepts_in_use

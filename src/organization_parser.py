@@ -1,8 +1,6 @@
 import logging
 from typing import List
-
-from src.rdf_namespaces import OrgCatalogKeys, ContentKeys
-from src.utils import NATIONAL_REGISTRY_PATTERN
+from src.utils import NATIONAL_REGISTRY_PATTERN, OrgCatalogKeys, ContentKeys
 
 
 class OrganizationReferencesObject:
@@ -13,9 +11,6 @@ class OrganizationReferencesObject:
         if same_as_entry:
             self.same_as.append(same_as_entry)
         self.name: str = name
-
-    def update_orgpath(self, org_path):
-        self.org_path = org_path
 
     def __eq__(self, other):
         if type(other) == OrganizationReferencesObject:

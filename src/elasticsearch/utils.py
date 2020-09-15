@@ -10,9 +10,9 @@ from src.elasticsearch import es_client
 from src.elasticsearch.queries import EsMappings, AggregationQuery, TimeSeriesQuery
 from src.organization_parser import OrganizationStore, OrganizationReferencesObject, \
     OrganizationStoreNotInitiatedException
-from src.rdf_namespaces import JSON_RDF, ContentKeys
+from src.rdf_namespaces import JSON_RDF
 from src.referenced_data_store import get_organizations, get_los_path, get_organization
-from src.utils import ServiceKey
+from src.utils import ServiceKey, ContentKeys
 
 
 def add_key_as_node_uri(key, value):
@@ -25,8 +25,8 @@ async def get_all_organizations_with_publisher(publishers):
     OrganizationStore.get_instance().add_all_publishers(publishers)
 
 
-async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:
-    uri = json_ld_values[JSON_RDF.dct.publisher][0][ContentKeys.VALUE]
+async def add_org_and_los_paths_to_document(json_rdf_values: dict, los_themes: List[dict]) -> dict:
+    uri = json_rdf_values[JSON_RDF.dct.publisher][0][ContentKeys.VALUE]
 
     try:
         ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
@@ -34,21 +34,21 @@ async def add_org_and_los_paths_to_document(json_ld_values: dict, los_themes: Li
         if referenced_organization:
             org_path = referenced_organization.org_path
             org_id = OrganizationReferencesObject.resolve_id(referenced_organization.org_uri)
-            json_ld_values[EsMappings.ORG_PATH] = org_path
-            json_ld_values[EsMappings.ORGANIZATION_ID] = org_id
-        return add_los_path_to_document(json_ld_values, los_themes)
+            json_rdf_values[EsMappings.ORG_PATH] = org_path
+            json_rdf_values[EsMappings.ORGANIZATION_ID] = org_id
+        return add_los_path_to_document(json_rdf_values, los_themes)
     except OrganizationStoreNotInitiatedException:
         await get_organizations()
-        return await add_org_and_los_paths_to_document(json_ld_values, los_themes)
+        return await add_org_and_los_paths_to_document(json_rdf_values, los_themes)
 
 
-def add_los_path_to_document(json_ld_values: dict, los_themes: List[dict]) -> dict:
-    if JSON_RDF.dcat.theme in json_ld_values.keys():
-        los_uris = [theme.get(ContentKeys.VALUE) for theme in json_ld_values.get(JSON_RDF.dcat.theme)]
+def add_los_path_to_document(json_rdf_values: dict, los_themes: List[dict]) -> dict:
+    if JSON_RDF.dcat.theme in json_rdf_values.keys():
+        los_uris = [theme.get(ContentKeys.VALUE) for theme in json_rdf_values.get(JSON_RDF.dcat.theme)]
         los_paths = get_los_path(uri_list=los_uris, los_themes=los_themes)
         if len(los_paths) > 0:
-            json_ld_values[EsMappings.LOS] = los_paths
-    return json_ld_values
+            json_rdf_values[EsMappings.LOS] = los_paths
+    return json_rdf_values
 
 
 def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):

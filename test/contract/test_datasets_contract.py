@@ -27,6 +27,7 @@ class TestDatasetsReport:
         assert "themesAndTopicsCount" in keys
         assert "orgPaths" in keys
         assert "organizationCount" in keys
+        assert "formats" in keys
         assert len(content.get("orgPaths")) > len(content.get("catalogs"))
         assert content.get("organizationCount") < len(content.get("orgPaths"))
         assert content.get("organizationCount") > len(content.get("catalogs"))
@@ -38,6 +39,7 @@ class TestDatasetsReport:
         assert content.get("withSubject") > 0
         assert len(content.get("accessRights")) == 4
         assert len(content.get("themesAndTopicsCount")) > 0
+        assert len(content.get("formats")) > 0
 
     @pytest.mark.contract
     def test_report_filter_on_orgPath(self, wait_for_ready):

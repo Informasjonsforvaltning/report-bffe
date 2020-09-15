@@ -1,8 +1,8 @@
 import abc
 import json
 
-from src.rdf_namespaces import JSON_RDF, ContentKeys
-from src.utils import ServiceKey, ThemeProfile
+from src.rdf_namespaces import JSON_RDF
+from src.utils import ServiceKey, ThemeProfile, ContentKeys
 
 
 class EsMappings:
@@ -96,7 +96,7 @@ class AggregationQuery(Query):
         self.add_filters(orgpath, theme, theme_profile, organization_id)
 
     def __add_datasets_aggregation(self):
-        self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = AggregationQuery.json_ld_terms_aggregation(
+        self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = AggregationQuery.json_rdf_terms_aggregation(
             JSON_RDF.dct.accessRights)
         self.aggregations[ContentKeys.NATIONAL_COMPONENT] = {
             "filter": {
@@ -133,10 +133,8 @@ class AggregationQuery(Query):
     def es_keyword_key(json_ld_key: str):
         return f"{json_ld_key}{EsMappings.VALUE_KEYWORD}"
 
-        # TODO themesAndTopics, formats, open_data
-
     @staticmethod
-    def json_ld_terms_aggregation(json_ld_field: str, size: int = None):
+    def json_rdf_terms_aggregation(json_ld_field: str, size: int = None):
         return {
             "terms": {
                 "field": AggregationQuery.es_keyword_key(json_ld_field),

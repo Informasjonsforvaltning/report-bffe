@@ -1,7 +1,8 @@
 import pytest
 
 from src.elasticsearch.rdf_reference_mappers import CatalogReference, RdfReferenceMapper, CatalogRecords
-from src.rdf_namespaces import JSON_RDF, ContentKeys
+from src.rdf_namespaces import JSON_RDF
+from src.utils import ContentKeys
 from src.referenced_data_store import OpenLicense
 
 
@@ -264,7 +265,9 @@ def test_catalog_reference_eq_on_dataset_uri():
 def test_reference_mapper_for_catalogs(empty_open_licence_b_nodes_patch):
     result = RdfReferenceMapper(
         document_list=mock_records + mock_catalogs + mock_datasets + mock_distributions + mock_licence_documents,
-        open_licenses=mock_open_licenses)
+        open_licenses=mock_open_licenses,
+        media_types=[]
+    )
 
     assert len(result.catalogs) == 4
     assert len(result.catalog_records) == 4
@@ -284,7 +287,8 @@ def test_reference_mapper_for_catalogs(empty_open_licence_b_nodes_patch):
 def test_get_record_for_dataset(empty_open_licence_b_nodes_patch):
     mapper = RdfReferenceMapper(
         document_list=mock_records + mock_catalogs + mock_datasets + mock_distributions + mock_licence_documents,
-        open_licenses=mock_open_licenses
+        open_licenses=mock_open_licenses,
+        media_types=[]
     )
 
     result = mapper.get_catalog_record_for_dataset(dataset_uri="https://data.norge.no/node/1589")

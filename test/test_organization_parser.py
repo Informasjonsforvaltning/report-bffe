@@ -335,7 +335,6 @@ def test_eq_on_both_with_same_as_and_no_org_uri():
     assert same_as_without_name_http == same_as_without_name_https
 
 
-
 @pytest.mark.unit
 def test_add_all_publishers():
     store = OrganizationStore.get_instance()

@@ -2,10 +2,9 @@ import asyncio
 
 from src.elasticsearch.queries import EsMappings
 from src.elasticsearch.utils import elasticsearch_get_report_aggregations
-from src.rdf_namespaces import ContentKeys
 from src.referenced_data_store import get_access_rights_code
 from src.responses import DataSetResponse
-from src.utils import ServiceKey
+from src.utils import ServiceKey, ContentKeys
 
 
 def create_dataset_report(orgpath, theme, theme_profile, organization_id):
