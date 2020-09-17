@@ -12,7 +12,8 @@ service_urls = {
     ServiceKey.DATA_SERVICES: os.getenv('DATASERVICE_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.DATA_SETS: os.getenv('DATASET_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.CONCEPTS: os.getenv('CONCEPT_HARVESTER_URL') or "http://localhost:8080/concepts",
-    ServiceKey.REFERENCE_DATA: os.getenv('REFERENCE_DATA_URL') or "http://localhost:8080/reference-data"
+    ServiceKey.REFERENCE_DATA: os.getenv('REFERENCE_DATA_URL') or "http://localhost:8080/reference-data",
+    ServiceKey.FDK_BASE: os.getenv('FDK_BASE') or "http://localhost:8080"
 }
 
 default_headers = {
@@ -182,7 +183,7 @@ async def fetch_catalog_from_dataset_harvester() -> dict:
 
 async def fetch_publishers_from_dataset_harvester() -> dict:
     publisher_query = get_dataset_publisher_query()
-    url = f'{service_urls.get(ServiceKey.DATA_SETS)}/sparql/select?query={publisher_query}'
+    url = f'{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}'
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, headers=default_headers, timeout=60)
