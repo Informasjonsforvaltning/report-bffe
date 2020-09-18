@@ -42,6 +42,7 @@ class ServiceKey:
     DATA_SETS = "datasets"
     CONCEPTS = "concepts"
     REFERENCE_DATA = "reference_data"
+    FDK_BASE = "fdk_base"
 
     @staticmethod
     def get_key(string_key: str) -> 'ServiceKey':
@@ -55,6 +56,8 @@ class ServiceKey:
             return ServiceKey.DATA_SETS
         if string_key == ServiceKey.CONCEPTS:
             return ServiceKey.CONCEPTS
+        if string_key == ServiceKey.FDK_BASE:
+            return ServiceKey.FDK_BASE
         else:
             raise NotAServiceKeyException(string_key)
 

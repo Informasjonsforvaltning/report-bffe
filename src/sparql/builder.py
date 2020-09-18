@@ -133,5 +133,7 @@ def encode_for_sparql(string: str):
         .replace(">", "%3E") \
         .replace("(", "%28") \
         .replace(")", "%29") \
+        .replace("{", "%7B") \
+        .replace("}", "%7D") \
         .replace("'", "%27") \
         .replace("*", "%2A").replace("\\", "\\\\")

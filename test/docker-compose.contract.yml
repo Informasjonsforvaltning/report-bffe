@@ -31,6 +31,7 @@ services:
         - INFORMATIONMODELS_HARVESTER_URL=http://servicesmock:8080/informationmodels
         - DATASERVICE_HARVESTER_URL=http://servicesmock:8080
         - REFERENCE_DATA_URL=http://servicesmock:8080/reference-data
+        - FDK_BASE=http://servicesmock:8080
         - ELASTIC_HOST=http://elasticsearch
         - ELASTIC_PORT=9200
         - ELASTIC_TCP_PORT=9300
