@@ -4,14 +4,14 @@ from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
 from src.sparql import get_dataset_publisher_query
-from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException, ThemeProfile
+from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException, ThemeProfile, ContentKeys
 
 service_urls = {
     ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080",
     ServiceKey.INFO_MODELS: os.getenv('INFORMATIONMODELS_HARVESTER_URL') or "http://localhost:8080/informationmodels",
     ServiceKey.DATA_SERVICES: os.getenv('DATASERVICE_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.DATA_SETS: os.getenv('DATASET_HARVESTER_URL') or "http://localhost:8080",
-    ServiceKey.CONCEPTS: os.getenv('CONCEPT_HARVESTER_URL') or "http://localhost:8080/concepts",
+    ServiceKey.CONCEPTS: os.getenv('CONCEPT_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.REFERENCE_DATA: os.getenv('REFERENCE_DATA_URL') or "http://localhost:8080/reference-data",
     ServiceKey.FDK_BASE: os.getenv('FDK_BASE') or "http://localhost:8080"
 }
@@ -204,11 +204,28 @@ async def get_informationmodels_statistic():
 
 
 # concepts
-async def get_concepts_in_use():
-    # see concepts_in_user in unit_mock_data.py for expected result
-    pass
+async def fetch_all_concepts():
+    async with AsyncClient() as session:
+        try:
+            concepts: List = []
+            page_number = 0
+            while True:
+                url: str = f'{service_urls.get(ServiceKey.CONCEPTS)}/concepts'
+                response = await session.get(url=url,
+                                             params={"returnfields": "publisher,prefLabel,harvest",
+                                                     "size": "1000",
+                                                     "page": page_number},
+                                             timeout=5)
+                page_count = response.json()[ContentKeys.PAGE_OBJECT][ContentKeys.TOTAL_PAGES]
+                concepts.extend(response.json()[ContentKeys.EMBEDDED][ContentKeys.CONCEPTS])
+                if page_count - 1 == page_number:
+                    break
+                page_number += 1
 
+            return concepts
 
-async def get_concepts_statistics():
-    # see concepts_aggregation in unit_mock_data.py for expected result
-    pass
+        except HTTPError as error:
+            raise FetchFromServiceException(
+                execution_point="fetching concepts",
+                url=url
+            )

@@ -28,6 +28,10 @@ class ContentKeys:
     LOS_PATH = "losPath"
     CATALOGS = "catalogs"
     ORGANIZATION_COUNT = "organizationCount"
+    EMBEDDED = "_embedded"
+    CONCEPTS = "concepts"
+    PAGE_OBJECT = "page"
+    TOTAL_PAGES = "totalPages"
 
 
 class OrgCatalogKeys:

@@ -5,7 +5,7 @@ from typing import List
 from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS
 from src.elasticsearch.rdf_reference_mappers import RdfReferenceMapper
 from src.elasticsearch.utils import elasticsearch_ingest, add_org_and_los_paths_to_document, add_key_as_node_uri, \
-    EsMappings, get_values_from_nested_dict, get_all_organizations_with_publisher
+    EsMappings, get_all_organizations_with_publisher
 from src.rdf_namespaces import JSON_RDF
 from src.utils import ContentKeys
 from src.referenced_data_store import get_open_licenses, get_media_types, MediaTypes
