@@ -138,11 +138,6 @@ components:
           type: string
         newLastWeek:
           type: string
-        catalogs:
-          description: Count objects of each catalog
-          type: array
-          items:
-            $ref: '#/components/schemas/KeyWithCountObject'
         orgPaths:
           description: Count objects for each catalog aggregated on org paths
           type: array
@@ -217,6 +212,11 @@ components:
               items:
                 $ref: '#/components/schemas/KeyWithCountObject'
             themesAndTopicsCount:
+              type: array
+              items:
+                $ref: '#/components/schemas/KeyWithCountObject'
+            catalogs:
+              description: Count objects of each catalog
               type: array
               items:
                 $ref: '#/components/schemas/KeyWithCountObject'

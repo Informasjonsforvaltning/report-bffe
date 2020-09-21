@@ -84,6 +84,7 @@ target/
 # IPython
 profile_default/
 ipython_config.py
+.floo
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
@@ -148,3 +149,4 @@ cython_debug/
 requirements.txt
 
 mock/mappings/.DS_Store
+.flooignore

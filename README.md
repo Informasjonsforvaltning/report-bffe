@@ -45,7 +45,6 @@ update of data in elasticsearch*
 ###Task automation
 A number of repeating tasks are automated for convenience using [Invoke](http://www.pyinvoke.org/). (See section "Invoke tasks" for more info)
 
-
 ## Testing
 ### Running tests
 ```

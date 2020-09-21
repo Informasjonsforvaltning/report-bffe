@@ -613,6 +613,93 @@ concepts_aggregation = {
         }
     }
 }
+concepts_response = {
+  "_embedded": {
+    "concepts": [
+      {
+        "id": "22206dad-a7ba-46aa-b461-8f6626d8f030",
+        "prefLabel": {
+          "nb": "Veg- og stedsadresse"
+        },
+        "publisher": {
+          "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/889640782",
+          "name": "ARBEIDS- OG VELFERDSETATEN",
+          "orgPath": "/STAT/983887457/889640782"
+        },
+        "harvest": {
+          "firstHarvested": "2020-05-09T12:02:37.750+0000",
+          "lastHarvested": "2020-07-03T18:07:48.645+0000"
+        }
+      },
+      {
+        "id": "b0a65bba-fd79-4b24-9ab6-dd287c398a74",
+        "prefLabel": {
+          "nb": "Kundeidentifikasjon"
+        },
+        "publisher": {
+          "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/889640782",
+          "name": "ARBEIDS- OG VELFERDSETATEN",
+          "orgPath": "/STAT/983887457/889640782"
+        },
+        "harvest": {
+          "firstHarvested": "2020-04-24T08:40:39.365+0000",
+          "lastHarvested": "2020-07-03T18:07:49.309+0000"
+        }
+      },
+      {
+        "id": "f094e963-9733-4b88-89ab-7749f3c440cb",
+        "prefLabel": {
+          "nb": "Fagarkiv"
+        },
+        "publisher": {
+          "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/889640782",
+          "name": "ARBEIDS- OG VELFERDSETATEN",
+          "orgPath": "/STAT/983887457/889640782"
+        },
+        "harvest": {
+          "firstHarvested": "2020-04-24T08:40:39.320+0000",
+          "lastHarvested": "2020-07-03T18:07:49.251+0000"
+        }
+      },
+      {
+        "id": "c97e11c9-6328-4e95-a65b-677d4edca3d7",
+        "prefLabel": {
+          "nb": "Master"
+        },
+        "publisher": {
+          "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/889640782",
+          "name": "ARBEIDS- OG VELFERDSETATEN",
+          "orgPath": "/STAT/983887457/889640782"
+        },
+        "harvest": {
+          "firstHarvested": "2020-04-24T08:40:39.055+0000",
+          "lastHarvested": "2020-07-03T18:07:48.838+0000"
+        }
+      },
+      {
+        "id": "a5c2f23f-3e5b-4c17-bf72-1df79d990ca4",
+        "prefLabel": {
+          "nb": "Masterdata"
+        },
+        "publisher": {
+          "uri": "https://data.brreg.no/enhetsregisteret/api/enheter/889640782",
+          "name": "ARBEIDS- OG VELFERDSETATEN",
+          "orgPath": "/STAT/983887457/889640782"
+        },
+        "harvest": {
+          "firstHarvested": "2020-04-24T08:40:39.206+0000",
+          "lastHarvested": "2020-07-03T18:07:49.065+0000"
+        }
+      }
+    ]
+  },
+  "page": {
+    "size": 5,
+    "totalElements": 18,
+    "totalPages": 4,
+    "number": 0
+  }
+}
 mocked_organization_catalog_response = [{
     "organizationId": "974760673",
     "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/974760673",
