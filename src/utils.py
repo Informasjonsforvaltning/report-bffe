@@ -15,6 +15,7 @@ class ContentKeys:
     NATIONAL_COMPONENT = "nationalComponent"
     ORGANIZATION = "organization"
     COUNT = "count"
+    KEY = "key"
     VALUE = "value"
     ACCESS_RIGHTS_CODE = "code"
     TIME_SERIES_MONTH = "month"

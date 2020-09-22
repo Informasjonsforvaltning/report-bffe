@@ -1,11 +1,12 @@
 import asyncio
 
 from src.elasticsearch.queries import EsMappings
-from src.elasticsearch.utils import elasticsearch_get_report_aggregations
 from src.referenced_data_store import get_access_rights_code
+from src.elasticsearch.utils import elasticsearch_get_report_aggregations
+
 from src.responses import DataSetResponse
 from src.utils import ServiceKey, ContentKeys
-
+from src.aggregation_utils import get_es_aggregation, get_es_cardinality_aggregation
 
 def create_dataset_report(orgpath, theme, theme_profile, organization_id):
     es_report = elasticsearch_get_report_aggregations(report_type=ServiceKey.DATA_SETS,
@@ -40,35 +41,13 @@ def create_dataset_report(orgpath, theme, theme_profile, organization_id):
         organizationCount=get_es_cardinality_aggregation(es_report, ContentKeys.ORGANIZATION_COUNT)
     )
 
-
-def get_es_aggregation(es_hits: dict, content_key):
-    single_aggregations = [ContentKeys.NEW_LAST_WEEK,
-                           ContentKeys.NATIONAL_COMPONENT,
-                           ContentKeys.OPEN_DATA,
-                           ContentKeys.WITH_SUBJECT,
-                           ]
-    if content_key in single_aggregations:
-        return es_hits.get("aggregations").get(content_key)["doc_count"]
-    else:
-        buckets = es_hits.get("aggregations").get(content_key)["buckets"]
-        return rename_doc_count_to_count(buckets)
-
-
-def get_es_cardinality_aggregation(es_hits: dict, content_key):
-    return es_hits.get("aggregations").get(content_key)["value"]
-
-
 async def map_access_rights_to_code(access_right: dict):
-    rdf_key = access_right["key"]
+    rdf_key = access_right[ContentKeys.KEY]
     if rdf_key == EsMappings.MISSING:
         code_key = EsMappings.MISSING
     else:
         code_key = await get_access_rights_code(rdf_key)
     return {
-        "key": code_key,
-        "count": access_right["count"]
+        ContentKeys.KEY: code_key,
+        ContentKeys.COUNT: access_right[ContentKeys.COUNT]
     }
-
-
-def rename_doc_count_to_count(aggregation_buckets):
-    return [{"key": bucket["key"], "count": bucket["doc_count"]} for bucket in aggregation_buckets]

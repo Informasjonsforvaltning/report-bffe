@@ -9,6 +9,7 @@ class EsMappings:
     PART_OF_CATALOG = "partOfCatalog"
     BUCKETS = "buckets"
     AGGREGATIONS = "aggregations"
+    DOC_COUNT = "doc_count"
     ORGANIZATION_ID = "orgId"
     TIME_SERIES = "timeseries"
     FORMAT = "formatCodes"
