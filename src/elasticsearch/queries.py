@@ -21,6 +21,8 @@ class EsMappings:
     LOS_PATH = "losPaths"
     MISSING = "MISSING"
     OPEN_LICENSE = "OpenLicense"
+    PUBLISHER = "publisher"
+    URI = "uri"
 
 
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_RDF.dct.accessRights,
