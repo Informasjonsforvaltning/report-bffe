@@ -17,11 +17,6 @@ def test_concepts_should_perform_4_http_requests(event_loop, mock_get_xhttp_conc
     assert 3 in number_counts
 
 
-def test_dry_run(mocker):
-    mocker.patch('os.getcwd', return_value='/Users/bbreg/Documents/fdk-reports-bff')
-    insert_concepts()
-
-
 @pytest.fixture
 def mock_get_xhttp_concepts(mocker):
     mock_values = get_xhttp_mock(status_code=200, json=concepts_response)
