@@ -36,9 +36,9 @@ class InformationModelResponse(Response):
 
 
 class ConceptResponse(Response):
-    def __init__(self, totalObjects: int = None, newLastWeek: int = None, catalogs: list = None,
-                 most_in_use: list = None, org_paths=None):
-        super().__init__(totalObjects, newLastWeek, catalogs, org_paths)
+    def __init__(self, totalObjects: int = 0, newLastWeek: int = None, catalogs: list = None,
+                 most_in_use: list = None, org_paths=None, organizationCount: int = 0):
+        super().__init__(totalObjects, organizationCount, newLastWeek, catalogs, org_paths)
         if most_in_use:
             self.mostInUse = most_in_use
 
@@ -60,6 +60,15 @@ class ConceptResponse(Response):
             }
             reference_list.append(ref)
         return reference_list
+
+    def json(self):
+        serialized = self.__dict__
+        return serialized
+
+    @staticmethod
+    def empty_response():
+        return ConceptResponse(totalObjects=0, newLastWeek=0, catalogs=None,
+                               most_in_use=None, org_paths=None, organizationCount=0)
 
 
 class DataSetResponse(Response):

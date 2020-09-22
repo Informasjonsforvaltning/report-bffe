@@ -32,6 +32,7 @@ class ContentKeys:
     CONCEPTS = "concepts"
     PAGE_OBJECT = "page"
     TOTAL_PAGES = "totalPages"
+    MOST_IN_USE = "most_in_use"
 
 
 class OrgCatalogKeys:
