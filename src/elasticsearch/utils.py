@@ -94,6 +94,25 @@ def elasticsearch_get_report_aggregations(report_type: ServiceKey, orgpath=None,
     return aggregations
 
 
+def elasticsearch_get_concept_report_aggregations(report_type: ServiceKey, orgpath=None, theme=None,
+                                          theme_profile=None, organization_id=None):
+    query_array = [{"index": "datasets"}, {"_source": ["http://purl.org/dc/terms/subject"], "size": 0,
+                                           "query": {"exists": {"field": "http://purl.org/dc/terms/subject"}},
+                                           "aggregations": {
+                                               "most_in_use": {
+                                                   "terms": {"field": "http://purl.org/dc/terms/subject.value.keyword",
+                                                             "size": 5}}}}, {"index": "concepts"}]
+    query = AggregationQuery(report_type=report_type,
+                             orgpath=orgpath,
+                             theme=theme,
+                             theme_profile=theme_profile,
+                             organization_id=organization_id).build()
+    query_array.append(query)
+
+    aggregations = es_client.msearch(body=query_array)
+    return aggregations.get("responses")
+
+
 def elasticsearch_get_time_series(report_type: ServiceKey, org_path=None, theme=None,
                                   theme_profile=None, organization_id=None, series_field=None):
     query = TimeSeriesQuery(series_field, orgpath=org_path, theme_profile=theme_profile, theme=theme,

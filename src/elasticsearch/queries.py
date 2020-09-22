@@ -70,6 +70,10 @@ class AggregationQuery(Query):
     def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None,
                  organization_id=None):
         super().__init__()
+        if report_type == ServiceKey.DATA_SETS:
+            issued_field = f"{EsMappings.RECORD}.{JSON_RDF.dct.issued}.value"
+        else:
+            issued_field = "harvest.firstHarvested"
         self.aggregations = {
             EsMappings.ORG_PATH: {
                 "terms": {
@@ -78,7 +82,8 @@ class AggregationQuery(Query):
                     "size": 100000
                 }
             },
-            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=f"{EsMappings.RECORD}.{JSON_RDF.dct.issued}.value",
+
+            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=issued_field,
                                                               days=7),
             ContentKeys.CATALOGS: {
                 "terms": {
