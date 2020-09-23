@@ -1,4 +1,6 @@
+from src.elasticsearch.queries import EsMappings
 from src.elasticsearch.utils import elasticsearch_get_time_series
+from src.rdf_namespaces import JSON_RDF
 from src.responses import TimeSeriesResponse
 from src.utils import ServiceKey, QueryParameter
 
@@ -19,7 +21,8 @@ def get_dataset_time_series(org_path=None, theme=None, theme_profile=None, organ
                                                    org_path=org_path,
                                                    theme=theme,
                                                    theme_profile=theme_profile,
-                                                   organization_id=organization_id)
+                                                   organization_id=organization_id,
+                                                   series_field=f"{EsMappings.RECORD}.{JSON_RDF.dct.issued}.value")
     return TimeSeriesResponse(es_time_series)
 
 

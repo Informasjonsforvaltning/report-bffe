@@ -146,12 +146,12 @@ class AggregationQuery(Query):
 
 
 class TimeSeriesQuery(Query):
-    def __init__(self, orgpath, theme, theme_profile, organization_id):
+    def __init__(self, series_field, orgpath, theme, theme_profile, organization_id):
         super().__init__()
         self.aggregations = {
             f"{EsMappings.TIME_SERIES}": {
                 "date_histogram": {
-                    "field": "dcatRecord.http://purl.org/dc/terms/issued.value",
+                    "field": series_field,
                     "calendar_interval": "month"
                 }
             }
