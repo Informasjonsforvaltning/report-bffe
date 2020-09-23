@@ -23,6 +23,7 @@ class EsMappings:
     OPEN_LICENSE = "OpenLicense"
     PUBLISHER = "publisher"
     URI = "uri"
+    FIRST_HARVESTED = "harvest.firstHarvested"
 
 
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_RDF.dct.accessRights,
