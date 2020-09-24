@@ -187,8 +187,8 @@ informationmodels = {
     },
     "page": {
         "size": 10,
-        "totalElements": 566,
-        "totalPages": 57,
+        "totalElements": 50,
+        "totalPages": 5,
         "number": 0
     },
     "aggregations": {
