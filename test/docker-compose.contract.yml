@@ -28,7 +28,7 @@ services:
         - ORGANIZATION_CATALOG_URL=http://servicesmock:8080
         - CONCEPT_HARVESTER_URL=http://servicesmock:8080
         - DATASET_HARVESTER_URL=http://servicesmock:8080
-        - INFORMATIONMODELS_HARVESTER_URL=http://servicesmock:8080/informationmodels
+        - INFORMATIONMODELS_HARVESTER_URL=http://servicesmock:8080
         - DATASERVICE_HARVESTER_URL=http://servicesmock:8080
         - REFERENCE_DATA_URL=http://servicesmock:8080/reference-data
         - FDK_BASE=http://servicesmock:8080

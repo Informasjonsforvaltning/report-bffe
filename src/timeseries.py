@@ -15,7 +15,7 @@ def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
                                        theme=theme,
                                        theme_profile=theme_profile,
                                        organization_id=organization_id)
-    elif content_type in [ServiceKey.CONCEPTS]:
+    elif content_type in [ServiceKey.CONCEPTS, ServiceKey.INFO_MODELS]:
         return get_time_series_response(report_type=content_type,
                                         org_path=orgpath,
                                         organization_id=organization_id)

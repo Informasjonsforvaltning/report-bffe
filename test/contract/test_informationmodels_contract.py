@@ -9,14 +9,13 @@ class TestInformationModelsReport:
 
     @pytest.mark.contract
     def test_has_correct_format(self, wait_for_ready):
-        pytest.xfail("under development")
         result = get(url=informationmodels_report_url)
         assert result.status_code == 200
         keys = result.json().keys()
         assert "totalObjects" in keys
         assert "newLastWeek" in keys
-        assert "organizations" in keys
-        assert "catalogs" in keys
+        assert "orgPaths" in keys
+        assert "organizationCount" in keys
 
 
 
