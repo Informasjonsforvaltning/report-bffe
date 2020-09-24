@@ -8,7 +8,7 @@ from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegist
 
 service_urls = {
     ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080",
-    ServiceKey.INFO_MODELS: os.getenv('INFORMATIONMODELS_HARVESTER_URL') or "http://localhost:8080/informationmodels",
+    ServiceKey.INFO_MODELS: os.getenv('INFORMATIONMODELS_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.DATA_SERVICES: os.getenv('DATASERVICE_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.DATA_SETS: os.getenv('DATASET_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.CONCEPTS: os.getenv('CONCEPT_HARVESTER_URL') or "http://localhost:8080",
@@ -196,11 +196,32 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
             )
 
 
-# TODO
 # informationmodels
 async def get_informationmodels_statistic():
-    # see informationmodels in unit_mock_data.py for expected result
-    pass
+    async with AsyncClient() as session:
+        try:
+            informationmodels: List = []
+            page_number = 0
+            while True:
+                url: str = f'{service_urls.get(ServiceKey.INFO_MODELS)}/informationmodels'
+                response = await session.get(url=url,
+                                             params={"returnfields": "publisher,title,harvest",
+                                                     "size": "1000",
+                                                     "page": page_number},
+                                             timeout=5)
+                page_count = response.json()[ContentKeys.PAGE_OBJECT][ContentKeys.TOTAL_PAGES]
+                informationmodels.extend(response.json()[ContentKeys.EMBEDDED][ContentKeys.INFO_MODELS])
+                if page_count - 1 == page_number:
+                    break
+                page_number += 1
+
+            return informationmodels
+
+        except HTTPError as error:
+            raise FetchFromServiceException(
+                execution_point="fetching informationmodels",
+                url=url
+            )
 
 
 # concepts

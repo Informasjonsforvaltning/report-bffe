@@ -33,6 +33,7 @@ class ContentKeys:
     PAGE_OBJECT = "page"
     TOTAL_PAGES = "totalPages"
     MOST_IN_USE = "most_in_use"
+    INFO_MODELS = "informationmodels"
 
 
 class OrgCatalogKeys:
