@@ -25,14 +25,23 @@ class Response:
 
 class InformationModelResponse(Response):
     def __init__(self, totalObjects: int = None, newLastWeek: int = None,
-                 catalogs: List[dict] = None, org_paths: List[dict] = None):
-        super().__init__(totalObjects, newLastWeek, catalogs, org_paths)
+                 catalogs: List[dict] = None, org_paths: List[dict] = None, organizationCount: int = 0):
+        super().__init__(totalObjects, organizationCount, newLastWeek, catalogs, org_paths)
 
     @staticmethod
     def from_es(es_result: dict):
         response = InformationModelResponse()
         response.populate_from_es(es_result=es_result)
         return response
+
+    def json(self):
+        serialized = self.__dict__
+        return serialized
+    
+    @staticmethod
+    def empty_response():
+        return InformationModelResponse(totalObjects=0, newLastWeek=0, catalogs=None,
+                                        org_paths=None)
 
 
 class ConceptResponse(Response):
