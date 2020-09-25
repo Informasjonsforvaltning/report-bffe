@@ -15,9 +15,10 @@ def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
                                        theme=theme,
                                        theme_profile=theme_profile,
                                        organization_id=organization_id)
-    elif content_type == ServiceKey.CONCEPTS:
-        return get_concept_time_series(org_path=orgpath,
-                                       organization_id=organization_id)
+    elif content_type in [ServiceKey.CONCEPTS]:
+        return get_time_series_response(report_type=content_type,
+                                        org_path=orgpath,
+                                        organization_id=organization_id)
     else:
         raise KeyError()
 
@@ -32,8 +33,8 @@ def get_dataset_time_series(org_path=None, theme=None, theme_profile=None, organ
     return TimeSeriesResponse(es_time_series)
 
 
-def get_concept_time_series(org_path=None, organization_id=None) -> TimeSeriesResponse:
-    es_time_series = elasticsearch_get_time_series(report_type=ServiceKey.CONCEPTS,
+def get_time_series_response(report_type=None, org_path=None, organization_id=None) -> TimeSeriesResponse:
+    es_time_series = elasticsearch_get_time_series(report_type=report_type,
                                                    org_path=org_path,
                                                    organization_id=organization_id,
                                                    series_field=EsMappings.FIRST_HARVESTED)
