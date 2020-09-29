@@ -1,8 +1,8 @@
 import pytest
 
-from src.elasticsearch.concepts import insert_concepts
-from src.service_requests import fetch_all_concepts, get_informationmodels_statistic
+from src.service_requests import fetch_all_concepts, get_informationmodels_statistic, fetch_dataservices
 from test.unit_mock_data import concepts_response, informationmodels
+from test.mock.dataservice_graph import dataservices
 
 
 @pytest.mark.unit
@@ -46,6 +46,21 @@ def mock_get_xhttp_informationmodels(mocker):
                         )
 
 
+@pytest.mark.unit
+def test_dataservices_should_perform_http_request(event_loop, mock_get_xhttp_dataservices):
+    result = event_loop.run_until_complete(fetch_dataservices())
+    assert len(result) == 43
+    assert mock_get_xhttp_dataservices.call_count == 1
+
+
+@pytest.fixture
+def mock_get_xhttp_dataservices(mocker):
+    mock_values = get_xhttp_mock(status_code=200, json=dataservices)
+    return mocker.patch('httpx.AsyncClient.get',
+                        return_value=mock_values
+                        )
+
+
 def get_xhttp_mock(status_code, json=None):
     return MockResponse(status_code, json)
 
@@ -57,3 +72,6 @@ class MockResponse:
 
     def json(self):
         return self.json_data
+
+    def raise_for_status(self) -> None:
+        return self.status

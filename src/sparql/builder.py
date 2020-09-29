@@ -5,6 +5,7 @@ from src.rdf_namespaces import NamespaceProperty
 
 class FromGraph:
     DATASETS = " FROM <https://datasets.fellesdatakatalog.digdir.no>"
+    DATASERVICE = " FROM <https://dataservices.fellesdatakatalog.digdir.no>"
     ALL = ""
 
 

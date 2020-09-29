@@ -3,13 +3,13 @@ from typing import List
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
-from src.sparql import get_dataset_publisher_query
+from src.sparql import get_dataset_publisher_query, get_dataservice_query, get_dataservice_publisher_query
 from src.utils import ServiceKey, FetchFromServiceException, NotInNationalRegistryException, ThemeProfile, ContentKeys
 
 service_urls = {
     ServiceKey.ORGANIZATIONS: os.getenv('ORGANIZATION_CATALOG_URL') or "http://localhost:8080",
     ServiceKey.INFO_MODELS: os.getenv('INFORMATIONMODELS_HARVESTER_URL') or "http://localhost:8080",
-    ServiceKey.DATA_SERVICES: os.getenv('DATASERVICE_HARVESTER_URL') or "http://localhost:8080",
+    ServiceKey.DATA_SERVICES: os.getenv('FDK_BASE') or "http://localhost:8080",
     ServiceKey.DATA_SETS: os.getenv('DATASET_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.CONCEPTS: os.getenv('CONCEPT_HARVESTER_URL') or "http://localhost:8080",
     ServiceKey.REFERENCE_DATA: os.getenv('REFERENCE_DATA_URL') or "http://localhost:8080/reference-data",
@@ -191,7 +191,7 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout) as err:
             raise FetchFromServiceException(
-                execution_point="fetching dataset catalog",
+                execution_point="fetching publishers from dataset catalog",
                 url=url
             )
 
@@ -248,5 +248,38 @@ async def fetch_all_concepts():
         except HTTPError as error:
             raise FetchFromServiceException(
                 execution_point="fetching concepts",
+                url=url
+            )
+
+
+# dataservices
+async def fetch_dataservices() -> dict:
+    dataservice_query = get_dataservice_query()
+    url = f'{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={dataservice_query}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response.raise_for_status()
+            res_json = response.json()
+            sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][ContentKeys.SPARQL_BINDINGS]
+            return sparql_bindings
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
+            raise FetchFromServiceException(
+                execution_point="fetching dataservices catalog",
+                url=url
+            )
+
+
+async def fetch_publishers_from_dataservice() -> dict:
+    publisher_query = get_dataservice_publisher_query()
+    url = f'{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}'
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout) as err:
+            raise FetchFromServiceException(
+                execution_point="fetching publishers from dataservice catalog",
                 url=url
             )

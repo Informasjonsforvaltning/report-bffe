@@ -125,12 +125,18 @@ class DCAT(NamespaceProperty):
         self.distribution_type = self.get_property("Distribution")
         self.CatalogRecord = self.get_property("CatalogRecord")
         self.type_catalog = self.get_property("Catalog")
+        self.type_service = self.get_property("service")
+        self.mediaType = self.get_property("mediaType")
 
     def get_prefix(self):
         if self.syntax == NamespaceProperty.JSON_RDF:
             return DCAT.json_rdf_prefix
         else:
             return DCAT.ttl_prefix
+
+    @staticmethod
+    def get_ttl_ns_definition():
+        return "dcat: <http://www.w3.org/ns/dcat%23>"
 
 
 class XSD(NamespaceProperty):
