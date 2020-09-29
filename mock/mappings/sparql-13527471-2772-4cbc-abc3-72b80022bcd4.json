@@ -1,0 +1,27 @@
+{
+  "id" : "13527471-2772-4cbc-abc3-72b80022bcd4",
+  "name" : "sparql",
+  "request" : {
+    "url" : "/sparql?query=PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E%20PREFIX%20dcat:%20%3Chttp://www.w3.org/ns/dcat%23%3E%20PREFIX%20foaf:%20%3Chttp://xmlns.com/foaf/0.1/%3E%20PREFIX%20owl:%20%3Chttp://www.w3.org/2002/07/owl%23%3E%20SELECT%20?publisher%20?sameAs%20FROM%20%3Chttps://dataservices.fellesdatakatalog.digdir.no%3E%20WHERE%20%7B%20?publisher%20a%20foaf:Agent%20.%20OPTIONAL%20%7B%20?publisher%20owl:sameAs%20?sameAs%20.%20%7D%20%20%20%7D%20GROUP%20BY%20?publisher%20?sameAs%20%20",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{ \"head\": {\n    \"vars\": [ \"publisher\" , \"sameAs\" ]\n  } ,\n  \"results\": {\n    \"bindings\": [\n      { \n        \"publisher\": { \"type\": \"uri\" , \"value\": \"https://organization-catalogue.staging.fellesdatakatalog.digdir.no/organizations/555111290\" } ,\n        \"sameAs\": { \"type\": \"literal\" , \"value\": \"https://data.brreg.no/enhetsregisteret/api/enheter/555111290\" }\n      } ,\n      { \n        \"publisher\": { \"type\": \"uri\" , \"value\": \"https://organization-catalogue.staging.fellesdatakatalog.digdir.no/organizations/910258028\" } ,\n        \"sameAs\": { \"type\": \"literal\" , \"value\": \"https://data.brreg.no/enhetsregisteret/api/enheter/910258028\" }\n      } ,\n      { \n        \"publisher\": { \"type\": \"uri\" , \"value\": \"https://organization-catalogue.staging.fellesdatakatalog.digdir.no/organizations/910244132\" } ,\n        \"sameAs\": { \"type\": \"literal\" , \"value\": \"https://data.brreg.no/enhetsregisteret/api/enheter/910244132\" }\n      }\n    ]\n  }\n}\n",
+    "headers" : {
+      "Server" : "nginx/1.19.2",
+      "Date" : "Wed, 30 Sep 2020 16:01:05 GMT",
+      "Content-Type" : "application/json;charset=utf-8",
+      "Vary" : [ "Accept-Encoding", "Accept,Accept-Encoding,Accept-Charset", "Accept, Accept-Encoding" ],
+      "Fuseki-Request-ID" : "137",
+      "Cache-Control" : "must-revalidate,no-cache,no-store",
+      "Pragma" : "no-cache",
+      "X-Robots-Tag" : "nodindex, nofollow, nosnippet, noarchive",
+      "Via" : "1.1 google",
+      "Alt-Svc" : "clear"
+    }
+  },
+  "uuid" : "13527471-2772-4cbc-abc3-72b80022bcd4",
+  "persistent" : true,
+  "insertionIndex" : 41
+}

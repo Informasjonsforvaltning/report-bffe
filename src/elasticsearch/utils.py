@@ -42,6 +42,22 @@ async def add_org_and_los_paths_to_document(json_rdf_values: dict, los_themes: L
         return await add_org_and_los_paths_to_document(json_rdf_values, los_themes)
 
 
+async def add_org_paths_to_document(rdf_values: dict) -> dict:
+    uri = rdf_values[ContentKeys.SAME_AS][ContentKeys.VALUE]
+    try:
+        ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
+        referenced_organization = await get_organization(ref_object)
+        if referenced_organization:
+            org_path = referenced_organization.org_path
+            org_id = OrganizationReferencesObject.resolve_id(referenced_organization.org_uri)
+            rdf_values[EsMappings.ORG_PATH] = org_path
+            rdf_values[EsMappings.ORGANIZATION_ID] = org_id
+        return rdf_values
+    except OrganizationStoreNotInitiatedException:
+        await get_organizations()
+        return await add_org_paths_to_document(rdf_values)
+
+
 def add_los_path_to_document(json_rdf_values: dict, los_themes: List[dict]) -> dict:
     if JSON_RDF.dcat.theme in json_rdf_values.keys():
         los_uris = [theme.get(ContentKeys.VALUE) for theme in json_rdf_values.get(JSON_RDF.dcat.theme)]

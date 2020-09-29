@@ -4,9 +4,12 @@ from dateutil import parser
 
 
 class ContentKeys:
+    SPARQL_RESULTS = "results"
+    SPARQL_BINDINGS = "bindings"
     SAME_AS = "sameAs"
     PUBLISHER = "publisher"
     SRC_ORGANIZATION = "publisher"
+    SERVICE = "service"
     FORMAT = "format"
     WITH_SUBJECT = "withSubject"
     OPEN_DATA = "opendata"
@@ -34,6 +37,11 @@ class ContentKeys:
     TOTAL_PAGES = "totalPages"
     MOST_IN_USE = "most_in_use"
     INFO_MODELS = "informationmodels"
+    TITLE = "title"
+    ISSUED = "issued"
+    MEDIATYPE = "mediaType"
+
+
 
 
 class OrgCatalogKeys:

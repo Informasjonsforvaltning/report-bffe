@@ -1,0 +1,61 @@
+{
+      "mappings": {
+          "properties": {
+              "orgPath": {
+                  "type": "text",
+                "analyzer": "path-analyzer",
+                "fielddata": true,
+                  "fields": {
+                      "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                      }
+                  }
+              },
+            "los": {
+                  "type": "text",
+                "analyzer": "path-analyzer",
+                "fielddata": true,
+                  "fields": {
+                      "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                      }
+                  }
+              }
+          }
+      },
+    "settings": {
+    "analysis": {
+      "analyzer": {
+        "path-analyzer": {
+          "type": "custom",
+          "tokenizer": "path-tokenizer"
+        }
+      },
+      "tokenizer": {
+        "path-tokenizer": {
+          "type": "path_hierarchy",
+          "delimiter": "/"
+        }
+      },
+      "normalizer": {
+        "exact_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    },
+    "index": {
+      "mapping": {
+        "total_fields": {
+          "limit": "5000"
+        }
+      }
+    }
+  }
+
+}

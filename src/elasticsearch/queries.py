@@ -24,12 +24,17 @@ class EsMappings:
     PUBLISHER = "publisher"
     URI = "uri"
     FIRST_HARVESTED = "harvest.firstHarvested"
+    TITLE = "title",
+    ISSUED = "issued"
+    MEDIATYPE = "mediaType"
 
 
 DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_RDF.dct.accessRights,
                               JSON_RDF.dct.provenance, JSON_RDF.dct.subject, JSON_RDF.dcat.distribution,
                               JSON_RDF.dcat.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
                               EsMappings.FORMAT, EsMappings.PART_OF_CATALOG]
+
+DATASERVICE_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.TITLE, EsMappings.ISSUED, EsMappings.MEDIATYPE]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
     JSON_RDF.dct.issued, JSON_RDF.dct.isPartOf, JSON_RDF.foaf.primaryTopic

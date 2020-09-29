@@ -10,6 +10,7 @@ from elasticsearch import NotFoundError, TransportError, ConnectionTimeout, Conn
 from src.elasticsearch.datasets import insert_datasets
 from src.elasticsearch.concepts import insert_concepts
 from src.elasticsearch.informationmodels import insert_informationmodels
+from src.elasticsearch.dataservices import insert_dataservices
 from src.utils import StartSchedulerError
 
 ES_HOST = os.getenv('ELASTIC_HOST', 'localhost')
@@ -77,6 +78,8 @@ class Update:
             status = insert_concepts(success_status=Update.COMPLETED, failed_status=Update.FAILED);
         if (status == Update.COMPLETED):
             status = insert_informationmodels(success_status=Update.COMPLETED, failed_status=Update.FAILED)
+        if (status == Update.COMPLETED):
+            status = insert_dataservices(success_status=Update.COMPLETED, failed_status=Update.FAILED)
         Update.complete_update(doc_id, update, status)
 
     @staticmethod
