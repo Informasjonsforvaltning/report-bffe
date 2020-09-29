@@ -2,7 +2,7 @@
   "id" : "cf8d0136-a4d7-4869-b27f-c355e43d3ec7",
   "name" : "sparql_select",
   "request" : {
-    "url" : "/sparql?query=PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E%20PREFIX%20foaf:%20%3Chttp://xmlns.com/foaf/0.1/%3E%20PREFIX%20owl:%20%3Chttp://www.w3.org/2002/07/owl%23%3E%20SELECT%20?name%20?publisher%20?sameAs%20WHERE%20%7B%20?publisher%20a%20foaf:Agent%20.%20?publisher%20foaf:name%20?name%20.%20OPTIONAL%20%7B%20?publisher%20owl:sameAs%20?sameAs%20.%20%7D%20%20%20%7D%20GROUP%20BY%20?name%20?publisher%20?sameAs%20%20",
+    "url" : "/sparql?query=PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E%20PREFIX%20foaf:%20%3Chttp://xmlns.com/foaf/0.1/%3E%20PREFIX%20owl:%20%3Chttp://www.w3.org/2002/07/owl%23%3E%20SELECT%20?name%20?publisher%20?sameAs%20FROM%20%3Chttps://datasets.fellesdatakatalog.digdir.no%3E%20WHERE%20%7B%20?publisher%20a%20foaf:Agent%20.%20?publisher%20foaf:name%20?name%20.%20OPTIONAL%20%7B%20?publisher%20owl:sameAs%20?sameAs%20.%20%7D%20%20%20%7D%20GROUP%20BY%20?name%20?publisher%20?sameAs%20%20",
     "method" : "GET"
   },
   "response" : {

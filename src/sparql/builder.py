@@ -3,6 +3,11 @@ from typing import List
 from src.rdf_namespaces import NamespaceProperty
 
 
+class FromGraph:
+    DATASETS = " FROM <https://datasets.fellesdatakatalog.digdir.no>"
+    ALL = ""
+
+
 class SparqlGraphTerm:
     def __init__(self, var: str = None, namespace_property: str = None):
         if var:
@@ -23,23 +28,24 @@ class SparqlGraphTerm:
 
 class SparqlSelect:
 
-    def __init__(self, variable_names: List[str] = None):
+    def __init__(self, variable_names: List[str] = None, from_graph: FromGraph = FromGraph.ALL):
         self.variable_names = variable_names
+        self.from_graph = from_graph
 
     def __str__(self):
-        return SparqlSelect.select(self.variable_names)
+        return SparqlSelect.select(self.variable_names, self.from_graph)
 
     @staticmethod
-    def select(variable_names: List[str] = None) -> str:
+    def select(variable_names: List[str] = None, from_graph: FromGraph = FromGraph.ALL) -> str:
         select = "SELECT"
         if not variable_names:
-            return f"{select} *"
+            return f"{select} *{from_graph}"
         else:
             separator: str = " "
             if variable_names:
                 sparql_vars = [SparqlBuilder.make_var(x) for x in variable_names]
                 select += separator + separator.join(sparql_vars)
-            return select
+            return f"{select}{from_graph}"
 
 
 class SparqlWhere:

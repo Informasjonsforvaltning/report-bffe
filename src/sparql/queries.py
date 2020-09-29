@@ -1,5 +1,5 @@
 from src.rdf_namespaces import NamespaceProperty, DCT, FOAF, OWL, RDF
-from src.sparql.builder import SparqlSelect, SparqlWhere, SparqlGraphTerm, SparqlOptional, SparqlBuilder
+from src.sparql.builder import FromGraph, SparqlSelect, SparqlWhere, SparqlGraphTerm, SparqlOptional, SparqlBuilder
 from src.utils import ContentKeys
 
 
@@ -13,7 +13,7 @@ def build_dataset_publisher_query():
     publisher = ContentKeys.PUBLISHER
     publisher_graph_term = SparqlGraphTerm(var=publisher)
     sameAs = ContentKeys.SAME_AS
-    select = SparqlSelect(variable_names=[name_var, publisher, sameAs])
+    select = SparqlSelect(variable_names=[name_var, publisher, sameAs], from_graph=FromGraph.DATASETS)
     publisher_a_fof_agent = SparqlGraphTerm.build_graph_pattern(
         subject=publisher_graph_term,
         predicate=SparqlGraphTerm(namespace_property=rdf.type),
