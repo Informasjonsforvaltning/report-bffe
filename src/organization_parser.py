@@ -74,10 +74,11 @@ class OrganizationReferencesObject:
     @staticmethod
     def from_sparql_query_result(organization: dict) -> 'OrganizationReferencesObject':
         keys = organization.keys()
-        if not organization.get(ContentKeys.ORG_NAME).get(ContentKeys.VALUE):
-            logging.error("organization without name in sparql query result")
+        if ContentKeys.ORG_NAME in keys:
+            name = organization.get(ContentKeys.ORG_NAME).get(ContentKeys.VALUE)
+        else:
+            name = ""
 
-        name = organization.get(ContentKeys.ORG_NAME).get(ContentKeys.VALUE)
         reference_object = OrganizationReferencesObject(name=name)
         if ContentKeys.PUBLISHER in keys:
             publisher_uri = organization.get(ContentKeys.PUBLISHER).get(ContentKeys.VALUE)
