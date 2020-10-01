@@ -78,6 +78,8 @@ class AggregationQuery(Query):
         super().__init__()
         if report_type == ServiceKey.DATA_SETS:
             issued_field = f"{EsMappings.RECORD}.{JSON_RDF.dct.issued}.value"
+        elif report_type == ServiceKey.DATA_SERVICES:
+            issued_field = f"{EsMappings.ISSUED}.value"
         else:
             issued_field = "harvest.firstHarvested"
         self.aggregations = {
@@ -106,6 +108,8 @@ class AggregationQuery(Query):
         }
         if report_type == ServiceKey.DATA_SETS:
             self.__add_datasets_aggregation()
+        elif report_type == ServiceKey.DATA_SERVICES:
+            self.__add_dataservice_aggregation()
         self.query = None
         self.add_filters(orgpath, theme, theme_profile, organization_id)
 
@@ -138,6 +142,15 @@ class AggregationQuery(Query):
         self.aggregations[ContentKeys.FORMAT] = {
             "terms": {
                 "field": f"{EsMappings.FORMAT}.keyword",
+                "missing": "MISSING",
+                "size": 100000
+            }
+        }
+
+    def __add_dataservice_aggregation(self):
+        self.aggregations[ContentKeys.MEDIATYPE] = {
+            "terms": {
+                "field": f"{EsMappings.MEDIATYPE}.value.keyword",
                 "missing": "MISSING",
                 "size": 100000
             }
