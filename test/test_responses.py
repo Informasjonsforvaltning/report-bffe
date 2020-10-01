@@ -116,7 +116,7 @@ def test_time_series_response():
         }
     }
     result = TimeSeriesResponse(parsed_series).json()
-    assert len(result) == 11
+    assert len(result) > len(parsed_series["aggregations"][EsMappings.TIME_SERIES]["buckets"])
     assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "2019-11-01T00:00:00.000Z"
     assert result[1][ContentKeys.TIME_SERIES_X_AXIS] == "2019-12-01T00:00:00.000Z"
     assert result[2][ContentKeys.TIME_SERIES_X_AXIS] == "2020-01-01T00:00:00.000Z"
