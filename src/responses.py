@@ -37,11 +37,33 @@ class InformationModelResponse(Response):
     def json(self):
         serialized = self.__dict__
         return serialized
-    
+
     @staticmethod
     def empty_response():
         return InformationModelResponse(totalObjects=0, newLastWeek=0, catalogs=None,
                                         org_paths=None)
+
+
+class DataServiceResponse(Response):
+    def __init__(self, totalObjects: int = None, newLastWeek: int = None,
+                 catalogs: List[dict] = None, org_paths: List[dict] = None, organizationCount: int = 0, mediaTypes: List[dict] = None):
+        super().__init__(totalObjects, organizationCount, newLastWeek, catalogs, org_paths)
+        self.formats = mediaTypes or []
+
+    @staticmethod
+    def from_es(es_result: dict):
+        response = DataServiceResponse()
+        response.populate_from_es(es_result=es_result)
+        return response
+
+    def json(self):
+        serialized = self.__dict__
+        return serialized
+
+    @staticmethod
+    def empty_response():
+        return DataServiceResponse(totalObjects=0, newLastWeek=0, catalogs=None,
+                                   org_paths=None)
 
 
 class ConceptResponse(Response):

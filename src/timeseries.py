@@ -17,6 +17,11 @@ def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
                                         theme_profile=theme_profile,
                                         organization_id=organization_id,
                                         series_field=f"{EsMappings.RECORD}.{JSON_RDF.dct.issued}.value")
+    elif content_type == ServiceKey.DATA_SERVICES:
+        return get_time_series_response(report_type=content_type,
+                                        org_path=orgpath,
+                                        organization_id=organization_id,
+                                        series_field=f"{EsMappings.ISSUED}.value")
     elif content_type in [ServiceKey.CONCEPTS, ServiceKey.INFO_MODELS]:
         return get_time_series_response(report_type=content_type,
                                         org_path=orgpath,
