@@ -1,5 +1,9 @@
 from src.sparql.builder import encode_for_sparql
-from src.sparql.queries import build_dataset_publisher_query, build_dataservice_query, build_dataservice_publisher_query
+from src.sparql.queries import (
+    build_dataservice_publisher_query,
+    build_dataservice_query,
+    build_dataset_publisher_query,
+)
 
 
 def get_dataset_publisher_query():

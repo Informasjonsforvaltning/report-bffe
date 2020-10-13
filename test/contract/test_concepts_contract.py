@@ -6,7 +6,6 @@ concepts_report_url = f"{service_url}/report/concepts"
 
 
 class TestConceptsReport:
-
     @pytest.mark.contract
     def test_has_correct_format(self, wait_for_ready):
         result = get(url=concepts_report_url)

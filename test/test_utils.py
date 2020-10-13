@@ -1,6 +1,6 @@
 import pytest
 
-from src.utils import ServiceKey, NotAServiceKeyException, ParsedDataPoint
+from src.utils import NotAServiceKeyException, ParsedDataPoint, ServiceKey
 
 
 @pytest.mark.unit
@@ -16,10 +16,7 @@ def test_get_key():
 
 @pytest.mark.unit
 def test_get_next_month():
-    es_bucket_november = {
-        "key_as_string": "2019-11-01T00:00:00.000Z",
-        "doc_count": 8
-    }
+    es_bucket_november = {"key_as_string": "2019-11-01T00:00:00.000Z", "doc_count": 8}
 
     november = ParsedDataPoint(es_bucket=es_bucket_november)
     december = november.get_next_month()
@@ -28,10 +25,7 @@ def test_get_next_month():
 
 @pytest.mark.unit
 def test_add_last_count_to_es_data_point():
-    es_bucket_november = {
-        "key_as_string": "2019-11-01T00:00:00.000Z",
-        "doc_count": 8
-    }
+    es_bucket_november = {"key_as_string": "2019-11-01T00:00:00.000Z", "doc_count": 8}
 
     november = ParsedDataPoint(es_bucket=es_bucket_november, last_month_count=112)
     assert november.y_axis == 120

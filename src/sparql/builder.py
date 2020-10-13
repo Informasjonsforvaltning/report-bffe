@@ -17,10 +17,12 @@ class SparqlGraphTerm:
             self.value = namespace_property
 
     @staticmethod
-    def build_graph_pattern(subject: 'SparqlGraphTerm',
-                            predicate: 'SparqlGraphTerm',
-                            obj: 'SparqlGraphTerm',
-                            close_pattern_with: str = None) -> str:
+    def build_graph_pattern(
+        subject: "SparqlGraphTerm",
+        predicate: "SparqlGraphTerm",
+        obj: "SparqlGraphTerm",
+        close_pattern_with: str = None,
+    ) -> str:
         graph_pattern = f"{subject.value} {predicate.value} {obj.value}"
         if close_pattern_with:
             graph_pattern += f" {close_pattern_with}"
@@ -28,8 +30,9 @@ class SparqlGraphTerm:
 
 
 class SparqlSelect:
-
-    def __init__(self, variable_names: List[str] = None, from_graph: FromGraph = FromGraph.ALL):
+    def __init__(
+        self, variable_names: List[str] = None, from_graph: FromGraph = FromGraph.ALL
+    ):
         self.variable_names = variable_names
         self.from_graph = from_graph
 
@@ -37,7 +40,9 @@ class SparqlSelect:
         return SparqlSelect.select(self.variable_names, self.from_graph)
 
     @staticmethod
-    def select(variable_names: List[str] = None, from_graph: FromGraph = FromGraph.ALL) -> str:
+    def select(
+        variable_names: List[str] = None, from_graph: FromGraph = FromGraph.ALL
+    ) -> str:
         select = "SELECT"
         if not variable_names:
             return f"{select} *{from_graph}"
@@ -50,23 +55,30 @@ class SparqlSelect:
 
 
 class SparqlWhere:
-    def __init__(self, graphs: List[str] = None,
-                 optional: 'SparqlOptional' = None, nested_clause: str = None):
+    def __init__(
+        self,
+        graphs: List[str] = None,
+        optional: "SparqlOptional" = None,
+        nested_clause: str = None,
+    ):
         self.graph_patterns = graphs
         self.optional = optional
         self.nested_clause = nested_clause
 
     def __str__(self) -> str:
-        return SparqlWhere.build(graphs=self.graph_patterns,
-                                 optional_clause=self.optional,
-                                 nested_clause_builder=self.nested_clause)
+        return SparqlWhere.build(
+            graphs=self.graph_patterns,
+            optional_clause=self.optional,
+            nested_clause_builder=self.nested_clause,
+        )
 
     @staticmethod
-    def build(graphs: List[str] = None,
-              build_as_optional: bool = False,
-              optional_clause: 'SparqlOptional' = None,
-              nested_clause_builder: 'SparqlBuilder' = None,
-              ) -> str:
+    def build(
+        graphs: List[str] = None,
+        build_as_optional: bool = False,
+        optional_clause: "SparqlOptional" = None,
+        nested_clause_builder: "SparqlBuilder" = None,
+    ) -> str:
         if build_as_optional:
             where_str = "OPTIONAL { "
         else:
@@ -86,7 +98,7 @@ class SparqlWhere:
 
 
 class SparqlOptional(SparqlWhere):
-    def __init__(self, graphs: List[str] = None, parent: 'SparqlWhere' = None):
+    def __init__(self, graphs: List[str] = None, parent: "SparqlWhere" = None):
         super().__init__(graphs, parent)
 
     def __str__(self) -> str:
@@ -94,9 +106,15 @@ class SparqlOptional(SparqlWhere):
 
 
 class SparqlBuilder:
-
-    def __init__(self, prefix: List[NamespaceProperty] = None, select: SparqlSelect = None, where: SparqlWhere = None,
-                 group_by_var: str = None, group_by_str: str = None, order_by_str=None):
+    def __init__(
+        self,
+        prefix: List[NamespaceProperty] = None,
+        select: SparqlSelect = None,
+        where: SparqlWhere = None,
+        group_by_var: str = None,
+        group_by_str: str = None,
+        order_by_str=None,
+    ):
         self.prefix = prefix
         self.select = select
         self.where = where
@@ -134,13 +152,15 @@ class SparqlBuilder:
 
 
 def encode_for_sparql(string: str):
-    return string \
-        .replace(" ", "%20") \
-        .replace("<", "%3C") \
-        .replace(">", "%3E") \
-        .replace("(", "%28") \
-        .replace(")", "%29") \
-        .replace("{", "%7B") \
-        .replace("}", "%7D") \
-        .replace("'", "%27") \
-        .replace("*", "%2A").replace("\\", "\\\\")
+    return (
+        string.replace(" ", "%20")
+        .replace("<", "%3C")
+        .replace(">", "%3E")
+        .replace("(", "%28")
+        .replace(")", "%29")
+        .replace("{", "%7B")
+        .replace("}", "%7D")
+        .replace("'", "%27")
+        .replace("*", "%2A")
+        .replace("\\", "\\\\")
+    )

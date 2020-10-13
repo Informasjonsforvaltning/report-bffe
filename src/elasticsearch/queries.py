@@ -1,8 +1,7 @@
 import abc
-import json
 
-from src.rdf_namespaces import JSON_RDF
-from src.utils import ServiceKey, ThemeProfile, ContentKeys
+from src.rdf_namespaces import JsonRDF
+from src.utils import ContentKeys, ServiceKey, ThemeProfile
 
 
 class EsMappings:
@@ -24,20 +23,39 @@ class EsMappings:
     PUBLISHER = "publisher"
     URI = "uri"
     FIRST_HARVESTED = "harvest.firstHarvested"
-    TITLE = "title",
+    TITLE = ("title",)
     ISSUED = "issued"
     MEDIATYPE = "mediaType"
 
 
-DATASET_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.LOS, JSON_RDF.dct.accessRights,
-                              JSON_RDF.dct.provenance, JSON_RDF.dct.subject, JSON_RDF.dcat.distribution,
-                              JSON_RDF.dcat.theme, EsMappings.NODE_URI, EsMappings.RECORD, EsMappings.OPEN_LICENSE,
-                              EsMappings.FORMAT, EsMappings.PART_OF_CATALOG]
+DATASET_AGGREGATION_FIELDS = [
+    EsMappings.ORG_PATH,
+    EsMappings.ORGANIZATION_ID,
+    EsMappings.LOS,
+    JsonRDF.dct.accessRights,
+    JsonRDF.dct.provenance,
+    JsonRDF.dct.subject,
+    JsonRDF.dcat.distribution,
+    JsonRDF.dcat.theme,
+    EsMappings.NODE_URI,
+    EsMappings.RECORD,
+    EsMappings.OPEN_LICENSE,
+    EsMappings.FORMAT,
+    EsMappings.PART_OF_CATALOG,
+]
 
-DATASERVICE_AGGREGATION_FIELDS = [EsMappings.ORG_PATH, EsMappings.ORGANIZATION_ID, EsMappings.TITLE, EsMappings.ISSUED, EsMappings.MEDIATYPE]
+DATASERVICE_AGGREGATION_FIELDS = [
+    EsMappings.ORG_PATH,
+    EsMappings.ORGANIZATION_ID,
+    EsMappings.TITLE,
+    EsMappings.ISSUED,
+    EsMappings.MEDIATYPE,
+]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
-    JSON_RDF.dct.issued, JSON_RDF.dct.isPartOf, JSON_RDF.foaf.primaryTopic
+    JsonRDF.dct.issued,
+    JsonRDF.dct.isPartOf,
+    JsonRDF.foaf.primaryTopic,
 ]
 
 
@@ -48,36 +66,41 @@ class Query(metaclass=abc.ABCMeta):
 
     def add_filters(self, orgpath, themes, theme_profile, organization_id):
         if orgpath or themes or theme_profile or organization_id:
-            self.query = {
-                "bool": {
-                    "filter": []
-                }
-            }
+            self.query = {"bool": {"filter": []}}
             if themes:
-                self.query["bool"]["filter"].extend(get_los_path_filter(themes_str=themes))
+                self.query["bool"]["filter"].extend(
+                    get_los_path_filter(themes_str=themes)
+                )
             if orgpath:
                 self.query["bool"]["filter"].append(get_org_path_filter(orgpath))
             if theme_profile:
-                self.query["bool"]["filter"].append(get_theme_profile_filter(ThemeProfile.TRANSPORT))
+                self.query["bool"]["filter"].append(
+                    get_theme_profile_filter(ThemeProfile.TRANSPORT)
+                )
             if organization_id:
-                self.query["bool"]["filter"].append(get_term_query(EsMappings.ORGANIZATION_ID, organization_id))
+                self.query["bool"]["filter"].append(
+                    get_term_query(EsMappings.ORGANIZATION_ID, organization_id)
+                )
 
     def build(self):
-        body = {
-            "size": 0,
-            "aggregations": self.aggregations
-        }
+        body = {"size": 0, "aggregations": self.aggregations}
         if self.query:
             body["query"] = self.query
         return body
 
 
 class AggregationQuery(Query):
-    def __init__(self, report_type: ServiceKey, orgpath=None, theme=None, theme_profile=None,
-                 organization_id=None):
+    def __init__(
+        self,
+        report_type: ServiceKey,
+        orgpath=None,
+        theme=None,
+        theme_profile=None,
+        organization_id=None,
+    ):
         super().__init__()
         if report_type == ServiceKey.DATA_SETS:
-            issued_field = f"{EsMappings.RECORD}.{JSON_RDF.dct.issued}.value"
+            issued_field = f"{EsMappings.RECORD}.{JsonRDF.dct.issued}.value"
         elif report_type == ServiceKey.DATA_SERVICES:
             issued_field = f"{EsMappings.ISSUED}.value"
         else:
@@ -87,24 +110,20 @@ class AggregationQuery(Query):
                 "terms": {
                     "field": EsMappings.ORG_PATH,
                     "missing": "MISSING",
-                    "size": 100000
+                    "size": 100000,
                 }
             },
-
-            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=issued_field,
-                                                              days=7),
+            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=issued_field, days=7),
             ContentKeys.CATALOGS: {
                 "terms": {
                     "field": f"{EsMappings.PART_OF_CATALOG}.keyword",
                     "missing": "MISSING",
-                    "size": 100000
+                    "size": 100000,
                 }
             },
             ContentKeys.ORGANIZATION_COUNT: {
-                "cardinality": {
-                    "field": f"{EsMappings.ORGANIZATION_ID}.keyword"
-                }
-            }
+                "cardinality": {"field": f"{EsMappings.ORGANIZATION_ID}.keyword"}
+            },
         }
         if report_type == ServiceKey.DATA_SETS:
             self.__add_datasets_aggregation()
@@ -114,36 +133,30 @@ class AggregationQuery(Query):
         self.add_filters(orgpath, theme, theme_profile, organization_id)
 
     def __add_datasets_aggregation(self):
-        self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = AggregationQuery.json_rdf_terms_aggregation(
-            JSON_RDF.dct.accessRights)
+        self.aggregations[
+            ContentKeys.ACCESS_RIGHTS_CODE
+        ] = AggregationQuery.json_rdf_terms_aggregation(JsonRDF.dct.accessRights)
         self.aggregations[ContentKeys.NATIONAL_COMPONENT] = {
             "filter": {
                 "term": {
                     AggregationQuery.es_keyword_key(
-                        JSON_RDF.dct.provenance): "http://data.brreg.no/datakatalog/provinens/nasjonal"
+                        JsonRDF.dct.provenance
+                    ): "http://data.brreg.no/datakatalog/provinens/nasjonal"
                 }
             }
         }
         self.aggregations[ContentKeys.WITH_SUBJECT] = {
-            "filter": {
-                "exists": {
-                    "field": JSON_RDF.dct.subject
-                }
-            }
+            "filter": {"exists": {"field": JsonRDF.dct.subject}}
         }
         self.aggregations[ContentKeys.LOS_PATH] = {
-            "terms": {
-                "field": EsMappings.LOS,
-                "missing": "MISSING",
-                "size": 100000
-            }
+            "terms": {"field": EsMappings.LOS, "missing": "MISSING", "size": 100000}
         }
         self.aggregations[ContentKeys.OPEN_DATA] = open_data_aggregation()
         self.aggregations[ContentKeys.FORMAT] = {
             "terms": {
                 "field": f"{EsMappings.FORMAT}.keyword",
                 "missing": "MISSING",
-                "size": 100000
+                "size": 100000,
             }
         }
 
@@ -152,7 +165,7 @@ class AggregationQuery(Query):
             "terms": {
                 "field": f"{EsMappings.MEDIATYPE}.value.keyword",
                 "missing": "MISSING",
-                "size": 100000
+                "size": 100000,
             }
         }
 
@@ -166,7 +179,7 @@ class AggregationQuery(Query):
             "terms": {
                 "field": AggregationQuery.es_keyword_key(json_ld_field),
                 "missing": EsMappings.MISSING,
-                "size": size or 10
+                "size": size or 10,
             }
         }
 
@@ -176,10 +189,7 @@ class TimeSeriesQuery(Query):
         super().__init__()
         self.aggregations = {
             f"{EsMappings.TIME_SERIES}": {
-                "date_histogram": {
-                    "field": series_field,
-                    "calendar_interval": "month"
-                }
+                "date_histogram": {"field": series_field, "calendar_interval": "month"}
             }
         }
         self.add_filters(orgpath, theme, theme_profile, organization_id)
@@ -187,46 +197,33 @@ class TimeSeriesQuery(Query):
 
 def org_path_aggregation() -> dict:
     return {
-        "terms": {
-            "field": "orgPath",
-            "missing": EsMappings.MISSING,
-            "size": 1000000000
-        }
+        "terms": {"field": "orgPath", "missing": EsMappings.MISSING, "size": 1000000000}
     }
 
 
 def open_data_aggregation() -> dict:
-    return {"filter": {
-        "bool": {
-            "must": [
-                {
-                    "term": {
-                        AggregationQuery.es_keyword_key(
-                            JSON_RDF.dct.accessRights): "http://publications.europa.eu/resource/authority/access"
-                                                       "-right/PUBLIC"
-                    }
-                },
-                {
-                    "term": {
-                        EsMappings.OPEN_LICENSE: "true"
-                    }
-                }
-            ]
+    return {
+        "filter": {
+            "bool": {
+                "must": [
+                    {
+                        "term": {
+                            AggregationQuery.es_keyword_key(
+                                JsonRDF.dct.accessRights
+                            ): "http://publications.europa.eu/resource/authority/access"
+                            "-right/PUBLIC"
+                        }
+                    },
+                    {"term": {EsMappings.OPEN_LICENSE: "true"}},
+                ]
+            }
         }
-    }
     }
 
 
 def get_last_x_days_filter(key: str, days: int):
     range_str = f"now-{days}d/d"
-    return {"filter": {
-        "range": {
-            key: {
-                "gte": range_str,
-                "lt": "now/d"
-            }
-        }
-    }}
+    return {"filter": {"range": {key: {"gte": range_str, "lt": "now/d"}}}}
 
 
 def get_los_path_filter(themes_str: str = None, profile_themes_list=None):
@@ -238,67 +235,42 @@ def get_los_path_filter(themes_str: str = None, profile_themes_list=None):
         return
     terms = []
     for theme in themes_list:
-        terms.append({
-            "term": {
-                EsMappings.LOS: theme
-            }
-        })
+        terms.append({"term": {EsMappings.LOS: theme}})
     return terms
 
 
 def get_org_path_filter(org_path: str):
     if org_path == EsMappings.MISSING:
         return must_not_filter(EsMappings.ORG_PATH)
-    return {
-        "term": {
-            EsMappings.ORG_PATH: org_path
-        }
-    }
+    return {"term": {EsMappings.ORG_PATH: org_path}}
 
 
 def get_theme_profile_filter(profile: ThemeProfile):
     if profile == ThemeProfile.TRANSPORT:
-        should_list = get_los_path_filter(profile_themes_list=ThemeProfile.TRANSPORT_THEMES)
+        should_list = get_los_path_filter(
+            profile_themes_list=ThemeProfile.TRANSPORT_THEMES
+        )
         return {
             "bool": {
                 "must": [
-                    {
-                        "bool": {
-                            "should": should_list
-                        }
-                    },
+                    {"bool": {"should": should_list}},
                     {
                         "term": {
                             AggregationQuery.es_keyword_key(
-                                JSON_RDF.dct.accessRights): "http://publications.europa.eu/resource/authority/access"
-                                                           "-right/PUBLIC"
+                                JsonRDF.dct.accessRights
+                            ): "http://publications.europa.eu/resource/authority/access"
+                            "-right/PUBLIC"
                         }
-
-                    }
+                    },
                 ]
             }
         }
 
 
 def get_term_query(field, value) -> dict:
-    return {
-        "term": {
-            f"{field}.keyword": {
-                "value": value
-            }
-        }
-    }
+    return {"term": {f"{field}.keyword": {"value": value}}}
 
 
 def must_not_filter(filter_key: str):
-    missing_filter = {
-        "bool": {
-            "must_not":
-                {
-                    "exists": {
-                        "field": filter_key
-                    }
-                }
-        }
-    }
+    missing_filter = {"bool": {"must_not": {"exists": {"field": filter_key}}}}
     return missing_filter

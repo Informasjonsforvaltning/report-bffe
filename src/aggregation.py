@@ -1,8 +1,8 @@
-from src.dataset_aggregation import create_dataset_report
 from src.concept_aggregation import create_concept_report
-from src.information_model_aggregation import create_information_model_report
 from src.dataservice_aggregation import create_dataservice_report
-from src.utils import ServiceKey, QueryParameter
+from src.dataset_aggregation import create_dataset_report
+from src.information_model_aggregation import create_information_model_report
+from src.utils import QueryParameter, ServiceKey
 
 
 def get_report(content_type: ServiceKey, args: dict):

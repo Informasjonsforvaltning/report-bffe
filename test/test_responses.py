@@ -1,70 +1,42 @@
+from test.unit_mock_data import concepts_aggregation, concepts_in_use
+
 import pytest
 
 from src.elasticsearch.queries import EsMappings
-from src.utils import ContentKeys
-from src.responses import InformationModelResponse, ConceptResponse, TimeSeriesResponse, DataSetResponse
-from src.utils import ThemeProfile
-from test.unit_mock_data import concepts_aggregation, concepts_in_use
+from src.responses import (
+    ConceptResponse,
+    DataSetResponse,
+    InformationModelResponse,
+    TimeSeriesResponse,
+)
+from src.utils import ContentKeys, ThemeProfile
 
 
 @pytest.mark.skip
 def test_information_model_response():
     es_result = {
-        "_embedded": {
-            "informationmodels": []
-        },
-        "page": {
-            "totalElements": 574,
-            "totalPages": 58,
-            "number": 0
-        },
+        "_embedded": {"informationmodels": []},
+        "page": {"totalElements": 574, "totalPages": 58, "number": 0},
         "aggregations": {
             "orgPath": {
                 "doc_count_error_upper_bound": 0,
                 "sum_other_doc_count": 0,
                 "buckets": [
-                    {
-                        "key": "/ANNET",
-                        "doc_count": 794
-                    },
-                    {
-                        "key": "/ANNET/910298062",
-                        "doc_count": 642
-                    },
-                    {
-                        "key": "/STAT",
-                        "doc_count": 466
-                    },
-                    {
-                        "key": "/STAT/972417858",
-                        "doc_count": 112
-                    },
-                    {
-                        "key": "/STAT/972417858/971040238",
-                        "doc_count": 109
-                    },
-                    {
-                        "key": "/STAT/972417874",
-                        "doc_count": 100
-                    }
-                ]
+                    {"key": "/ANNET", "doc_count": 794},
+                    {"key": "/ANNET/910298062", "doc_count": 642},
+                    {"key": "/STAT", "doc_count": 466},
+                    {"key": "/STAT/972417858", "doc_count": 112},
+                    {"key": "/STAT/972417858/971040238", "doc_count": 109},
+                    {"key": "/STAT/972417874", "doc_count": 100},
+                ],
             },
             "firstHarvested": {
                 "buckets": [
-                    {
-                        "key": "last30days",
-                        "count": 96
-                    },
-                    {
-                        "key": "last365days",
-                        "count": 4267
-                    },
-                    {
-                        "key": "last7days",
-                        "count": 3
-                    }
+                    {"key": "last30days", "count": 96},
+                    {"key": "last365days", "count": 4267},
+                    {"key": "last7days", "count": 3},
                 ]
-            }
+            },
         },
     }
 
@@ -85,38 +57,28 @@ def test_concept_response():
 
 @pytest.mark.unit
 def test_time_series_response():
-    es_bucket_november = {
-        "key_as_string": "2019-11-01T00:00:00.000Z",
-        "doc_count": 8
-    }
-    es_bucket_january = {
-        "key_as_string": "2020-01-01T00:00:00.000Z",
-        "doc_count": 2
-    }
-    es_bucket_april = {
-        "key_as_string": "2020-04-01T00:00:00.000Z",
-        "doc_count": 1
-    }
-    es_bucket_may = {
-        "key_as_string": "2020-05-01T00:00:00.000Z",
-        "doc_count": 1
-    }
-    es_bucket_june = {
-        "key_as_string": "2020-06-01T00:00:00.000Z",
-        "doc_count": 3
-    }
+    es_bucket_november = {"key_as_string": "2019-11-01T00:00:00.000Z", "doc_count": 8}
+    es_bucket_january = {"key_as_string": "2020-01-01T00:00:00.000Z", "doc_count": 2}
+    es_bucket_april = {"key_as_string": "2020-04-01T00:00:00.000Z", "doc_count": 1}
+    es_bucket_may = {"key_as_string": "2020-05-01T00:00:00.000Z", "doc_count": 1}
+    es_bucket_june = {"key_as_string": "2020-06-01T00:00:00.000Z", "doc_count": 3}
     parsed_series = {
         "aggregations": {
             EsMappings.TIME_SERIES: {
                 "buckets": [
-                    es_bucket_november, es_bucket_january, es_bucket_april, es_bucket_may,
-                    es_bucket_june
+                    es_bucket_november,
+                    es_bucket_january,
+                    es_bucket_april,
+                    es_bucket_may,
+                    es_bucket_june,
                 ]
             }
         }
     }
     result = TimeSeriesResponse(parsed_series).json()
-    assert len(result) > len(parsed_series["aggregations"][EsMappings.TIME_SERIES]["buckets"])
+    assert len(result) > len(
+        parsed_series["aggregations"][EsMappings.TIME_SERIES]["buckets"]
+    )
     assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "2019-11-01T00:00:00.000Z"
     assert result[1][ContentKeys.TIME_SERIES_X_AXIS] == "2019-12-01T00:00:00.000Z"
     assert result[2][ContentKeys.TIME_SERIES_X_AXIS] == "2020-01-01T00:00:00.000Z"
@@ -140,76 +102,27 @@ def test_dataset_with_theme_profile():
     result = DataSetResponse(
         total=21,
         catalogs=[
-            {
-                "key": "/STAT/912660680/970188290",
-                "count": 17
-            },
-            {
-                "key": "/STAT/972417904/874783242",
-                "count": 15
-            },
-            {
-                "key": "/KOMMUNE/958935420",
-                "count": 13
-            }
+            {"key": "/STAT/912660680/970188290", "count": 17},
+            {"key": "/STAT/972417904/874783242", "count": 15},
+            {"key": "/KOMMUNE/958935420", "count": 13},
         ],
         org_paths=[
-            {
-            "key": "/STAT/912660680/970188290",
-            "count": 17
-        },
-            {
-                "key": "/STAT/972417904/874783242",
-                "count": 15
-            },
-            {
-                "key": "/KOMMUNE/958935420",
-                "count": 13
-            }
+            {"key": "/STAT/912660680/970188290", "count": 17},
+            {"key": "/STAT/972417904/874783242", "count": 15},
+            {"key": "/KOMMUNE/958935420", "count": 13},
         ],
         access_rights=[],
         themes=[
-            {
-                "key": "trafikk-og-transport",
-                "count": 112
-            },
-            {
-                "key": "familie-og-barn",
-                "count": 108
-            },
-            {
-                "key": "naring",
-                "count": 105
-            },
-            {
-                "key": "naring/landbruk",
-                "count": 98
-            },
-            {
-                "key": "bygg-og-eiendom",
-                "count": 97
-            },
-            {
-                "key": "bygg-og-eiendom",
-                "count": 97
-            },
-            {
-                "key": "trafikk-og-transport/mobilitetstilbud",
-                "count": 97
-            },
-            {
-                "key": "trafikk-og-transport/trafikkinformasjon",
-                "count": 97
-            },
-            {
-                "key": "trafikk-og-transport/veg-og-vegregulering",
-                "count": 97
-            },
-            {
-                "key": "trafikk-og-transport/yrkestransport",
-                "count": 97
-            }
-
+            {"key": "trafikk-og-transport", "count": 112},
+            {"key": "familie-og-barn", "count": 108},
+            {"key": "naring", "count": 105},
+            {"key": "naring/landbruk", "count": 98},
+            {"key": "bygg-og-eiendom", "count": 97},
+            {"key": "bygg-og-eiendom", "count": 97},
+            {"key": "trafikk-og-transport/mobilitetstilbud", "count": 97},
+            {"key": "trafikk-og-transport/trafikkinformasjon", "count": 97},
+            {"key": "trafikk-og-transport/veg-og-vegregulering", "count": 97},
+            {"key": "trafikk-og-transport/yrkestransport", "count": 97},
         ],
         with_subject=19,
         opendata=3,
@@ -217,7 +130,7 @@ def test_dataset_with_theme_profile():
         national_component=2,
         dist_formats=[],
         theme_profile=ThemeProfile.TRANSPORT,
-        organizationCount=5
+        organization_count=5,
     )
 
     assert len(result.themesAndTopicsCount) == 4

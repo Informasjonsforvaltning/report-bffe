@@ -6,7 +6,6 @@ informationmodels_report_url = f"{service_url}/report/informationmodels"
 
 
 class TestInformationModelsReport:
-
     @pytest.mark.contract
     def test_has_correct_format(self, wait_for_ready):
         result = get(url=informationmodels_report_url)
@@ -16,6 +15,3 @@ class TestInformationModelsReport:
         assert "newLastWeek" in keys
         assert "orgPaths" in keys
         assert "organizationCount" in keys
-
-
-

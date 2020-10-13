@@ -1,7 +1,7 @@
 from datetime import datetime
-from dateutil import parser
 
 import pytest
+from dateutil import parser
 from requests import get
 
 service_url = "http://localhost:8000"
@@ -10,7 +10,6 @@ dataset_time_series_url = f"{service_url}/timeseries/datasets"
 
 
 class TestDatasetsReport:
-
     @pytest.mark.contract
     def test_report_has_correct_format(self, wait_for_ready):
         result = get(url=dataset_report_url)
@@ -42,7 +41,7 @@ class TestDatasetsReport:
         assert len(content.get("formats")) > 0
 
     @pytest.mark.contract
-    def test_report_filter_on_orgPath(self, wait_for_ready):
+    def test_report_filter_on_org_path(self, wait_for_ready):
         result = get(url=f"{dataset_report_url}?orgPath=/STAT/972417858/971040238")
         assert result.status_code == 200
         content = result.json()
@@ -65,9 +64,13 @@ class TestDatasetsReport:
 
     @pytest.mark.contract
     def test_theme_profile_los_path_filter(self, wait_for_ready):
-        accepted_paths = ["trafikk-og-transport", "trafikk-og-transport/mobilitetstilbud",
-                          "trafikk-og-transport/trafikkinformasjon",
-                          "trafikk-og-transport/veg-og-vegregulering", "trafikk-og-transport/yrkestransport"]
+        accepted_paths = [
+            "trafikk-og-transport",
+            "trafikk-og-transport/mobilitetstilbud",
+            "trafikk-og-transport/trafikkinformasjon",
+            "trafikk-og-transport/veg-og-vegregulering",
+            "trafikk-og-transport/yrkestransport",
+        ]
         result = get(url=f"{dataset_report_url}?themeprofile=transport")
         result_paths = result.json().get("themesAndTopicsCount")
         assert len(result_paths) > 0

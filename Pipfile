@@ -6,6 +6,10 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 pytest-mock = "*"
+isort = "*"
+black = "*"
+flake8 = "*"
+pep8-naming = "*"
 
 [packages]
 flask = "*"
@@ -22,3 +26,6 @@ python-dateutil = "*"
 
 [requires]
 python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true

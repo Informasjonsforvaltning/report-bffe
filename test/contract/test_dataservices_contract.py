@@ -7,7 +7,6 @@ dataservices_timeseries_url = f"{service_url}/timeseries/dataservices"
 
 
 class TestDataServicesReport:
-
     @pytest.mark.contract
     def test_has_correct_format(self, wait_for_ready):
         result = get(url=dataservices_report_url)
