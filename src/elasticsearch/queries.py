@@ -247,6 +247,8 @@ def get_los_path_filter(themes_str: str = None, profile_themes_list=None):
 
 
 def get_org_path_filter(org_path: str):
+    if org_path == EsMappings.MISSING:
+        return must_not_filter(EsMappings.ORG_PATH)
     return {
         "term": {
             EsMappings.ORG_PATH: org_path
@@ -286,3 +288,17 @@ def get_term_query(field, value) -> dict:
             }
         }
     }
+
+
+def must_not_filter(filter_key: str):
+    missing_filter = {
+        "bool": {
+            "must_not":
+                {
+                    "exists": {
+                        "field": filter_key
+                    }
+                }
+        }
+    }
+    return missing_filter
