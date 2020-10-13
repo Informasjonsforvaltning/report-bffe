@@ -45,6 +45,22 @@ update of data in elasticsearch*
 ###Task automation
 A number of repeating tasks are automated for convenience using [Invoke](http://www.pyinvoke.org/). (See section "Invoke tasks" for more info)
 
+###Formatting and linting
+Black for formatting and flake8 for linting.
+```
+% sort imports
+pipenv run isort ./src/ ./test/
+pipenv run black ./src/ ./test/
+pipenv run flake8 ./src/ ./test/
+```
+or:
+```
+% invoke format
+```
+```
+% invoke lint
+```
+
 ## Testing
 ### Running tests
 ```

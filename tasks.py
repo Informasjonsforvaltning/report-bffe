@@ -69,12 +69,6 @@ def contract_test(ctx, image="digdir/fdk-report-bff:latest", compose=False, buil
 
 @task
 def update_mock_data(ctx):
-    start_recording_url = "/__admin/recordin/start"
-    stop_recording_url = "/__admin/recordings/stop"
-    target_url_body = {
-        "targetBaseUrl": "https://www.fellesdatakatalog.digdir.no/api"
-    }
-
     mock_url = "http://localhost:8080"
     start_recording_curl = "curl -d '{\"targetBaseUrl\": \"https://www.fellesdatakatalog.digdir.no/api\" }' -H " \
                            "'Content-Type: application/json' http://localhost:8080/__admin/recordings/start"
@@ -103,3 +97,15 @@ def update_mock_data(ctx):
     ctx.run(stop_recording_curl)
     breakpoint()
     ctx.run("docker-compose down")
+
+@task
+def format(ctx):
+    pipenv_run_isort = "pipenv run isort ./src/ ./test/"
+    ctx.run(pipenv_run_isort)
+    pipenv_run_black = "pipenv run black ./src/ ./test/"
+    ctx.run(pipenv_run_black)
+
+@task
+def lint(ctx):
+    pipenv_run_flake8 = "pipenv run flake8 ./src/ ./test/"
+    ctx.run(pipenv_run_flake8)

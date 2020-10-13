@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+
 from dateutil import parser
 
 
@@ -42,8 +43,6 @@ class ContentKeys:
     MEDIATYPE = "mediaType"
 
 
-
-
 class OrgCatalogKeys:
     NAME = "name"
     URI = "norwegianRegistry"
@@ -60,7 +59,7 @@ class ServiceKey:
     FDK_BASE = "fdk_base"
 
     @staticmethod
-    def get_key(string_key: str) -> 'ServiceKey':
+    def get_key(string_key: str) -> "ServiceKey":
         if string_key == ServiceKey.ORGANIZATIONS:
             return ServiceKey.ORGANIZATIONS
         if string_key == ServiceKey.INFO_MODELS:
@@ -94,14 +93,14 @@ class ParsedDataPoint:
             else:
                 next_date = f"01.{month}.{year}"
 
-            self.x_axis = datetime.strptime(next_date, '%d.%m.%Y').isoformat() + ".000Z"
+            self.x_axis = datetime.strptime(next_date, "%d.%m.%Y").isoformat() + ".000Z"
             self.year = year
             self.month = month
 
     def response_dict(self):
         return {
             ContentKeys.TIME_SERIES_Y_AXIS: self.y_axis,
-            ContentKeys.TIME_SERIES_X_AXIS: self.x_axis
+            ContentKeys.TIME_SERIES_X_AXIS: self.x_axis,
         }
 
     def parse_date(self):
@@ -114,20 +113,28 @@ class ParsedDataPoint:
         if next_month == 13:
             next_month = 1
             next_year += 1
-        return ParsedDataPoint(month=next_month, year=next_year, last_month_count=self.y_axis)
+        return ParsedDataPoint(
+            month=next_month, year=next_year, last_month_count=self.y_axis
+        )
 
-    def __eq__(self, other: 'ParsedDataPoint'):
+    def __eq__(self, other: "ParsedDataPoint"):
         return self.month == other.month and self.year == other.year
 
     @staticmethod
-    def from_date_time(date: datetime, last_data_point: 'ParsedDataPoint'):
-        return ParsedDataPoint(month=date.month, year=date.year, last_month_count=last_data_point.y_axis)
+    def from_date_time(date: datetime, last_data_point: "ParsedDataPoint"):
+        return ParsedDataPoint(
+            month=date.month, year=date.year, last_month_count=last_data_point.y_axis
+        )
 
 
 class ThemeProfile:
     TRANSPORT = "transport"
-    TRANSPORT_THEMES = ["trafikk-og-transport/mobilitetstilbud", "trafikk-og-transport/trafikkinformasjon",
-                        "trafikk-og-transport/veg-og-vegregulering", "trafikk-og-transport/yrkestransport"]
+    TRANSPORT_THEMES = [
+        "trafikk-og-transport/mobilitetstilbud",
+        "trafikk-og-transport/trafikkinformasjon",
+        "trafikk-og-transport/veg-og-vegregulering",
+        "trafikk-og-transport/yrkestransport",
+    ]
 
 
 class QueryParameter:
@@ -146,7 +153,9 @@ class NotAServiceKeyException(Exception):
 class FetchFromServiceException(Exception):
     def __init__(self, execution_point: str, url: str = None):
         self.status = 500
-        self.reason = f"Connection error when attempting to fetch {execution_point} from {url}"
+        self.reason = (
+            f"Connection error when attempting to fetch {execution_point} from {url}"
+        )
 
 
 class NotInNationalRegistryException(Exception):
@@ -161,7 +170,7 @@ class BadOrgPathException(Exception):
 
 class NoOrganizationEntriesException(Exception):
     def __init__(self):
-        self.reason = f"organization store is empty"
+        self.reason = "organization store is empty"
 
 
 class StartSchedulerError(Exception):

@@ -1,5 +1,4 @@
 import abc
-from typing import List
 
 from src.utils import ContentKeys
 
@@ -177,7 +176,7 @@ class SparqlFunctionString:
     COALESCE = "COALESCE"
 
 
-class JSON_RDF:
+class JsonRDF:
     rdf = RDF(NamespaceProperty.JSON_RDF)
     dcat = DCAT(NamespaceProperty.JSON_RDF)
     dct = DCT(NamespaceProperty.JSON_RDF)
@@ -190,9 +189,9 @@ class JSON_RDF:
     def rdf_type_equals(rdf_property: str, entry) -> bool:
         try:
             if type(entry) is tuple:
-                return entry[1][JSON_RDF.rdf.type][0][ContentKeys.VALUE] == rdf_property
+                return entry[1][JsonRDF.rdf.type][0][ContentKeys.VALUE] == rdf_property
             else:
-                return entry[JSON_RDF.rdf.type][0][ContentKeys.VALUE] == rdf_property
+                return entry[JsonRDF.rdf.type][0][ContentKeys.VALUE] == rdf_property
         except KeyError:
             return False
 

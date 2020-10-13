@@ -1,21 +1,28 @@
+import atexit
 import datetime
 import logging
 import os
-import atexit
 from time import sleep
-from apscheduler.schedulers.background import BackgroundScheduler
 
 import pytz
-from elasticsearch import NotFoundError, TransportError, ConnectionTimeout, ConnectionError, Elasticsearch
-from src.elasticsearch.datasets import insert_datasets
+from apscheduler.schedulers.background import BackgroundScheduler
+
+from elasticsearch import (
+    ConnectionError,
+    ConnectionTimeout,
+    Elasticsearch,
+    NotFoundError,
+    TransportError,
+)
 from src.elasticsearch.concepts import insert_concepts
-from src.elasticsearch.informationmodels import insert_informationmodels
 from src.elasticsearch.dataservices import insert_dataservices
+from src.elasticsearch.datasets import insert_datasets
+from src.elasticsearch.informationmodels import insert_informationmodels
 from src.utils import StartSchedulerError
 
-ES_HOST = os.getenv('ELASTIC_HOST', 'localhost')
-ES_PORT = os.getenv('ELASTIC_PORT', '9200')
-es_client = Elasticsearch([ES_HOST + ':' + ES_PORT])
+ES_HOST = os.getenv("ELASTIC_HOST", "localhost")
+ES_PORT = os.getenv("ELASTIC_PORT", "9200")
+es_client = Elasticsearch([ES_HOST + ":" + ES_PORT])
 update_interval = 2 * 60 * 60
 
 
@@ -34,7 +41,9 @@ def schedule_updates(connection_attempts=0):
         sleep(5)
         if not Update.is_running():
             Update.start_update()
-            scheduler.add_job(func=Update.start_update, trigger="interval", seconds=update_interval)
+            scheduler.add_job(
+                func=Update.start_update, trigger="interval", seconds=update_interval
+            )
             scheduler.start()
             atexit.register(lambda: scheduler.shutdown())
         return True
@@ -61,25 +70,42 @@ class Update:
         update = Update()
         try:
             if not ignore_previous_updates:
-                jobs_completed_for_intervall = es_client.search(index="updates", body=updates_last_x_minutes_query)
+                jobs_completed_for_intervall = es_client.search(
+                    index="updates", body=updates_last_x_minutes_query
+                )
                 if jobs_completed_for_intervall["hits"]["total"]["value"] > 0:
                     return False
         except NotFoundError:
             logging.info("Initiating elasticsearch index: update")
             pass
-        except (ConnectionError, ConnectionTimeout, TransportError, ConnectionRefusedError):
-            logging.warning("start_update in scheduler.py: connection error when attempting to contact elasticsearch")
+        except (
+            ConnectionError,
+            ConnectionTimeout,
+            TransportError,
+            ConnectionRefusedError,
+        ):
+            logging.warning(
+                "start_update in scheduler.py: connection error when attempting to contact elasticsearch"
+            )
             sleep(5)
             Update.start_update(connection_attempts + 1)
         result = es_client.index(index="updates", body=update.doc())
         doc_id = result["_id"]
-        status = insert_datasets(success_status=Update.COMPLETED, failed_status=Update.FAILED)
-        if (status == Update.COMPLETED):
-            status = insert_concepts(success_status=Update.COMPLETED, failed_status=Update.FAILED);
-        if (status == Update.COMPLETED):
-            status = insert_informationmodels(success_status=Update.COMPLETED, failed_status=Update.FAILED)
-        if (status == Update.COMPLETED):
-            status = insert_dataservices(success_status=Update.COMPLETED, failed_status=Update.FAILED)
+        status = insert_datasets(
+            success_status=Update.COMPLETED, failed_status=Update.FAILED
+        )
+        if status == Update.COMPLETED:
+            status = insert_concepts(
+                success_status=Update.COMPLETED, failed_status=Update.FAILED
+            )
+        if status == Update.COMPLETED:
+            status = insert_informationmodels(
+                success_status=Update.COMPLETED, failed_status=Update.FAILED
+            )
+        if status == Update.COMPLETED:
+            status = insert_dataservices(
+                success_status=Update.COMPLETED, failed_status=Update.FAILED
+            )
         Update.complete_update(doc_id, update, status)
 
     @staticmethod
@@ -89,8 +115,15 @@ class Update:
         try:
             es_client.delete(index="updates", id=doc_id)
             es_client.index(index="updates", body=update_obj.doc())
-        except (ConnectionError, ConnectionTimeout, TransportError, ConnectionRefusedError):
-            logging.warning("Elasticsearch complete_update: could not write to elasticsearch")
+        except (
+            ConnectionError,
+            ConnectionTimeout,
+            TransportError,
+            ConnectionRefusedError,
+        ):
+            logging.warning(
+                "Elasticsearch complete_update: could not write to elasticsearch"
+            )
 
     @staticmethod
     def is_running(connection_attempts=0):
@@ -102,32 +135,25 @@ class Update:
         except NotFoundError:
             return False
         except (ConnectionError, ConnectionTimeout, TransportError):
-            logging.error(f"Connection error checking for jobs in progress. Attempts: {connection_attempts}")
+            logging.error(
+                f"Connection error checking for jobs in progress. Attempts: {connection_attempts}"
+            )
             sleep(5)
             return Update.is_running(connection_attempts + 1)
 
     def doc(self):
-        doc = {
-            "status": self.status,
-            "start_time": self.start_time
-        }
+        doc = {"status": self.status, "start_time": self.start_time}
         if self.end_time:
             doc["end_time"] = self.end_time
         return doc
 
     @staticmethod
     def get_local_time():
-        local_tz = pytz.timezone('Europe/Oslo')
+        local_tz = pytz.timezone("Europe/Oslo")
         return datetime.datetime.now(tz=local_tz)
 
 
-in_progress_query = {
-    "query": {
-        "term": {
-            "status.keyword": "in progress"
-        }
-    }
-}
+in_progress_query = {"query": {"term": {"status.keyword": "in progress"}}}
 updates_last_x_minutes_query = {
     "query": {
         "bool": {
@@ -137,16 +163,12 @@ updates_last_x_minutes_query = {
                         "end_time": {
                             "time_zone": "+01:00",
                             "gte": f"now-{update_interval}s/s",
-                            "lte": "now"
+                            "lte": "now",
                         }
                     }
                 }
             ],
-            "must_not": {
-                "term": {
-                    "status": "failed"
-                }
-            }
+            "must_not": {"term": {"status": "failed"}},
         }
     }
 }

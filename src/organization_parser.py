@@ -1,10 +1,16 @@
-import logging
 from typing import List
-from src.utils import NATIONAL_REGISTRY_PATTERN, OrgCatalogKeys, ContentKeys
+
+from src.utils import NATIONAL_REGISTRY_PATTERN, ContentKeys, OrgCatalogKeys
 
 
 class OrganizationReferencesObject:
-    def __init__(self, org_uri: str = None, org_path: str = None, same_as_entry: str = None, name: str = None):
+    def __init__(
+        self,
+        org_uri: str = None,
+        org_path: str = None,
+        same_as_entry: str = None,
+        name: str = None,
+    ):
         self.org_uri: str = org_uri
         self.org_path: str = org_path
         self.same_as: List[str] = list()
@@ -29,14 +35,14 @@ class OrganizationReferencesObject:
         else:
             return False
 
-    def __eq_on_org_uri(self, other: 'OrganizationReferencesObject'):
+    def __eq_on_org_uri(self, other: "OrganizationReferencesObject"):
         if not other.org_uri:
             return False
         return OrganizationReferencesObject.__eq_on_national_registry(
-            self.org_uri,
-            other.org_uri)
+            self.org_uri, other.org_uri
+        )
 
-    def __eq_on_same_as(self, other: 'OrganizationReferencesObject'):
+    def __eq_on_same_as(self, other: "OrganizationReferencesObject"):
         if not self.same_as:
             return False
         if not other.same_as:
@@ -57,22 +63,25 @@ class OrganizationReferencesObject:
     def __eq_on_national_registry(uri_1: str, uri_2: str) -> bool:
         suffix_1 = uri_1.split("/")
         suffix_2 = uri_2.split("/")
-        return suffix_1[- 1] == suffix_2[- 1]
+        return suffix_1[-1] == suffix_2[-1]
 
     @staticmethod
     def from_organization_catalog_single_response(organization: dict):
         return OrganizationReferencesObject(
             org_uri=organization[OrgCatalogKeys.URI],
             org_path=organization[OrgCatalogKeys.ORG_PATH],
-            name=organization[OrgCatalogKeys.NAME]
+            name=organization[OrgCatalogKeys.NAME],
         )
 
     @staticmethod
     def from_organization_catalog_list_response(organizations: List[dict]):
-        return [OrganizationReferencesObject.from_organization_catalog_single_response(org) for org in organizations]
+        return [
+            OrganizationReferencesObject.from_organization_catalog_single_response(org)
+            for org in organizations
+        ]
 
     @staticmethod
-    def from_sparql_query_result(organization: dict) -> 'OrganizationReferencesObject':
+    def from_sparql_query_result(organization: dict) -> "OrganizationReferencesObject":
         keys = organization.keys()
         if ContentKeys.ORG_NAME in keys:
             name = organization.get(ContentKeys.ORG_NAME).get(ContentKeys.VALUE)
@@ -81,7 +90,9 @@ class OrganizationReferencesObject:
 
         reference_object = OrganizationReferencesObject(name=name)
         if ContentKeys.PUBLISHER in keys:
-            publisher_uri = organization.get(ContentKeys.PUBLISHER).get(ContentKeys.VALUE)
+            publisher_uri = organization.get(ContentKeys.PUBLISHER).get(
+                ContentKeys.VALUE
+            )
             if OrganizationReferencesObject.is_national_registry_uri(publisher_uri):
                 reference_object.org_uri = publisher_uri
             else:
@@ -121,7 +132,7 @@ class OrganizationReferencesObject:
 
 
 class OrganizationStore:
-    __instance__: 'OrganizationStore' = None
+    __instance__: "OrganizationStore" = None
 
     def __init__(self):
         if OrganizationStore.__instance__ is None:
@@ -163,10 +174,11 @@ class OrganizationStore:
     def add_all_publishers(self, publishers: List[dict]):
         for reference in publishers["results"]["bindings"]:
             self.add_organization(
-                OrganizationReferencesObject.from_sparql_query_result(reference))
+                OrganizationReferencesObject.from_sparql_query_result(reference)
+            )
 
     @staticmethod
-    def get_instance() -> 'OrganizationStore':
+    def get_instance() -> "OrganizationStore":
         if OrganizationStore.__instance__:
             return OrganizationStore.__instance__
         else:
