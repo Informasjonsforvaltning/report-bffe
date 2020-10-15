@@ -43,6 +43,9 @@ jobs:
     # Lint
     - run: invoke lint
 
+    # Safety check
+    - run: invoke safety
+
     # Configure docker to use the gcloud command-line tool as a credential helper
     - run: gcloud auth configure-docker
 
