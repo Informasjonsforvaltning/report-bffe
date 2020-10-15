@@ -109,3 +109,10 @@ def format(ctx):
 def lint(ctx):
     pipenv_run_flake8 = "pipenv run flake8 ./src/ ./test/"
     ctx.run(pipenv_run_flake8)
+
+@task
+def safety(ctx):
+    gen_requirements = "pipenv lock -r >requirements.txt"
+    ctx.run(gen_requirements)
+    pipenv_run_safety = "pipenv run safety check --file=./requirements.txt"
+    ctx.run(pipenv_run_safety)
