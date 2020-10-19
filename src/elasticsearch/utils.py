@@ -49,7 +49,10 @@ async def add_org_and_los_paths_to_document(
 
 
 async def add_org_paths_to_document(rdf_values: dict) -> dict:
-    uri = rdf_values[ContentKeys.SAME_AS][ContentKeys.VALUE]
+    if ContentKeys.SAME_AS in rdf_values.keys():
+        uri = rdf_values[ContentKeys.SAME_AS][ContentKeys.VALUE]
+    else:
+        uri = rdf_values[ContentKeys.PUBLISHER][ContentKeys.VALUE]
     try:
         ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
         referenced_organization = await get_organization(ref_object)
@@ -64,6 +67,15 @@ async def add_org_paths_to_document(rdf_values: dict) -> dict:
     except OrganizationStoreNotInitiatedException:
         await get_organizations()
         return await add_org_paths_to_document(rdf_values)
+
+
+async def add_formats_to_document(rdf_values: dict) -> dict:
+    if EsMappings.MEDIATYPE in rdf_values.keys():
+        rdf_values[EsMappings.MEDIATYPE][ContentKeys.VALUE] = [
+            "https://www.iana.org/assignments/media-types/application/vnd.geo+json",
+            "application/json",
+        ]
+    return rdf_values
 
 
 def add_los_path_to_document(json_rdf_values: dict, los_themes: List[dict]) -> dict:
@@ -186,3 +198,13 @@ def elasticsearch_get_time_series(
     ).build()
     aggregations = es_client.search(index=report_type, body=query)
     return aggregations
+
+
+def get_unique_records(items: dict):
+    seen = set()
+    unique_records = []
+    for obj in items:
+        if obj["record"]["value"] not in seen:
+            unique_records.append(obj)
+            seen.add(obj["record"]["value"])
+    return unique_records
