@@ -7,7 +7,7 @@ dataservices_timeseries_url = f"{service_url}/timeseries/dataservices"
 
 
 class TestDataServicesReport:
-    @pytest.mark.contract
+    @pytest.mark.skip
     def test_has_correct_format(self, wait_for_ready):
         result = get(url=dataservices_report_url)
         assert result.status_code == 200
@@ -17,7 +17,7 @@ class TestDataServicesReport:
         assert "orgPaths" in keys
         assert "organizationCount" in keys
 
-    @pytest.mark.contract
+    @pytest.mark.skip
     def test_timeseries_has_correct_status(self, wait_for_ready):
         result = get(url=dataservices_timeseries_url)
         assert result.status_code == 200

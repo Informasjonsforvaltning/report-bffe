@@ -67,12 +67,17 @@ def build_dataservice_query():
     owl = OWL(NamespaceProperty.TTL)
     rdf = RDF(NamespaceProperty.TTL)
     prefixes = [dct, dcat, foaf, owl]
-    title = ContentKeys.TITLE
     issued = ContentKeys.ISSUED
     catalog_graph_term = SparqlGraphTerm(var="catalog")
     record_graph_term = SparqlGraphTerm(var="record")
     select = SparqlSelect(
-        variable_names=[title, issued, "sameAs", ContentKeys.MEDIATYPE],
+        variable_names=[
+            "record",
+            ContentKeys.PUBLISHER,
+            issued,
+            "sameAs",
+            ContentKeys.MEDIATYPE,
+        ],
         from_graph=FromGraph.DATASERVICE,
     )
 
@@ -104,13 +109,6 @@ def build_dataservice_query():
         close_pattern_with=".",
     )
 
-    service_dct_title = SparqlGraphTerm.build_graph_pattern(
-        subject=SparqlGraphTerm(var=ContentKeys.SERVICE),
-        predicate=SparqlGraphTerm(namespace_property=dct.title),
-        obj=SparqlGraphTerm(var=ContentKeys.TITLE),
-        close_pattern_with=".",
-    )
-
     record_dct_issued = SparqlGraphTerm.build_graph_pattern(
         subject=SparqlGraphTerm(var="record"),
         predicate=SparqlGraphTerm(namespace_property=dct.issued),
@@ -118,18 +116,21 @@ def build_dataservice_query():
         close_pattern_with=".",
     )
 
-    publisher_owl_same_as = SparqlGraphTerm.build_graph_pattern(
-        subject=SparqlGraphTerm(var=ContentKeys.PUBLISHER),
-        predicate=SparqlGraphTerm(namespace_property=owl.sameAs),
-        obj=SparqlGraphTerm(var=ContentKeys.SAME_AS),
-        close_pattern_with=".",
-    )
-
-    service_dcat_mediatype = SparqlGraphTerm.build_graph_pattern(
-        subject=SparqlGraphTerm(var=ContentKeys.SERVICE),
-        predicate=SparqlGraphTerm(namespace_property=dcat.mediaType),
-        obj=SparqlGraphTerm(var=ContentKeys.MEDIATYPE),
-        close_pattern_with=".",
+    optional_graphs = SparqlOptional(
+        graphs=[
+            SparqlGraphTerm.build_graph_pattern(
+                subject=SparqlGraphTerm(var=ContentKeys.PUBLISHER),
+                predicate=SparqlGraphTerm(namespace_property=owl.sameAs),
+                obj=SparqlGraphTerm(var=ContentKeys.SAME_AS),
+                close_pattern_with=".",
+            ),
+            SparqlGraphTerm.build_graph_pattern(
+                subject=SparqlGraphTerm(var=ContentKeys.SERVICE),
+                predicate=SparqlGraphTerm(namespace_property=dcat.mediaType),
+                obj=SparqlGraphTerm(var=ContentKeys.MEDIATYPE),
+                close_pattern_with=".",
+            ),
+        ]
     )
 
     where = SparqlWhere(
@@ -138,11 +139,9 @@ def build_dataservice_query():
             catalog_dct_publisher,
             catalog_dcat_service,
             record_foaf_primary_topic_service,
-            service_dct_title,
             record_dct_issued,
-            publisher_owl_same_as,
-            service_dcat_mediatype,
-        ]
+        ],
+        optional=optional_graphs,
     )
 
     return SparqlBuilder(prefix=prefixes, select=select, where=where).build()
