@@ -7,6 +7,7 @@ from src.elasticsearch.utils import (
     add_org_paths_to_document,
     elasticsearch_ingest,
     get_all_organizations_with_publisher,
+    get_unique_records,
 )
 from src.service_requests import fetch_dataservices, fetch_publishers_from_dataservice
 from src.utils import FetchFromServiceException, ServiceKey
@@ -41,9 +42,34 @@ async def prepare_documents(documents: dict, publishers) -> List[dict]:
     dataservices_with_fdk_portal_paths = await asyncio.gather(
         *[add_org_paths_to_document(rdf_values=entry) for entry in documents]
     )
+
+    unique_record_items = get_unique_records(dataservices_with_fdk_portal_paths)
+
+    for document in documents:
+        if "mediaType" in document:
+            item = next(
+                (
+                    item
+                    for item in unique_record_items
+                    if item["record"]["value"] == document["record"]["value"]
+                ),
+                None,
+            )
+
+            document_value = document["mediaType"]["value"]
+
+            if item.get("mediaType", {}).get("value"):
+                if not isinstance(item["mediaType"]["value"], list):
+                    item["mediaType"]["value"] = [item["mediaType"]["value"]]
+                if document_value not in item["mediaType"]["value"]:
+                    item["mediaType"]["value"].append(document_value)
+            else:
+                item["mediaType"]["value"] = document_value
+                print(item)
+
     return [
         reduce_dataservice(dataservice=dataservice)
-        for dataservice in dataservices_with_fdk_portal_paths
+        for dataservice in unique_record_items
     ]
 
 
