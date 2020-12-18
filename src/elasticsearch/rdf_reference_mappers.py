@@ -27,7 +27,8 @@ class CatalogRecords:
 class CatalogReference:
     def __init__(self, catalog_entry: tuple, catalog_records: List[CatalogRecords]):
         catalog_entry_content = catalog_entry[1]
-        self.name = catalog_entry_content[JsonRDF.dct.title][0][ContentKeys.VALUE]
+        if JsonRDF.dct.title in catalog_entry_content:
+            self.name = catalog_entry_content[JsonRDF.dct.title][0][ContentKeys.VALUE]
         self.uri = catalog_entry[0]
         self.record_refs = [
             record.uri
@@ -135,7 +136,7 @@ class RdfReferenceMapper:
                 catalog_idx = self.catalogs.index(dataset_node_uri)
                 catalog = self.catalogs[catalog_idx]
                 return catalog.name
-            except ValueError:
+            except (ValueError, AttributeError):
                 return None
 
     def __get_catalog_name_by_dct_part_of(self, record_part_of_uri: str):
@@ -144,7 +145,7 @@ class RdfReferenceMapper:
                 catalog_idx = self.catalogs.index(record_part_of_uri)
                 catalog = self.catalogs[catalog_idx]
                 return catalog.name
-            except ValueError:
+            except (ValueError, AttributeError):
                 return None
         else:
             return None
