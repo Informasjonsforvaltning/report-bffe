@@ -207,21 +207,13 @@ async def get_informationmodels_statistic():
                 url: str = (
                     f"{service_urls.get(ServiceKey.INFO_MODELS)}/informationmodels"
                 )
-                response = await session.get(
-                    url=url,
-                    params={
-                        "returnfields": "publisher,title,harvest",
-                        "size": "1000",
-                        "page": page_number,
-                    },
-                    timeout=5,
-                )
+
+                response = await session.post(url=url, json={"page": page_number})
                 page_count = response.json()[ContentKeys.PAGE_OBJECT][
                     ContentKeys.TOTAL_PAGES
                 ]
-                informationmodels.extend(
-                    response.json()[ContentKeys.EMBEDDED][ContentKeys.INFO_MODELS]
-                )
+                informationmodels.extend(response.json()[ContentKeys.HITS])
+
                 if page_count - 1 == page_number:
                     break
                 page_number += 1

@@ -41,6 +41,7 @@ class ContentKeys:
     TITLE = "title"
     ISSUED = "issued"
     MEDIATYPE = "mediaType"
+    HITS = "hits"
 
 
 class OrgCatalogKeys:
