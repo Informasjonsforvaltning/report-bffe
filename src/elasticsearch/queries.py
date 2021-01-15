@@ -52,6 +52,13 @@ DATASERVICE_AGGREGATION_FIELDS = [
     EsMappings.MEDIATYPE,
 ]
 
+INFORMATION_MODEL_AGGREGATION_FIELDS = [
+    EsMappings.ORG_PATH,
+    EsMappings.ORGANIZATION_ID,
+    EsMappings.TITLE,
+    EsMappings.ISSUED,
+]
+
 CATALOG_RECORD_AGGREGATION_FIELDS = [
     JsonRDF.dct.issued,
     JsonRDF.dct.isPartOf,
