@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+from src.elasticsearch.queries import INFORMATION_MODEL_AGGREGATION_FIELDS
 from src.elasticsearch.utils import EsMappings, elasticsearch_ingest
 from src.organization_parser import OrganizationReferencesObject
 from src.service_requests import get_informationmodels_statistic
@@ -39,4 +40,13 @@ def add_es_aggregation_fields(informationmodel) -> dict:
         ] = OrganizationReferencesObject.resolve_id(
             informationmodel[EsMappings.PUBLISHER][EsMappings.URI]
         )
-    return informationmodel
+    return reduce_informationmodel(informationmodel=informationmodel)
+
+
+def reduce_informationmodel(informationmodel: dict):
+    reduced_dict = informationmodel.copy()
+    for items in informationmodel.items():
+        key = items[0]
+        if key not in INFORMATION_MODEL_AGGREGATION_FIELDS:
+            reduced_dict.pop(key)
+    return reduced_dict
