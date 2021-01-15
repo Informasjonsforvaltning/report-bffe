@@ -153,7 +153,25 @@ class Update:
         return datetime.datetime.now(tz=local_tz)
 
 
-in_progress_query = {"query": {"term": {"status.keyword": "in progress"}}}
+in_progress_query = {
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "range": {
+                        "end_time": {
+                            "time_zone": "+01:00",
+                            "gte": f"now-{update_interval}s/s",
+                            "lte": "now",
+                        }
+                    }
+                },
+                {"term": {"status.keyword": "in progress"}},
+            ]
+        }
+    }
+}
+
 updates_last_x_minutes_query = {
     "query": {
         "bool": {
