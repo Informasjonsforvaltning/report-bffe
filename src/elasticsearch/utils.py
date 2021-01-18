@@ -30,8 +30,11 @@ async def get_all_organizations_with_publisher(publishers):
 async def add_org_and_los_paths_to_document(
     json_rdf_values: dict, los_themes: List[dict]
 ) -> dict:
-    uri = json_rdf_values[JsonRDF.dct.publisher][0][ContentKeys.VALUE]
-
+    uri = (
+        json_rdf_values[JsonRDF.dct.publisher][0][ContentKeys.VALUE]
+        if JsonRDF.dct.publisher in json_rdf_values
+        else None
+    )
     try:
         ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
         referenced_organization = await get_organization(ref_object)
