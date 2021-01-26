@@ -26,6 +26,7 @@ class EsMappings:
     TITLE = ("title",)
     ISSUED = "issued"
     MEDIATYPE = "mediaType"
+    HARVEST = "harvest"
 
 
 DATASET_AGGREGATION_FIELDS = [
@@ -57,6 +58,7 @@ INFORMATION_MODEL_AGGREGATION_FIELDS = [
     EsMappings.ORGANIZATION_ID,
     EsMappings.TITLE,
     EsMappings.ISSUED,
+    EsMappings.HARVEST,
 ]
 
 CATALOG_RECORD_AGGREGATION_FIELDS = [
