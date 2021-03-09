@@ -119,7 +119,10 @@ class OrganizationReferencesObject:
     def is_national_registry_uri(uri):
         if uri is None:
             return False
-        prefix = uri.split(":")[1]
+        split_uri = uri.split(":")
+        if len(split_uri) < 2:
+            return False
+        prefix = split_uri[1]
         return NATIONAL_REGISTRY_PATTERN in prefix
 
     @staticmethod
