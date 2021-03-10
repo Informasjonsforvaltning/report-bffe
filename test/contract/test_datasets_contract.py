@@ -11,6 +11,7 @@ dataset_time_series_url = f"{service_url}/timeseries/datasets"
 
 class TestDatasetsReport:
     @pytest.mark.contract
+    @pytest.mark.skip
     def test_report_has_correct_format(self, wait_for_ready):
         result = get(url=dataset_report_url)
         assert result.status_code == 200
@@ -41,6 +42,7 @@ class TestDatasetsReport:
         assert len(content.get("formats")) > 0
 
     @pytest.mark.contract
+    @pytest.mark.skip
     def test_report_filter_on_org_path(self, wait_for_ready):
         result = get(url=f"{dataset_report_url}?orgPath=/STAT/972417858/971040238")
         assert result.status_code == 200
@@ -52,6 +54,7 @@ class TestDatasetsReport:
                 assert orgpath_part in exp_orgpath_parts
 
     @pytest.mark.contract
+    @pytest.mark.skip
     def test_organization_id_filter(self, wait_for_ready):
         test_org_id = "950037687"
         exp_org_path = ["/PRIVAT/950037687", "/PRIVAT"]
@@ -63,6 +66,7 @@ class TestDatasetsReport:
             assert orgpath["key"] in exp_org_path
 
     @pytest.mark.contract
+    @pytest.mark.skip
     def test_theme_profile_los_path_filter(self, wait_for_ready):
         accepted_paths = [
             "trafikk-og-transport",
@@ -80,6 +84,7 @@ class TestDatasetsReport:
         assert result.json().get("opendata") == 20
 
     @pytest.mark.contract
+    @pytest.mark.skip
     def test_time_series_has_correct_format(self, wait_for_ready):
         result = get(url=dataset_time_series_url)
         assert result.status_code == 200
