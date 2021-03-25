@@ -119,12 +119,16 @@ class ParsedDataPoint:
         )
 
     def __eq__(self, other: "ParsedDataPoint"):
-        return self.month == other.month and self.year == other.year
+        return other is not None and self.month == other.month and self.year == other.year
 
     @staticmethod
     def from_date_time(date: datetime, last_data_point: "ParsedDataPoint"):
+        last_month_count = 0
+        if last_data_point is not None:
+            last_month_count = last_data_point.y_axis
+
         return ParsedDataPoint(
-            month=date.month, year=date.year, last_month_count=last_data_point.y_axis
+            month=date.month, year=date.year, last_month_count=last_month_count
         )
 
 
