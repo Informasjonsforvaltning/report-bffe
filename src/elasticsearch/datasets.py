@@ -97,13 +97,14 @@ def merge_dataset_information(dataset, reference_mapper) -> dict:
     dataset_record = reference_mapper.get_catalog_record_for_dataset(
         dataset[EsMappings.NODE_URI]
     )
-    dataset[EsMappings.RECORD] = dataset_record
-    dataset[EsMappings.PART_OF_CATALOG] = reference_mapper.get_dataset_catalog_name(
-        record_part_of_uri=dataset_record.get(JsonRDF.dct.isPartOf)[0][
-            ContentKeys.VALUE
-        ],
-        dataset_node_uri=dataset[EsMappings.NODE_URI],
-    )
+    if dataset_record is not None:
+        dataset[EsMappings.RECORD] = dataset_record
+        dataset[EsMappings.PART_OF_CATALOG] = reference_mapper.get_dataset_catalog_name(
+            record_part_of_uri=dataset_record.get(JsonRDF.dct.isPartOf)[0][
+                ContentKeys.VALUE
+            ],
+            dataset_node_uri=dataset[EsMappings.NODE_URI],
+        )
     if dataset.get(JsonRDF.dcat.distribution):
         dataset[
             JsonRDF.dcat.distribution
