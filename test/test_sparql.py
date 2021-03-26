@@ -1,5 +1,6 @@
-import pytest
 import urllib.parse
+
+import pytest
 
 from src.sparql import (
     get_dataservice_publisher_query,
@@ -40,13 +41,15 @@ def test_dataservice_query():
         "%0A++++++++++++%3Frecord+foaf%3AprimaryTopic+%3Fservice+."
         "%0A++++++++++++%3Frecord+dct%3Aissued+%3Fissued+.%0A++++++++++++"
         "OPTIONAL+%7B%7B%0A++++++++++++++++%3Fpublisher+owl%3AsameAs+%3FsameAs+."
-        "%0A++++++++++++++++%3Fservice+dcat%3AmediaType+%3FmediaType%0A++++++++++++%7D%7D%0A++++++++%7D%7D"
+        "%0A++++++++++++++++%3Fservice+dcat%3AmediaType+%3FmediaType+.%0A++++++++++++%7D%7D%0A++++++++%7D%7D"
     )
 
 
 @pytest.mark.unit
 def test_dataservice_publisher_query():
-    dataservice_publisher_query = urllib.parse.quote_plus(get_dataservice_publisher_query().strip())
+    dataservice_publisher_query = urllib.parse.quote_plus(
+        get_dataservice_publisher_query().strip()
+    )
     assert dataservice_publisher_query == (
         "PREFIX+dct%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0A++++++++"
         "PREFIX+dcat%3A+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Fdcat%23%3E%0A++++++++"
