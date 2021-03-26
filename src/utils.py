@@ -78,6 +78,7 @@ class ServiceKey:
 
 
 NATIONAL_REGISTRY_PATTERN = "data.brreg.no/enhetsregisteret"
+ORGANIZATION_CATALOG_PATTERN = "fellesdatakatalog.digdir.no/organizations"
 
 
 class ParsedDataPoint:
@@ -119,7 +120,9 @@ class ParsedDataPoint:
         )
 
     def __eq__(self, other: "ParsedDataPoint"):
-        return other is not None and self.month == other.month and self.year == other.year
+        return (
+            other is not None and self.month == other.month and self.year == other.year
+        )
 
     @staticmethod
     def from_date_time(date: datetime, last_data_point: "ParsedDataPoint"):

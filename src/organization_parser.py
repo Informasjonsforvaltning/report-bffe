@@ -1,6 +1,11 @@
 from typing import List
 
-from src.utils import NATIONAL_REGISTRY_PATTERN, ContentKeys, OrgCatalogKeys
+from src.utils import (
+    NATIONAL_REGISTRY_PATTERN,
+    ORGANIZATION_CATALOG_PATTERN,
+    ContentKeys,
+    OrgCatalogKeys,
+)
 
 
 class OrganizationReferencesObject:
@@ -123,7 +128,10 @@ class OrganizationReferencesObject:
         if len(split_uri) < 2:
             return False
         prefix = split_uri[1]
-        return NATIONAL_REGISTRY_PATTERN in prefix
+        return (
+            NATIONAL_REGISTRY_PATTERN in prefix
+            or ORGANIZATION_CATALOG_PATTERN in prefix
+        )
 
     @staticmethod
     def resolve_id(uri: str):
