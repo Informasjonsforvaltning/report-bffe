@@ -2,7 +2,7 @@
   "id" : "13527471-2772-4cbc-abc3-72b80022bcd4",
   "name" : "sparql",
   "request" : {
-    "url" : "/sparql?query=PREFIX%20dct:%20%3Chttp://purl.org/dc/terms/%3E%20PREFIX%20dcat:%20%3Chttp://www.w3.org/ns/dcat%23%3E%20PREFIX%20foaf:%20%3Chttp://xmlns.com/foaf/0.1/%3E%20PREFIX%20owl:%20%3Chttp://www.w3.org/2002/07/owl%23%3E%20SELECT%20?publisher%20?sameAs%20FROM%20%3Chttps://dataservices.fellesdatakatalog.digdir.no%3E%20WHERE%20%7B%20?publisher%20a%20foaf:Agent%20.%20OPTIONAL%20%7B%20?publisher%20owl:sameAs%20?sameAs%20.%20%7D%20%20%20%7D%20GROUP%20BY%20?publisher%20?sameAs%20%20",
+    "url" : "/sparql?query=%0A++++++++PREFIX+dct%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0A++++++++PREFIX+dcat%3A+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Fdcat%23%3E%0A++++++++PREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0A++++++++SELECT+DISTINCT+%3Fpublisher+%3FsameAs%0A++++++++FROM+%3Chttps%3A%2F%2Fdataservices.fellesdatakatalog.digdir.no%3E%0A++++++++WHERE+%7B%7B%0A++++++++++++%3Fsubject+dct%3Apublisher+%3Fpublisher+.%0A++++++++++++OPTIONAL+%7B%7B%0A++++++++++++++++%3Fpublisher+owl%3AsameAs+%3FsameAs+.%0A++++++++++++%7D%7D%0A++++++++%7D%7D%0A++++",
     "method" : "GET"
   },
   "response" : {
