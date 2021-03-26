@@ -235,13 +235,15 @@ class TimeSeriesResponse:
             self.last_data_point = parsed_entry
 
     def add_months_from_last_data_point_to_now(self):
-        now_data_point = ParsedDataPoint.from_date_time(
-            datetime.now(), self.last_data_point
-        )
-        while self.last_data_point != now_data_point:
-            next_month = self.last_data_point.get_next_month()
-            self.time_series.append(next_month.response_dict())
-            self.last_data_point = next_month
+        if self.last_data_point is not None:
+            now_data_point = ParsedDataPoint.from_date_time(
+                datetime.now(), self.last_data_point
+            )
+
+            while self.last_data_point != now_data_point:
+                next_month = self.last_data_point.get_next_month()
+                self.time_series.append(next_month.response_dict())
+                self.last_data_point = next_month
 
     def json(self) -> List[dict]:
         return self.time_series
