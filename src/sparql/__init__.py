@@ -32,7 +32,7 @@ def get_dataservice_query():
             ?record dct:issued ?issued .
             OPTIONAL {{
                 ?publisher owl:sameAs ?sameAs .
-                ?service dcat:mediaType ?mediaType
+                ?service dcat:mediaType ?mediaType .
             }}
         }}
     """
