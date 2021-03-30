@@ -170,7 +170,7 @@ async def fetch_media_types_from_reference_data():
 
 
 async def fetch_catalog_from_dataset_harvester() -> dict:
-    url = f"{service_urls.get(ServiceKey.DATA_SETS)}/catalogs"
+    url = f"{service_urls.get(ServiceKey.DATA_SETS)}/catalogs?catalogrecords=true"
     async with AsyncClient() as session:
         try:
             response = await session.get(
