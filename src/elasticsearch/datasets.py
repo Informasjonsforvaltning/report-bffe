@@ -108,7 +108,9 @@ def merge_dataset_information(dataset, reference_mapper) -> dict:
     if dataset.get(JsonRDF.dcat.distribution):
         dataset[
             JsonRDF.dcat.distribution
-        ] = reference_mapper.get_distributions_in_entry(entry=dataset)
+        ] = reference_mapper.get_distributions_in_entry(
+            entry=dataset, nodeUri=dataset[EsMappings.NODE_URI]
+        )
         dataset[EsMappings.OPEN_LICENSE] = reference_mapper.has_open_license(
             dcat_distributions=dataset[JsonRDF.dcat.distribution]
         )

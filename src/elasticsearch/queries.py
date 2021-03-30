@@ -35,6 +35,7 @@ DATASET_AGGREGATION_FIELDS = [
     EsMappings.LOS,
     JsonRDF.dct.accessRights,
     JsonRDF.dct.provenance,
+    JsonRDF.dct.title,
     JsonRDF.dct.subject,
     JsonRDF.dcat.distribution,
     JsonRDF.dcat.theme,
@@ -219,8 +220,7 @@ def open_data_aggregation() -> dict:
                         "term": {
                             AggregationQuery.es_keyword_key(
                                 JsonRDF.dct.accessRights
-                            ): "http://publications.europa.eu/resource/authority/access"
-                            "-right/PUBLIC"
+                            ): "http://publications.europa.eu/resource/authority/access-right/PUBLIC"
                         }
                     },
                     {"term": {EsMappings.OPEN_LICENSE: "true"}},
