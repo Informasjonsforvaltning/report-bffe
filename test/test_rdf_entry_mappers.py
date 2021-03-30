@@ -398,7 +398,7 @@ def test_get_distributions_in_entry(empty_open_licence_b_nodes_patch):
 
     result = mapper.get_distributions_in_entry(
         entry=datasets[0],
-        nodeUri="https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd",
+        node_uri="https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd",
     )
 
     assert result is not None
@@ -432,7 +432,7 @@ def test_get_distributions_in_self_referencing_entry(empty_open_licence_b_nodes_
 
     result = mapper.get_distributions_in_entry(
         entry=datasets[0],
-        nodeUri="https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1",
+        node_uri="https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1",
     )
 
     assert result is not None
