@@ -1,10 +1,12 @@
 import pytest
 
+from src.elasticsearch.queries import EsMappings
 from src.elasticsearch.rdf_reference_mappers import (
     CatalogRecords,
     CatalogReference,
     RdfReferenceMapper,
 )
+from src.elasticsearch.utils import add_key_as_node_uri
 from src.rdf_namespaces import JsonRDF
 from src.referenced_data_store import OpenLicense
 from src.utils import ContentKeys
@@ -370,6 +372,77 @@ def test_get_record_for_dataset(empty_open_licence_b_nodes_patch):
     assert exp_no_result is None
 
 
+@pytest.mark.unit
+def test_get_distributions_in_entry(empty_open_licence_b_nodes_patch):
+
+    documents_list = list(mock_datasets + mock_distributions + mock_licence_documents)
+
+    dicts_with_mapped_node_uri = [
+        add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list
+    ]
+    datasets = [
+        entry
+        for entry in dicts_with_mapped_node_uri
+        if JsonRDF.rdf_type_equals(JsonRDF.dcat.type_dataset, entry)
+        and (
+            entry[EsMappings.NODE_URI]
+            == "https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd"
+        )
+    ]
+
+    mapper = RdfReferenceMapper(
+        document_list=documents_list,
+        open_licenses=mock_open_licenses,
+        media_types=[],
+    )
+
+    result = mapper.get_distributions_in_entry(
+        entry=datasets[0],
+        nodeUri="https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd",
+    )
+
+    assert result is not None
+    assert len(result) == 1
+    assert result[0][JsonRDF.dct.title][0][ContentKeys.VALUE] == "Geonorge nedlastning"
+
+
+@pytest.mark.unit
+def test_get_distributions_in_self_referencing_entry(empty_open_licence_b_nodes_patch):
+
+    documents_list = list(mock_datasets + mock_distributions + mock_licence_documents)
+
+    dicts_with_mapped_node_uri = [
+        add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list
+    ]
+    datasets = [
+        entry
+        for entry in dicts_with_mapped_node_uri
+        if JsonRDF.rdf_type_equals(JsonRDF.dcat.type_dataset, entry)
+        and (
+            entry[EsMappings.NODE_URI]
+            == "https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1"
+        )
+    ]
+
+    mapper = RdfReferenceMapper(
+        document_list=documents_list,
+        open_licenses=mock_open_licenses,
+        media_types=[],
+    )
+
+    result = mapper.get_distributions_in_entry(
+        entry=datasets[0],
+        nodeUri="https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1",
+    )
+
+    assert result is not None
+    assert len(result) == 1
+    assert (
+        result[0][JsonRDF.dct.title][0][ContentKeys.VALUE]
+        == "Antall deployments av applikasjoner i NAV"
+    )
+
+
 @pytest.fixture
 def empty_open_licence_b_nodes_patch(mocker):
     mocker.patch(
@@ -634,7 +707,7 @@ mock_datasets = [
         },
     ),
     (
-        "https://kartkatalog.geonorge.no/Metadata/uuid/ce353b52-910e-404b-8a61-f7805b021bc7",
+        "https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd",
         {
             "http://purl.org/dc/terms/spatial": [
                 {"type": "bnode", "value": "_:c6084e23f5ff29b7a1880ae3d81a0750"}
@@ -714,7 +787,7 @@ mock_datasets = [
             "http://www.w3.org/ns/dcat#distribution": [
                 {
                     "type": "uri",
-                    "value": "https://kartkatalog.geonorge.no/Metadata/uuid/ce353b52-910e-404b-8a61-f7805b021bc7/Microsoft+Excel",
+                    "value": "https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd/FGDB",
                 }
             ],
             "http://purl.org/dc/terms/identifier": [
@@ -807,6 +880,89 @@ mock_datasets = [
                 {
                     "type": "literal",
                     "value": "http://vegvesen.no/datasett/id_ikke_permanent/kjoretoyopplysninger",
+                }
+            ],
+        },
+    ),
+    (
+        "https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1",
+        {
+            "http://purl.org/dc/terms/spatial": [
+                {"type": "uri", "value": "http://sws.geonames.org/3144096/"}
+            ],
+            "http://purl.org/dc/terms/language": [
+                {
+                    "type": "uri",
+                    "value": "http://publications.europa.eu/resource/authority/language/NOR",
+                }
+            ],
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                {"type": "uri", "value": "http://www.w3.org/ns/dcat#Dataset"},
+                {"type": "uri", "value": "http://www.w3.org/ns/dcat#Distribution"},
+            ],
+            "http://purl.org/dc/terms/temporal": [
+                {"type": "bnode", "value": "_:593b4525b4689655adcf882498990632"}
+            ],
+            "http://purl.org/dc/terms/format": [
+                {"type": "literal", "value": "text/html"}
+            ],
+            "http://www.w3.org/ns/dcat#accessURL": [
+                {
+                    "type": "uri",
+                    "value": "https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1",
+                }
+            ],
+            "http://purl.org/dc/terms/description": [
+                {
+                    "type": "literal",
+                    "value": 'Nedbryting av antall deploys av applikasjoner til prod i NAV siden 2009. \n                                        Med "deploy" menes her endringer i en applikasjon som er satt i produksjon.\n                                        Med "applikasjon" menes her programvare som er utviklet i eller for NAV av utviklere som jobber i eller for NAV. Dette kan være både interne verktøy og tjenester som inngår i selvbetjeningsløsningene på nav.no.\n                                        Merk at datasettet kun inkluderer deployments til produksjon, altså at deployments til dev- og testmiljøer er ekskludert. Merk også at deploys av plattforminterne applikasjoner som kun tester om deploymekanismene fungerer er vasket bort da disse ville utgjort et betydelig antall deploys, men representerer "fiktive" deployhendelser.',
+                    "lang": "nb",
+                }
+            ],
+            "http://purl.org/dc/terms/publisher": [
+                {
+                    "type": "uri",
+                    "value": "https://data.brreg.no/enhetsregisteret/api/enheter/889640782",
+                }
+            ],
+            "http://purl.org/dc/terms/creator": [
+                {
+                    "type": "uri",
+                    "value": "https://data.brreg.no/enhetsregisteret/api/enheter/889640782",
+                }
+            ],
+            "http://purl.org/dc/terms/accessRights": [
+                {
+                    "type": "uri",
+                    "value": "http://publications.europa.eu/resource/authority/access-right/PUBLIC",
+                }
+            ],
+            "http://www.w3.org/ns/dcat#contactPoint": [
+                {"type": "bnode", "value": "_:bfa28623f74e03cf5af301d44b9de927"}
+            ],
+            "http://www.w3.org/ns/dcat#landingPage": [
+                {
+                    "type": "uri",
+                    "value": "https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1",
+                }
+            ],
+            "http://purl.org/dc/terms/license": [
+                {
+                    "type": "uri",
+                    "value": "http://creativecommons.org/licenses/by/4.0/deed.no",
+                }
+            ],
+            "http://www.w3.org/ns/dcat#distribution": [
+                {
+                    "type": "uri",
+                    "value": "https://data.nav.no/datapakke/e1556a04a484bbe06dda2f6b874f3dc1",
+                }
+            ],
+            "http://purl.org/dc/terms/title": [
+                {
+                    "type": "literal",
+                    "value": "Antall deployments av applikasjoner i NAV",
+                    "lang": "nb",
                 }
             ],
         },

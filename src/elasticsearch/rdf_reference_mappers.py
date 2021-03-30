@@ -98,7 +98,7 @@ class RdfReferenceMapper:
                 continue
         return False
 
-    def get_distributions_in_entry(self, entry: dict):
+    def get_distributions_in_entry(self, entry: dict, node_uri: str):
         distribution_node_refs = [
             entry.get("value") for entry in entry[JsonRDF.dcat.distribution]
         ]
@@ -107,6 +107,10 @@ class RdfReferenceMapper:
             for node in self.distributions
             if JsonRDF.node_uri_in(node, distribution_node_refs)
         ]
+
+        if JsonRDF.node_uri_in({node_uri: node_uri}, distribution_node_refs):
+            ref_distribution_values.append(entry)
+
         return ref_distribution_values
 
     def get_open_license_nodes_from_license_docs(self) -> List[str]:
