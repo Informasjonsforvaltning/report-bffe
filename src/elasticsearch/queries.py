@@ -232,7 +232,7 @@ def open_data_aggregation() -> dict:
 
 def get_last_x_days_filter(key: str, days: int):
     range_str = f"now-{days}d/d"
-    return {"filter": {"range": {key: {"gte": range_str, "lt": "now/d"}}}}
+    return {"filter": {"range": {key: {"gte": range_str, "lt": "now+1d/d"}}}}
 
 
 def get_los_path_filter(themes_str: str = None, profile_themes_list=None):
