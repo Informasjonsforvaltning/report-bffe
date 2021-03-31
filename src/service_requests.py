@@ -193,13 +193,12 @@ async def fetch_catalog_from_dataset_harvester() -> dict:
 
 async def fetch_publishers_from_dataset_harvester() -> dict:
     publisher_query = urllib.parse.quote_plus(get_dataset_publisher_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql"
+    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
                 url=url,
                 headers=default_headers,
-                params={"query": publisher_query},
                 timeout=60)
             response.raise_for_status()
             return response.json()
@@ -276,13 +275,12 @@ async def fetch_all_concepts():
 # dataservices
 async def fetch_dataservices() -> dict:
     dataservice_query = urllib.parse.quote_plus(get_dataservice_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql"
+    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={dataservice_query}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
                 url=url,
                 headers=default_headers,
-                params={"query": dataservice_query},
                 timeout=60)
             response.raise_for_status()
             res_json = response.json()
@@ -298,13 +296,12 @@ async def fetch_dataservices() -> dict:
 
 async def fetch_publishers_from_dataservice() -> dict:
     publisher_query = urllib.parse.quote_plus(get_dataservice_publisher_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql"
+    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
                 url=url,
                 headers=default_headers,
-                params={"query": publisher_query},
                 timeout=60)
             response.raise_for_status()
             return response.json()
