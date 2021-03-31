@@ -441,6 +441,7 @@ def test_get_distributions_in_self_referencing_entry(empty_open_licence_b_nodes_
         result[0][JsonRDF.dct.title][0][ContentKeys.VALUE]
         == "Antall deployments av applikasjoner i NAV"
     )
+    assert hasattr(result[0], JsonRDF.dcat.distribution) is False
 
 
 @pytest.fixture
