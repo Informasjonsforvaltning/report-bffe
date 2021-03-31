@@ -109,7 +109,7 @@ class RdfReferenceMapper:
         ]
 
         if JsonRDF.node_uri_in({node_uri: node_uri}, distribution_node_refs):
-            ref_distribution_values.append(entry)
+            ref_distribution_values.append(remove_nested_distributions(entry))
 
         return ref_distribution_values
 
@@ -187,3 +187,9 @@ def reduce_record(record: dict):
         if key not in CATALOG_RECORD_AGGREGATION_FIELDS:
             reduced_record.pop(key)
     return reduced_record
+
+
+def remove_nested_distributions(distribution: dict):
+    reduced_dict = distribution.copy()
+    reduced_dict.pop(JsonRDF.dcat.distribution)
+    return reduced_dict
