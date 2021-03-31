@@ -81,7 +81,7 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
             response = await session.get(
                 url=url,
                 headers=default_headers,
-                params={"name": name.upper()}
+                params={"name": name.upper()},
                 timeout=5)
             response.raise_for_status()
             return response.json()[0]
@@ -180,7 +180,7 @@ async def fetch_catalog_from_dataset_harvester() -> dict:
             response = await session.get(
                 url=url,
                 headers={"Accept": "application/rdf+json"},
-                params={"catalogrecords": "true"}
+                params={"catalogrecords": "true"},
                 timeout=60
             )
             response.raise_for_status()
@@ -199,7 +199,7 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
             response = await session.get(
                 url=url,
                 headers=default_headers,
-                params={"query": publisher_query}
+                params={"query": publisher_query},
                 timeout=60)
             response.raise_for_status()
             return response.json()
@@ -282,7 +282,7 @@ async def fetch_dataservices() -> dict:
             response = await session.get(
                 url=url,
                 headers=default_headers,
-                params={"query": dataservice_query}
+                params={"query": dataservice_query},
                 timeout=60)
             response.raise_for_status()
             res_json = response.json()
@@ -304,7 +304,7 @@ async def fetch_publishers_from_dataservice() -> dict:
             response = await session.get(
                 url=url,
                 headers=default_headers,
-                params={"query": publisher_query}
+                params={"query": publisher_query},
                 timeout=60)
             response.raise_for_status()
             return response.json()
