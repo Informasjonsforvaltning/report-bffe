@@ -75,10 +75,14 @@ async def fetch_organization_from_catalog(national_reg_id: str, name: str) -> di
 async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
     if name is None:
         raise NotInNationalRegistryException("No name")
-    url: str = f"{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations?name={name.upper()}"
+    url: str = f"{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=5)
+            response = await session.get(
+                url=url,
+                headers=default_headers,
+                params={"name": name.upper()}
+                timeout=5)
             response.raise_for_status()
             return response.json()[0]
         except (ConnectError, ConnectTimeout):
@@ -170,11 +174,14 @@ async def fetch_media_types_from_reference_data():
 
 
 async def fetch_catalog_from_dataset_harvester() -> dict:
-    url = f"{service_urls.get(ServiceKey.DATA_SETS)}/catalogs?catalogrecords=true"
+    url = f"{service_urls.get(ServiceKey.DATA_SETS)}/catalogs"
     async with AsyncClient() as session:
         try:
             response = await session.get(
-                url=url, headers={"Accept": "application/rdf+json"}, timeout=60
+                url=url,
+                headers={"Accept": "application/rdf+json"},
+                params={"catalogrecords": "true"}
+                timeout=60
             )
             response.raise_for_status()
             return response.json()
@@ -186,10 +193,14 @@ async def fetch_catalog_from_dataset_harvester() -> dict:
 
 async def fetch_publishers_from_dataset_harvester() -> dict:
     publisher_query = urllib.parse.quote_plus(get_dataset_publisher_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}"
+    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url,
+                headers=default_headers,
+                params={"query": publisher_query}
+                timeout=60)
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -265,10 +276,14 @@ async def fetch_all_concepts():
 # dataservices
 async def fetch_dataservices() -> dict:
     dataservice_query = urllib.parse.quote_plus(get_dataservice_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={dataservice_query}"
+    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url,
+                headers=default_headers,
+                params={"query": dataservice_query}
+                timeout=60)
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -283,10 +298,14 @@ async def fetch_dataservices() -> dict:
 
 async def fetch_publishers_from_dataservice() -> dict:
     publisher_query = urllib.parse.quote_plus(get_dataservice_publisher_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}"
+    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url,
+                headers=default_headers,
+                params={"query": publisher_query}
+                timeout=60)
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
