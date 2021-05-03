@@ -24,6 +24,7 @@ httpx = "*"
 elasticsearch = "*"
 apscheduler = "*"
 python-dateutil = "*"
+mypy-pythonjsonlogger = "*"
 
 [requires]
 python_version = "3.8"
