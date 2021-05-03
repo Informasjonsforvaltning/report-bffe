@@ -28,6 +28,7 @@ service_urls = {
     ServiceKey.REFERENCE_DATA: os.getenv("REFERENCE_DATA_URL")
     or "http://localhost:8080/reference-data",
     ServiceKey.FDK_BASE: os.getenv("FDK_BASE") or "http://localhost:8080",
+    ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8080",
 }
 
 default_headers = {"accept": "application/json"}
