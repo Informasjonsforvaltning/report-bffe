@@ -4,7 +4,7 @@ from os import environ as env
 import sys
 from dotenv import load_dotenv
 from gunicorn import glogging
-from python-json-logger import jsonlogger
+from pythonjsonlogger import jsonlogger
 from typing import Any
 
 load_dotenv()
