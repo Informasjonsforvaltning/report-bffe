@@ -28,6 +28,7 @@ service_urls = {
     ServiceKey.REFERENCE_DATA: os.getenv("REFERENCE_DATA_URL")
     or "http://localhost:8080/reference-data",
     ServiceKey.FDK_BASE: os.getenv("FDK_BASE") or "http://localhost:8080",
+    ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8080",
 }
 
 default_headers = {"accept": "application/json"}
@@ -193,7 +194,7 @@ async def fetch_catalog_from_dataset_harvester() -> dict:
 
 async def fetch_publishers_from_dataset_harvester() -> dict:
     publisher_query = urllib.parse.quote_plus(get_dataset_publisher_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}"
+    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
@@ -275,7 +276,7 @@ async def fetch_all_concepts():
 # dataservices
 async def fetch_dataservices() -> dict:
     dataservice_query = urllib.parse.quote_plus(get_dataservice_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={dataservice_query}"
+    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={dataservice_query}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
@@ -296,7 +297,7 @@ async def fetch_dataservices() -> dict:
 
 async def fetch_publishers_from_dataservice() -> dict:
     publisher_query = urllib.parse.quote_plus(get_dataservice_publisher_query())
-    url = f"{service_urls.get(ServiceKey.FDK_BASE)}/sparql?query={publisher_query}"
+    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
