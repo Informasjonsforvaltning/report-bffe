@@ -5,6 +5,7 @@ import sys
 from dotenv import load_dotenv
 from gunicorn import glogging
 from python_json_logger import jsonlogger
+from typing import Any
 
 load_dotenv()
 
@@ -27,7 +28,7 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
     """json log formatter."""
 
     def __init__(
-            self, fmt="%(levelname) %(message)", style="%", *args, **kwargs  # noqa
+        self, fmt="%(levelname) %(message)", style="%", *args, **kwargs  # noqa
     ):  # noqa
         jsonlogger.JsonFormatter.__init__(self, fmt=fmt, *args, **kwargs)
 
@@ -37,8 +38,12 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
         return super(StackdriverJsonFormatter, self).process_log_record(log_record)
 
 
+# Override the logger to remove healthcheck (ping) from the access log and format logs as json
 class CustomGunicornLogger(glogging.Logger):
-    def setup(self, cfg):
+    """Custom Gunicorn Logger class."""
+
+    def setup(self, cfg: Any) -> None:
+        """Set up function."""
         super().setup(cfg)
 
         access_logger = logging.getLogger("gunicorn.access")
@@ -68,12 +73,18 @@ class CustomGunicornLogger(glogging.Logger):
 
 
 class PingFilter(logging.Filter):
-    def filter(self, record):
+    """Custom Ping Filter class."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Filter function."""
         return "GET /ping" not in record.getMessage()
 
 
 class ReadyFilter(logging.Filter):
-    def filter(self, record):
+    """Custom Ready Filter class."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Filter function."""
         return "GET /ready" not in record.getMessage()
 
 
