@@ -169,13 +169,16 @@ class RdfReferenceMapper:
             if formats is not None
         ]
         formats = []
-        for str_value in format_str_values:
-            try:
-                media_type_idx = self.media_types.index(str_value)
-                media_type_name = self.media_types[media_type_idx].name
-                formats.append(media_type_name)
-            except ValueError:
-                continue
+        for fmt in format_str_values:
+            ref_code = media_types.get(fmt.lower())
+            if ref_code is None:
+                ref_code = media_types.get("text/" + fmt.lower())
+            if ref_code is None:
+                ref_code = media_types.get("application/" + fmt.lower())
+            if ref_code is None:
+                ref_code = media_types.get("application/vnd." + fmt.lower())
+            if ref_code is not None:
+               formats.append(ref_code.name)
 
         return formats
 
