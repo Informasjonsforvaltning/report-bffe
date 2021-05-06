@@ -170,13 +170,13 @@ class RdfReferenceMapper:
         ]
         formats = []
         for fmt in format_str_values:
-            ref_code = self.media_types.get(fmt.lower())
+            ref_code = next(filter(lambda mt: mt.code == fmt.lower(), self.media_types), None)
             if ref_code is None:
-                ref_code = self.media_types.get("text/" + fmt.lower())
+                ref_code = next(filter(lambda mt: mt.code == "text/" + fmt.lower(), self.media_types), None)
             if ref_code is None:
-                ref_code = self.media_types.get("application/" + fmt.lower())
+                ref_code = next(filter(lambda mt: mt.code == "application/" + fmt.lower(), self.media_types), None)
             if ref_code is None:
-                ref_code = self.media_types.get("application/vnd." + fmt.lower())
+                ref_code = next(filter(lambda mt: mt.code == "application/vnd." + fmt.lower(), self.media_types), None)
             if ref_code is not None:
                 formats.append(ref_code.name)
 

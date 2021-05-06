@@ -28,7 +28,7 @@ service_urls = {
     ServiceKey.REFERENCE_DATA: os.getenv("REFERENCE_DATA_URL")
     or "http://localhost:8080/reference-data",
     ServiceKey.FDK_BASE: os.getenv("FDK_BASE") or "http://localhost:8080",
-    ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8080",
+    ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8080/sparql",
 }
 
 default_headers = {"accept": "application/json"}
@@ -79,10 +79,10 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
     url: str = f"{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations"
     async with AsyncClient() as session:
         try:
+            name_param = urllib.parse.quote(name.upper())
             response = await session.get(
-                url=url,
+                url=f"{url}?name={name_param}",
                 headers=default_headers,
-                params={"name": name.upper()},
                 timeout=5)
             response.raise_for_status()
             return response.json()[0]
@@ -105,7 +105,9 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
 async def fetch_generated_org_path_from_organization_catalog(name: str):
     if name is None:
         return None
-    url: str = f"{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations/orgpath/{name.upper()}"
+
+    name_path = urllib.parse.quote(name.upper())
+    url: str = f"{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations/orgpath/{name_path}"
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)

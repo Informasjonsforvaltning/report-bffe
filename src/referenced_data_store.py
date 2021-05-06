@@ -151,6 +151,7 @@ async def get_organization_from_organization_catalog(
             )
         else:
             org = await attempt_fetch_organization_by_name_from_catalog(name)
+
         parsed_org = (
             OrganizationReferencesObject.from_organization_catalog_single_response(org)
         )
