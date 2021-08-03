@@ -1,9 +1,16 @@
 import asyncio
 import logging
+from typing import List
 
-from fdk_reports_bff.elasticsearch.queries import EsMappings
-from fdk_reports_bff.organization_parser import OrganizationReferencesObject
-from fdk_reports_bff.utils import FetchFromServiceException
+from fdk_reports_bff.elasticsearch.queries import CONCEPT_AGGREGATION_FIELDS
+from fdk_reports_bff.elasticsearch.utils import (
+    add_org_paths_to_document,
+    elasticsearch_ingest,
+    get_all_organizations_with_publisher,
+    get_unique_records,
+)
+from fdk_reports_bff.service_requests import fetch_all_concepts, fetch_concept_publishers
+from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
 def insert_concepts(success_status, failed_status):
@@ -13,11 +20,14 @@ def insert_concepts(success_status, failed_status):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        # concepts = loop.run_until_complete(fetch_all_concepts())
+        concept_tasks = asyncio.gather(fetch_all_concepts(), fetch_concept_publishers())
+        concepts, publishers = loop.run_until_complete(concept_tasks)
 
-        # concepts = [add_es_aggregation_fields(concept=concept) for concept in concepts]
+        prepared_docs = loop.run_until_complete(
+            prepare_documents(documents=concepts, publishers=publishers)
+        )
 
-        # elasticsearch_ingest(ServiceKey.CONCEPTS, concepts)
+        elasticsearch_ingest(index_key=ServiceKey.CONCEPTS, documents=prepared_docs)
         return success_status
 
     except FetchFromServiceException as err:
@@ -25,12 +35,24 @@ def insert_concepts(success_status, failed_status):
         return failed_status
 
 
-def add_es_aggregation_fields(concept) -> dict:
-    if concept.get(EsMappings.PUBLISHER):
-        concept[EsMappings.ORG_PATH] = concept[EsMappings.PUBLISHER][
-            EsMappings.ORG_PATH
-        ]
-        concept[EsMappings.ORGANIZATION_ID] = OrganizationReferencesObject.resolve_id(
-            concept[EsMappings.PUBLISHER][EsMappings.URI]
-        )
-    return concept
+async def prepare_documents(documents: dict, publishers) -> List[dict]:
+    unique_record_items = get_unique_records(documents)
+
+    await get_all_organizations_with_publisher(publishers)
+    concepts_with_fdk_portal_paths = await asyncio.gather(
+        *[add_org_paths_to_document(rdf_values=entry) for entry in unique_record_items]
+    )
+
+    return [
+        reduce_concept(concept=concept)
+        for concept in concepts_with_fdk_portal_paths
+    ]
+
+
+def reduce_concept(concept: dict):
+    reduced_dict = concept.copy()
+    for items in concept.items():
+        key = items[0]
+        if key not in CONCEPT_AGGREGATION_FIELDS:
+            reduced_dict.pop(key)
+    return reduced_dict

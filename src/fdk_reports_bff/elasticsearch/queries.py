@@ -68,6 +68,12 @@ CATALOG_RECORD_AGGREGATION_FIELDS = [
     JsonRDF.foaf.primaryTopic,
 ]
 
+CONCEPT_AGGREGATION_FIELDS = [
+    EsMappings.ORG_PATH,
+    EsMappings.ORGANIZATION_ID,
+    EsMappings.ISSUED,
+]
+
 
 class Query(metaclass=abc.ABCMeta):
     def __init__(self):

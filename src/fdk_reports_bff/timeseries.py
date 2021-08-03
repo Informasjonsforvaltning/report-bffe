@@ -31,7 +31,7 @@ def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
             report_type=content_type,
             org_path=orgpath,
             organization_id=organization_id,
-            series_field=EsMappings.FIRST_HARVESTED,
+            series_field=f"{EsMappings.ISSUED}.value",
         )
     else:
         raise KeyError()
