@@ -1,12 +1,12 @@
 from flask import request
 from flask_restful import Resource, abort
 
-from src.aggregation import get_report
-from src.elasticsearch import get_all_update_entries
-from src.elasticsearch.scheduler import Update
-from src.responses import TimeSeriesResponse
-from src.timeseries import get_time_series
-from src.utils import FetchFromServiceException, NotAServiceKeyException, ServiceKey
+from fdk_reports_bff.aggregation import get_report
+from fdk_reports_bff.elasticsearch import get_all_update_entries
+from fdk_reports_bff.elasticsearch.scheduler import Update
+from fdk_reports_bff.responses import TimeSeriesResponse
+from fdk_reports_bff.timeseries import get_time_series
+from fdk_reports_bff.utils import FetchFromServiceException, NotAServiceKeyException, ServiceKey
 
 
 class Ping(Resource):

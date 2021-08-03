@@ -1,6 +1,6 @@
 import abc
 
-from src.utils import ContentKeys
+from fdk_reports_bff.utils import ContentKeys
 
 
 class NamespaceProperty(metaclass=abc.ABCMeta):

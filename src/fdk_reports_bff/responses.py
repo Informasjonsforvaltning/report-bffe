@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import List
 
-from src.elasticsearch.queries import EsMappings
-from src.utils import ParsedDataPoint, ThemeProfile
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.utils import ParsedDataPoint, ThemeProfile
 
 
 class Response:

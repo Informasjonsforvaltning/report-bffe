@@ -5,16 +5,16 @@ from typing import List
 
 from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
-from src.elasticsearch import es_client
-from src.elasticsearch.queries import AggregationQuery, EsMappings, TimeSeriesQuery
-from src.organization_parser import (
+from fdk_reports_bff.elasticsearch import es_client
+from fdk_reports_bff.elasticsearch.queries import AggregationQuery, EsMappings, TimeSeriesQuery
+from fdk_reports_bff.organization_parser import (
     OrganizationReferencesObject,
     OrganizationStore,
     OrganizationStoreNotInitiatedException,
 )
-from src.rdf_namespaces import JsonRDF
-from src.referenced_data_store import get_los_path, get_organization, get_organizations
-from src.utils import ContentKeys, ServiceKey
+from fdk_reports_bff.rdf_namespaces import JsonRDF
+from fdk_reports_bff.referenced_data_store import get_los_path, get_organization, get_organizations
+from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
 def add_key_as_node_uri(key, value):

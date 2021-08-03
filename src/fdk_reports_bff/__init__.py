@@ -6,9 +6,9 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from src.elasticsearch.scheduler import schedule_updates
-from src.endpoints import Ping, Ready, Report, TimeSeries, Updates
-from src.utils import StartSchedulerError
+from fdk_reports_bff.elasticsearch.scheduler import schedule_updates
+from fdk_reports_bff.endpoints import Ping, Ready, Report, TimeSeries, Updates
+from fdk_reports_bff.utils import StartSchedulerError
 
 
 def create_app(test_config=None):

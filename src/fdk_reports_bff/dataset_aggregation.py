@@ -1,11 +1,11 @@
 import asyncio
 
-from src.aggregation_utils import get_es_aggregation, get_es_cardinality_aggregation
-from src.elasticsearch.queries import EsMappings
-from src.elasticsearch.utils import elasticsearch_get_report_aggregations
-from src.referenced_data_store import get_access_rights_code
-from src.responses import DataSetResponse
-from src.utils import ContentKeys, ServiceKey
+from fdk_reports_bff.aggregation_utils import get_es_aggregation, get_es_cardinality_aggregation
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_report_aggregations
+from fdk_reports_bff.referenced_data_store import get_access_rights_code
+from fdk_reports_bff.responses import DataSetResponse
+from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
 def create_dataset_report(orgpath, theme, theme_profile, organization_id):

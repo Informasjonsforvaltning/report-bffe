@@ -1,8 +1,8 @@
-from src.aggregation_utils import get_es_aggregation, get_es_cardinality_aggregation
-from src.elasticsearch.queries import EsMappings
-from src.elasticsearch.utils import elasticsearch_get_concept_report_aggregations
-from src.responses import ConceptResponse
-from src.utils import ContentKeys, ServiceKey
+from fdk_reports_bff.aggregation_utils import get_es_aggregation, get_es_cardinality_aggregation
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_concept_report_aggregations
+from fdk_reports_bff.responses import ConceptResponse
+from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
 def create_concept_report(orgpath, organization_id):

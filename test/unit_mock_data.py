@@ -1,4 +1,4 @@
-from src.organization_parser import OrganizationReferencesObject
+from fdk_reports_bff.organization_parser import OrganizationReferencesObject
 
 informationmodels = {
     "_embedded": {

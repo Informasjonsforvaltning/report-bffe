@@ -1,8 +1,8 @@
-from src.concept_aggregation import create_concept_report
-from src.dataservice_aggregation import create_dataservice_report
-from src.dataset_aggregation import create_dataset_report
-from src.information_model_aggregation import create_information_model_report
-from src.utils import QueryParameter, ServiceKey
+from fdk_reports_bff.concept_aggregation import create_concept_report
+from fdk_reports_bff.dataservice_aggregation import create_dataservice_report
+from fdk_reports_bff.dataset_aggregation import create_dataset_report
+from fdk_reports_bff.information_model_aggregation import create_information_model_report
+from fdk_reports_bff.utils import QueryParameter, ServiceKey
 
 
 def get_report(content_type: ServiceKey, args: dict):

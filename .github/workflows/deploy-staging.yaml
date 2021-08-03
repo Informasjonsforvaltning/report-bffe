@@ -20,40 +20,26 @@ jobs:
       with:
           python-version: 3.8
 
-    - name: Install pipenv
-      uses: dschep/install-pipenv-action@v1
-
-    - name: Install invoke
-      run: pip install invoke
-
-    - name: Install requests
-      run: pip install requests
-
-    - name: Install dev dependencies
-      run: pipenv install --dev
-
     - name: Setup gcloud CLI
       uses: google-github-actions/setup-gcloud@master
       with:
         service_account_email: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_EMAIL }}
         service_account_key: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
 
-    - name: Lint
-      run: invoke lint
-
-    - name: Safety check
-      run: invoke safety
-
     - name: Configure docker to use the gcloud command-line tool as a credential helper
       run: gcloud auth configure-docker eu.gcr.io
 
-    - name: Build Docker image with GitHub commit sha tag and staging tag
-      run: invoke build-image --tags=eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:$GITHUB_SHA,eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:staging_latest --staging
-
-    - name: Run tests
+    - name: Install dependencies
       run: |
-        invoke unit-test
-        invoke contract-test --compose --image=eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:staging_latest
+        pip install poetry==1.1.7
+        pip install nox==2021.6.12
+        pip install nox-poetry==0.8.6
+
+    - name: Run tests with nox
+      run: nox
+
+    - name: Build Docker image with GitHub commit sha tag and staging tag
+      run: docker build . -t eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:$GITHUB_SHA -t eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:staging_latest
 
     - name: Publish docker image to Google Cloud
       run: docker -- push eu.gcr.io/digdir-fdk-infra/fdk-reports-bff -a

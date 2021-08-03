@@ -2,15 +2,15 @@ import asyncio
 import logging
 from typing import List
 
-from src.elasticsearch.queries import DATASERVICE_AGGREGATION_FIELDS
-from src.elasticsearch.utils import (
+from fdk_reports_bff.elasticsearch.queries import DATASERVICE_AGGREGATION_FIELDS
+from fdk_reports_bff.elasticsearch.utils import (
     add_org_paths_to_document,
     elasticsearch_ingest,
     get_all_organizations_with_publisher,
     get_unique_records,
 )
-from src.service_requests import fetch_dataservices, fetch_publishers_from_dataservice
-from src.utils import FetchFromServiceException, ServiceKey
+from fdk_reports_bff.service_requests import fetch_dataservices, fetch_publishers_from_dataservice
+from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
 def insert_dataservices(success_status, failed_status):

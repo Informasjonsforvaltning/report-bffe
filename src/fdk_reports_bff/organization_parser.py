@@ -1,6 +1,6 @@
 from typing import List
 
-from src.utils import (
+from fdk_reports_bff.utils import (
     NATIONAL_REGISTRY_PATTERN,
     ORGANIZATION_CATALOG_PATTERN,
     ContentKeys,

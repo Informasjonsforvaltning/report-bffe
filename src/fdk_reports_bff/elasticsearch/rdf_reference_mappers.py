@@ -1,10 +1,10 @@
 from typing import List
 
-from src.elasticsearch.queries import CATALOG_RECORD_AGGREGATION_FIELDS
-from src.elasticsearch.utils import get_values_from_nested_dict
-from src.rdf_namespaces import JsonRDF
-from src.referenced_data_store import MediaTypes
-from src.utils import ContentKeys
+from fdk_reports_bff.elasticsearch.queries import CATALOG_RECORD_AGGREGATION_FIELDS
+from fdk_reports_bff.elasticsearch.utils import get_values_from_nested_dict
+from fdk_reports_bff.rdf_namespaces import JsonRDF
+from fdk_reports_bff.referenced_data_store import MediaTypes
+from fdk_reports_bff.utils import ContentKeys
 
 
 class CatalogRecords:

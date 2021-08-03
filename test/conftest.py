@@ -53,7 +53,7 @@ def event_loop():
 @pytest.fixture
 def get_organization_from_service_mock(mocker):
     mocker.patch(
-        "src.referenced_data_store.get_organization_from_organization_catalog",
+        "fdk_reports_bff.referenced_data_store.get_organization_from_organization_catalog",
         side_effect=single_parsed_org_mock,
     )
 
@@ -61,7 +61,7 @@ def get_organization_from_service_mock(mocker):
 @pytest.fixture
 def get_organizations_mock(mocker):
     mocker.patch(
-        "src.referenced_data_store.get_organizations",
+        "fdk_reports_bff.referenced_data_store.get_organizations",
         side_effect=parsed_org_catalog_mock,
     )
 
@@ -69,7 +69,7 @@ def get_organizations_mock(mocker):
 @pytest.fixture
 def get_access_rights_mock(mocker):
     mocker.patch(
-        "src.referenced_data_store.fetch_access_rights_from_reference_data",
+        "fdk_reports_bff.referenced_data_store.fetch_access_rights_from_reference_data",
         side_effect=mock_access_rights_catalog_response,
     )
 
@@ -77,6 +77,6 @@ def get_access_rights_mock(mocker):
 @pytest.fixture
 def get_los_paths_mock(mocker):
     mocker.patch(
-        "src.referenced_data_store.fetch_themes_and_topics_from_reference_data",
+        "fdk_reports_bff.referenced_data_store.fetch_themes_and_topics_from_reference_data",
         side_effect=mock_los_path_reference_response,
     )

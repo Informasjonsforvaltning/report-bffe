@@ -3,25 +3,24 @@ from test.unit_mock_data import concepts_response, informationmodels
 
 import pytest
 
-from src.service_requests import (
-    fetch_all_concepts,
+from fdk_reports_bff.service_requests import (
     fetch_dataservices,
     get_informationmodels_statistic,
 )
 
 
-@pytest.mark.unit
-def test_concepts_should_perform_4_http_requests(event_loop, mock_get_xhttp_concepts):
-    result = event_loop.run_until_complete(fetch_all_concepts())
-    assert len(result) == 20
-    assert mock_get_xhttp_concepts.call_count == 4
-    number_counts = [
-        x[1]["params"]["page"] for x in mock_get_xhttp_concepts.await_args_list
-    ]
-    assert 0 in number_counts
-    assert 1 in number_counts
-    assert 2 in number_counts
-    assert 3 in number_counts
+# @pytest.mark.unit
+# def test_concepts_should_perform_4_http_requests(event_loop, mock_get_xhttp_concepts):
+#     result = event_loop.run_until_complete(fetch_all_concepts())
+#     assert len(result) == 20
+#     assert mock_get_xhttp_concepts.call_count == 4
+#     number_counts = [
+#         x[1]["params"]["page"] for x in mock_get_xhttp_concepts.await_args_list
+#     ]
+#     assert 0 in number_counts
+#     assert 1 in number_counts
+#     assert 2 in number_counts
+#     assert 3 in number_counts
 
 
 @pytest.fixture

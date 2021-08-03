@@ -2,8 +2,8 @@ from test.unit_mock_data import mock_access_rights_catalog_response
 
 import pytest
 
-from src.dataset_aggregation import create_dataset_report
-from src.responses import DataSetResponse
+from fdk_reports_bff.dataset_aggregation import create_dataset_report
+from fdk_reports_bff.responses import DataSetResponse
 
 
 @pytest.mark.unit
@@ -185,7 +185,7 @@ mock_es_result = {
 @pytest.fixture
 def mock_es_report(mocker):
     return mocker.patch(
-        "src.dataset_aggregation.elasticsearch_get_report_aggregations",
+        "fdk_reports_bff.dataset_aggregation.elasticsearch_get_report_aggregations",
         return_value=mock_es_result,
     )
 
@@ -193,6 +193,6 @@ def mock_es_report(mocker):
 @pytest.fixture
 def get_access_rights_mock(mocker):
     mocker.patch(
-        "src.referenced_data_store.fetch_access_rights_from_reference_data",
+        "fdk_reports_bff.referenced_data_store.fetch_access_rights_from_reference_data",
         side_effect=mock_access_rights_catalog_response,
     )

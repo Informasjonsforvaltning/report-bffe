@@ -2,23 +2,22 @@ import asyncio
 import logging
 from typing import List
 
-from src.elasticsearch.queries import DATASET_AGGREGATION_FIELDS
-from src.elasticsearch.rdf_reference_mappers import RdfReferenceMapper
-from src.elasticsearch.utils import (
-    EsMappings,
+from fdk_reports_bff.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, EsMappings
+from fdk_reports_bff.elasticsearch.rdf_reference_mappers import RdfReferenceMapper
+from fdk_reports_bff.elasticsearch.utils import (
     add_key_as_node_uri,
     add_org_and_los_paths_to_document,
     elasticsearch_ingest,
     get_all_organizations_with_publisher,
 )
-from src.rdf_namespaces import JsonRDF
-from src.referenced_data_store import get_media_types, get_open_licenses
-from src.service_requests import (
+from fdk_reports_bff.rdf_namespaces import JsonRDF
+from fdk_reports_bff.referenced_data_store import get_media_types, get_open_licenses
+from fdk_reports_bff.service_requests import (
     fetch_catalog_from_dataset_harvester,
     fetch_publishers_from_dataset_harvester,
     fetch_themes_and_topics_from_reference_data,
 )
-from src.utils import ContentKeys, FetchFromServiceException, ServiceKey
+from fdk_reports_bff.utils import ContentKeys, FetchFromServiceException, ServiceKey
 
 
 def insert_datasets(success_status, failed_status):
