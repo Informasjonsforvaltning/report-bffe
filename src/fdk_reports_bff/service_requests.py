@@ -5,12 +5,12 @@ from typing import List
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
-from src.sparql import (
+from fdk_reports_bff.sparql import (
     get_dataservice_publisher_query,
     get_dataservice_query,
     get_dataset_publisher_query,
 )
-from src.utils import (
+from fdk_reports_bff.utils import (
     ContentKeys,
     FetchFromServiceException,
     NotInNationalRegistryException,
@@ -211,66 +211,68 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
 
 # informationmodels
 async def get_informationmodels_statistic():
-    async with AsyncClient() as session:
-        try:
-            informationmodels: List = []
-            page_number = 0
-            while True:
-                url: str = (
-                    f"{service_urls.get(ServiceKey.INFO_MODELS)}/informationmodels"
-                )
-
-                response = await session.post(url=url, json={"page": page_number})
-                page_count = response.json()[ContentKeys.PAGE_OBJECT][
-                    ContentKeys.TOTAL_PAGES
-                ]
-                informationmodels.extend(response.json()[ContentKeys.HITS])
-
-                if page_count - 1 == page_number:
-                    break
-                page_number += 1
-
-            return informationmodels
-
-        except HTTPError:
-            raise FetchFromServiceException(
-                execution_point="fetching informationmodels", url=url
-            )
+    print("fetch information models")
+    # async with AsyncClient() as session:
+    #     try:
+    #         informationmodels: List = []
+    #         page_number = 0
+    #         while True:
+    #             url: str = (
+    #                 f"{service_urls.get(ServiceKey.INFO_MODELS)}/informationmodels"
+    #             )
+    #
+    #             response = await session.post(url=url, json={"page": page_number})
+    #             page_count = response.json()[ContentKeys.PAGE_OBJECT][
+    #                 ContentKeys.TOTAL_PAGES
+    #             ]
+    #             informationmodels.extend(response.json()[ContentKeys.HITS])
+    #
+    #             if page_count - 1 == page_number:
+    #                 break
+    #             page_number += 1
+    #
+    #         return informationmodels
+    #
+    #     except HTTPError:
+    #         raise FetchFromServiceException(
+    #             execution_point="fetching informationmodels", url=url
+    #         )
 
 
 # concepts
 async def fetch_all_concepts():
-    async with AsyncClient() as session:
-        try:
-            concepts: List = []
-            page_number = 0
-            while True:
-                url: str = f"{service_urls.get(ServiceKey.CONCEPTS)}/concepts"
-                response = await session.get(
-                    url=url,
-                    params={
-                        "returnfields": "publisher,prefLabel,harvest",
-                        "size": "1000",
-                        "page": page_number,
-                    },
-                    timeout=5,
-                )
-                page_count = response.json()[ContentKeys.PAGE_OBJECT][
-                    ContentKeys.TOTAL_PAGES
-                ]
-                concepts.extend(
-                    response.json()[ContentKeys.EMBEDDED][ContentKeys.CONCEPTS]
-                )
-                if page_count - 1 == page_number:
-                    break
-                page_number += 1
+    print("fetch concepts")
+#    async with AsyncClient() as session:
+#        try:
+#            concepts: List = []
+#            page_number = 0
+#            while True:
+#                url: str = f"{service_urls.get(ServiceKey.CONCEPTS)}/concepts"
+#                response = await session.get(
+#                    url=url,
+#                    params={
+#                        "returnfields": "publisher,prefLabel,harvest",
+#                        "size": "1000",
+#                        "page": page_number,
+#                    },
+#                    timeout=5,
+#                )
+#                page_count = response.json()[ContentKeys.PAGE_OBJECT][
+#                    ContentKeys.TOTAL_PAGES
+#                ]
+#                concepts.extend(
+#                    response.json()[ContentKeys.EMBEDDED][ContentKeys.CONCEPTS]
+#                )
+#                if page_count - 1 == page_number:
+#                    break
+#                page_number += 1
 
-            return concepts
+#            return concepts
 
-        except HTTPError:
-            raise FetchFromServiceException(
-                execution_point="fetching concepts", url=url
-            )
+#        except HTTPError:
+#            raise FetchFromServiceException(
+#                execution_point="fetching concepts", url=url
+#            )
 
 
 # dataservices

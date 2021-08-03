@@ -2,7 +2,7 @@ import urllib.parse
 
 import pytest
 
-from src.sparql import (
+from fdk_reports_bff.sparql import (
     get_dataservice_publisher_query,
     get_dataservice_query,
     get_dataset_publisher_query,

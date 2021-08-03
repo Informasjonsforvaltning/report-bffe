@@ -2,14 +2,14 @@ from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 import pytest
 
-from src.elasticsearch.queries import EsMappings
-from src.responses import (
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.responses import (
     ConceptResponse,
     DataSetResponse,
     InformationModelResponse,
     TimeSeriesResponse,
 )
-from src.utils import ContentKeys, ThemeProfile
+from fdk_reports_bff.utils import ContentKeys, ThemeProfile
 
 
 @pytest.mark.skip

@@ -1,10 +1,9 @@
 import asyncio
 import logging
 
-from src.elasticsearch.utils import EsMappings, elasticsearch_ingest
-from src.organization_parser import OrganizationReferencesObject
-from src.service_requests import fetch_all_concepts
-from src.utils import FetchFromServiceException, ServiceKey
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.organization_parser import OrganizationReferencesObject
+from fdk_reports_bff.utils import FetchFromServiceException
 
 
 def insert_concepts(success_status, failed_status):
@@ -14,11 +13,11 @@ def insert_concepts(success_status, failed_status):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        concepts = loop.run_until_complete(fetch_all_concepts())
+        # concepts = loop.run_until_complete(fetch_all_concepts())
 
-        concepts = [add_es_aggregation_fields(concept=concept) for concept in concepts]
+        # concepts = [add_es_aggregation_fields(concept=concept) for concept in concepts]
 
-        elasticsearch_ingest(ServiceKey.CONCEPTS, concepts)
+        # elasticsearch_ingest(ServiceKey.CONCEPTS, concepts)
         return success_status
 
     except FetchFromServiceException as err:

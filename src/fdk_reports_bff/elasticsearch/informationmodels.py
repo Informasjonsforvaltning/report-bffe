@@ -1,11 +1,9 @@
 import asyncio
 import logging
 
-from src.elasticsearch.queries import INFORMATION_MODEL_AGGREGATION_FIELDS
-from src.elasticsearch.utils import EsMappings, elasticsearch_ingest
-from src.organization_parser import OrganizationReferencesObject
-from src.service_requests import get_informationmodels_statistic
-from src.utils import FetchFromServiceException, ServiceKey
+from fdk_reports_bff.elasticsearch.queries import EsMappings, INFORMATION_MODEL_AGGREGATION_FIELDS
+from fdk_reports_bff.organization_parser import OrganizationReferencesObject
+from fdk_reports_bff.utils import FetchFromServiceException
 
 
 def insert_informationmodels(success_status, failed_status):
@@ -15,14 +13,14 @@ def insert_informationmodels(success_status, failed_status):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        informationmodels = loop.run_until_complete(get_informationmodels_statistic())
-
-        informationmodels = [
-            add_es_aggregation_fields(informationmodel=informationmodel)
-            for informationmodel in informationmodels
-        ]
-
-        elasticsearch_ingest(ServiceKey.INFO_MODELS, informationmodels)
+        # informationmodels = loop.run_until_complete(get_informationmodels_statistic())
+        #
+        # informationmodels = [
+        #     add_es_aggregation_fields(informationmodel=informationmodel)
+        #     for informationmodel in informationmodels
+        # ]
+        #
+        # elasticsearch_ingest(ServiceKey.INFO_MODELS, informationmodels)
         return success_status
 
     except FetchFromServiceException as err:

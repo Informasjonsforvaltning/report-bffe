@@ -1,15 +1,15 @@
 import pytest
 
-from src.elasticsearch.queries import EsMappings
-from src.elasticsearch.rdf_reference_mappers import (
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.elasticsearch.rdf_reference_mappers import (
     CatalogRecords,
     CatalogReference,
     RdfReferenceMapper,
 )
-from src.elasticsearch.utils import add_key_as_node_uri
-from src.rdf_namespaces import JsonRDF
-from src.referenced_data_store import OpenLicense
-from src.utils import ContentKeys
+from fdk_reports_bff.elasticsearch.utils import add_key_as_node_uri
+from fdk_reports_bff.rdf_namespaces import JsonRDF
+from fdk_reports_bff.referenced_data_store import OpenLicense
+from fdk_reports_bff.utils import ContentKeys
 
 
 @pytest.mark.unit
@@ -447,7 +447,7 @@ def test_get_distributions_in_self_referencing_entry(empty_open_licence_b_nodes_
 @pytest.fixture
 def empty_open_licence_b_nodes_patch(mocker):
     mocker.patch(
-        "src.elasticsearch.rdf_reference_mappers.RdfReferenceMapper.get_open_license_nodes_from_license_docs",
+        "fdk_reports_bff.elasticsearch.rdf_reference_mappers.RdfReferenceMapper.get_open_license_nodes_from_license_docs",
         return_value=[],
     )
 

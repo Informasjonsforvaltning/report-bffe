@@ -7,7 +7,7 @@ from test.unit_mock_data import (
 
 import pytest
 
-from src.organization_parser import OrganizationReferencesObject, OrganizationStore
+from fdk_reports_bff.organization_parser import OrganizationReferencesObject, OrganizationStore
 
 aas_kommune_sparql = {
     "name": {"type": "literal", "value": "Ås kommune"},

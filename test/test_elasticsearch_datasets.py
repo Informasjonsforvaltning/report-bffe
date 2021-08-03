@@ -2,9 +2,9 @@ import os
 
 import pytest
 
-from src.elasticsearch.datasets import merge_dataset_information
-from src.elasticsearch.utils import EsMappings
-from src.rdf_namespaces import JsonRDF
+from fdk_reports_bff.elasticsearch.datasets import merge_dataset_information
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.rdf_namespaces import JsonRDF
 
 
 @pytest.mark.skip
@@ -834,4 +834,4 @@ def test_merge_dataset_information_with_mixed_distributions():
 @pytest.fixture
 def mock_cwd(mocker):
     project_root = os.getcwd().split("/test")[0]
-    return mocker.patch("src.elasticsearch.os.getcwd", return_value=project_root)
+    return mocker.patch("fdk_reports_bff.elasticsearch.os.getcwd", return_value=project_root)

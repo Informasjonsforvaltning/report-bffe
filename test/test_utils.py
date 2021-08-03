@@ -1,6 +1,6 @@
 import pytest
 
-from src.utils import NotAServiceKeyException, ParsedDataPoint, ServiceKey
+from fdk_reports_bff.utils import NotAServiceKeyException, ParsedDataPoint, ServiceKey
 
 
 @pytest.mark.unit

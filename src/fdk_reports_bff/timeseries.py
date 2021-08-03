@@ -1,8 +1,8 @@
-from src.elasticsearch.queries import EsMappings
-from src.elasticsearch.utils import elasticsearch_get_time_series
-from src.rdf_namespaces import JsonRDF
-from src.responses import TimeSeriesResponse
-from src.utils import QueryParameter, ServiceKey
+from fdk_reports_bff.elasticsearch.queries import EsMappings
+from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_time_series
+from fdk_reports_bff.rdf_namespaces import JsonRDF
+from fdk_reports_bff.responses import TimeSeriesResponse
+from fdk_reports_bff.utils import QueryParameter, ServiceKey
 
 
 def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:

@@ -3,7 +3,7 @@ from test.unit_mock_data import open_licenses_mock_reponse
 
 import pytest
 
-from src.referenced_data_store import (
+from fdk_reports_bff.referenced_data_store import (
     OpenLicense,
     get_access_rights_code,
     get_los_path,
@@ -86,6 +86,6 @@ def test_get_los_path(event_loop, get_los_paths_mock):
 @pytest.fixture
 def fetch_open_licenses_mock(mocker):
     mocker.patch(
-        "src.referenced_data_store.fetch_open_licences_from_reference_data",
+        "fdk_reports_bff.referenced_data_store.fetch_open_licences_from_reference_data",
         side_effect=open_licenses_mock_reponse,
     )
