@@ -44,7 +44,7 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
 class CustomGunicornLogger(glogging.Logger):
     """Custom Gunicorn Logger class."""
 
-    def setup(self, cfg: Any) -> None:
+    def setup(self: any, cfg: Any) -> None:
         """Set up function."""
         super().setup(cfg)
 
@@ -77,7 +77,7 @@ class CustomGunicornLogger(glogging.Logger):
 class PingFilter(logging.Filter):
     """Custom Ping Filter class."""
 
-    def filter(self, record: logging.LogRecord) -> bool:
+    def filter(self: any, record: logging.LogRecord) -> bool:
         """Filter function."""
         return "GET /ping" not in record.getMessage()
 
@@ -85,7 +85,7 @@ class PingFilter(logging.Filter):
 class ReadyFilter(logging.Filter):
     """Custom Ready Filter class."""
 
-    def filter(self, record: logging.LogRecord) -> bool:
+    def filter(self: any, record: logging.LogRecord) -> bool:
         """Filter function."""
         return "GET /ready" not in record.getMessage()
 

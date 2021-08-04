@@ -14,15 +14,15 @@ from fdk_reports_bff.utils import (
 
 
 class Ping(Resource):
-    def get(self):
+    def get(self: any) -> any:
         return 200
 
 
 class Updates(Resource):
-    def get(self):
+    def get(self: any) -> any:
         return get_all_update_entries()
 
-    def post(self):
+    def post(self: any) -> any:
         try:
             should_ignore = request.args["ignore_previous"]
         except KeyError:
@@ -32,12 +32,12 @@ class Updates(Resource):
 
 
 class Ready(Resource):
-    def get(self):
+    def get(self: any) -> any:
         return 200
 
 
 class Report(Resource):
-    def get(self, content_type):
+    def get(self: any, content_type: str) -> any:
         try:
             result = get_report(
                 content_type=ServiceKey.get_key(content_type), args=request.args
@@ -52,7 +52,7 @@ class Report(Resource):
 
 
 class TimeSeries(Resource):
-    def get(self, content_type):
+    def get(self: any, content_type: str) -> any:
         try:
             result: TimeSeriesResponse = get_time_series(
                 ServiceKey.get_key(content_type), args=request.args

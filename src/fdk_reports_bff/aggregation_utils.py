@@ -2,7 +2,7 @@ from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.utils import ContentKeys
 
 
-def get_es_aggregation(es_hits: dict, content_key):
+def get_es_aggregation(es_hits: dict, content_key: str) -> any:
     single_aggregations = [
         ContentKeys.NEW_LAST_WEEK,
         ContentKeys.NATIONAL_COMPONENT,
@@ -20,11 +20,11 @@ def get_es_aggregation(es_hits: dict, content_key):
         return rename_doc_count_to_count(buckets)
 
 
-def get_es_cardinality_aggregation(es_hits: dict, content_key):
+def get_es_cardinality_aggregation(es_hits: dict, content_key: str) -> any:
     return es_hits.get(EsMappings.AGGREGATIONS).get(content_key)[ContentKeys.VALUE]
 
 
-def rename_doc_count_to_count(aggregation_buckets):
+def rename_doc_count_to_count(aggregation_buckets: any) -> list:
     return [
         {
             ContentKeys.KEY: bucket[ContentKeys.KEY],

@@ -85,7 +85,13 @@ ORGANIZATION_CATALOG_PATTERN = "fellesdatakatalog.digdir.no/organizations"
 
 
 class ParsedDataPoint:
-    def __init__(self, es_bucket=None, month=None, year=None, last_month_count=0):
+    def __init__(
+        self: any,
+        es_bucket: any = None,
+        month: any = None,
+        year: any = None,
+        last_month_count: int = 0,
+    ) -> any:
         if es_bucket is not None:
             self.y_axis = es_bucket["doc_count"] + last_month_count
             self.x_axis = es_bucket["key_as_string"]
@@ -102,17 +108,17 @@ class ParsedDataPoint:
             self.year = year
             self.month = month
 
-    def response_dict(self):
+    def response_dict(self: any) -> dict:
         return {
             ContentKeys.TIME_SERIES_Y_AXIS: self.y_axis,
             ContentKeys.TIME_SERIES_X_AXIS: self.x_axis,
         }
 
-    def parse_date(self):
+    def parse_date(self: any) -> any:
         date = parser.parse(self.x_axis)
         return date.month, date.year
 
-    def get_next_month(self):
+    def get_next_month(self: any) -> "ParsedDataPoint":
         next_month = self.month + 1
         next_year = self.year
         if next_month == 13:
@@ -122,13 +128,15 @@ class ParsedDataPoint:
             month=next_month, year=next_year, last_month_count=self.y_axis
         )
 
-    def __eq__(self, other: "ParsedDataPoint"):
+    def __eq__(self: any, other: "ParsedDataPoint") -> bool:
         return (
             other is not None and self.month == other.month and self.year == other.year
         )
 
     @staticmethod
-    def from_date_time(date: datetime, last_data_point: "ParsedDataPoint"):
+    def from_date_time(
+        date: datetime, last_data_point: "ParsedDataPoint"
+    ) -> "ParsedDataPoint":
         last_month_count = 0
         if last_data_point is not None:
             last_month_count = last_data_point.y_axis
@@ -156,13 +164,13 @@ class QueryParameter:
 
 
 class NotAServiceKeyException(Exception):
-    def __init__(self, string_key: str):
+    def __init__(self: any, string_key: str) -> any:
         self.status = 400
         self.reason = f"service not recognized: {string_key}"
 
 
 class FetchFromServiceException(Exception):
-    def __init__(self, execution_point: str, url: str = None):
+    def __init__(self: any, execution_point: str, url: str = None) -> any:
         self.status = 500
         self.reason = (
             f"Connection error when attempting to fetch {execution_point} from {url}"
@@ -170,20 +178,20 @@ class FetchFromServiceException(Exception):
 
 
 class NotInNationalRegistryException(Exception):
-    def __init__(self, uri):
+    def __init__(self: any, uri: str) -> any:
         self.reason = f"{uri} was not found in the nationalRegistry"
 
 
 class BadOrgPathException(Exception):
-    def __init__(self, org_path):
+    def __init__(self: any, org_path: str) -> any:
         self.reason = f"could not find any organization with {org_path}"
 
 
 class NoOrganizationEntriesException(Exception):
-    def __init__(self):
+    def __init__(self: any) -> any:
         self.reason = "organization store is empty"
 
 
 class StartSchedulerError(Exception):
-    def __init__(self, hosts=List[dict]):
+    def __init__(self: any, hosts: List[dict]) -> any:
         self.message = f"Failed to contact ElasticSearch when attempting to start scheduler.\n hosts: {hosts} "

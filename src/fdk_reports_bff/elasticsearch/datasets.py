@@ -21,7 +21,7 @@ from fdk_reports_bff.service_requests import (
 from fdk_reports_bff.utils import ContentKeys, FetchFromServiceException, ServiceKey
 
 
-def insert_datasets(success_status, failed_status):
+def insert_datasets(success_status: str, failed_status: str) -> str:
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -60,7 +60,11 @@ def insert_datasets(success_status, failed_status):
 
 
 async def prepare_documents(
-    documents: dict, los_themes: List[dict], open_licenses, media_types, publishers
+    documents: dict,
+    los_themes: List[dict],
+    open_licenses: List[str],
+    media_types: List[dict],
+    publishers: dict,
 ) -> dict:
     await get_all_organizations_with_publisher(publishers)
 
@@ -93,7 +97,9 @@ async def prepare_documents(
     ]
 
 
-def merge_dataset_information(dataset, reference_mapper) -> dict:
+def merge_dataset_information(
+    dataset: dict, reference_mapper: RdfReferenceMapper
+) -> dict:
     dataset_record = reference_mapper.get_catalog_record_for_dataset(
         dataset[EsMappings.NODE_URI]
     )
@@ -121,7 +127,7 @@ def merge_dataset_information(dataset, reference_mapper) -> dict:
     return reduce_dataset(dataset)
 
 
-def reduce_dataset(dataset: dict):
+def reduce_dataset(dataset: dict) -> dict:
     reduced_dict = dataset.copy()
     for items in dataset.items():
         key = items[0]

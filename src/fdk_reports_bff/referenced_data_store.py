@@ -20,11 +20,11 @@ from fdk_reports_bff.utils import NotInNationalRegistryException
 
 
 class ParsedReferenceData:
-    def __init__(self, uri: str, reference: str = None):
+    def __init__(self: any, uri: str, reference: str = None) -> any:
         self.uri = uri
         self.ref_value = reference
 
-    def __eq__(self, other):
+    def __eq__(self: any, other: any) -> bool:
         if type(other) is str:
             return self.uri == other
         elif type(other) == ParsedReferenceData:
@@ -33,14 +33,14 @@ class ParsedReferenceData:
             return False
 
     @staticmethod
-    def from_rights_statement(json: dict):
+    def from_rights_statement(json: dict) -> any:
         try:
             return ParsedReferenceData(uri=json["uri"], reference=json["code"])
         except KeyError:
             pass
 
     @staticmethod
-    def from_rights_statement_list(reference_data_response: List[dict]):
+    def from_rights_statement_list(reference_data_response: List[dict]) -> List:
         access_rights_list = []
         for rights_statement in reference_data_response:
             parsed_right = ParsedReferenceData.from_rights_statement(rights_statement)
@@ -48,14 +48,14 @@ class ParsedReferenceData:
         return access_rights_list
 
     @staticmethod
-    def from_los_themes_and_topics_list(json: dict):
+    def from_los_themes_and_topics_list(json: dict) -> any:
         try:
             return ParsedReferenceData(uri=json["uri"], reference=json["losPaths"])
         except KeyError:
             pass
 
     @staticmethod
-    def from_los_list(reference_data_response: List[dict]):
+    def from_los_list(reference_data_response: List[dict]) -> List:
         los_list = []
         for theme in reference_data_response:
             parsed_theme = ParsedReferenceData.from_los_themes_and_topics_list(theme)
@@ -64,16 +64,16 @@ class ParsedReferenceData:
 
 
 class MediaTypes:
-    def __init__(self, name: str, code: str):
+    def __init__(self: any, name: str, code: str) -> any:
         self.name = name
         self.code = code
 
-    def __eq__(self, other):
+    def __eq__(self: any, other: any) -> bool:
         other_lower = other.lower()
         return other_lower in self.code.lower() or other_lower in self.name.lower()
 
     @staticmethod
-    def from_reference_data_response(response: List[dict]):
+    def from_reference_data_response(response: List[dict]) -> List:
         return [
             MediaTypes(name=entry.get("name"), code=entry.get("code"))
             for entry in response
@@ -81,18 +81,18 @@ class MediaTypes:
 
 
 class OpenLicense:
-    def __init__(self, open_license_uri):
+    def __init__(self: any, open_license_uri: any) -> any:
         self.uri = open_license_uri
         self.base_uri = OpenLicense.get_base_uri(open_license_uri)
 
-    def __eq__(self, other):
+    def __eq__(self: any, other: any) -> bool:
         if type(other) == str:
             return self.base_uri == OpenLicense.get_base_uri(other)
         else:
             return self.uri == other.uri
 
     @staticmethod
-    def get_base_uri(uri: str):
+    def get_base_uri(uri: str) -> str:
         try:
             http_safe = uri.split("//")[1].strip()
             if http_safe.endswith("/"):
@@ -192,7 +192,7 @@ async def get_organization(
         return org
 
 
-def clean_uri(uri_from_sparql: str):
+def clean_uri(uri_from_sparql: str) -> str:
     return uri_from_sparql.replace("<", "").replace(">", "")
 
 

@@ -107,7 +107,7 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
             raise NotInNationalRegistryException(name)
 
 
-async def fetch_generated_org_path_from_organization_catalog(name: str):
+async def fetch_generated_org_path_from_organization_catalog(name: str) -> str:
     if name is None:
         return None
     url: str = f"{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations/orgpath/{name.upper()}"
@@ -153,7 +153,7 @@ async def fetch_open_licences_from_reference_data() -> List[dict]:
             )
 
 
-async def fetch_access_rights_from_reference_data():
+async def fetch_access_rights_from_reference_data() -> list:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/rightsstatement"
     async with AsyncClient() as session:
         try:
@@ -166,7 +166,7 @@ async def fetch_access_rights_from_reference_data():
             )
 
 
-async def fetch_media_types_from_reference_data():
+async def fetch_media_types_from_reference_data() -> list:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/mediatypes"
     async with AsyncClient() as session:
         try:
@@ -212,7 +212,7 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
 
 
 # informationmodels
-async def get_informationmodels_statistic():
+async def get_informationmodels_statistic() -> List[dict]:
     models_query = urllib.parse.quote_plus(get_info_models_query())
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={models_query}"
     async with AsyncClient() as session:
@@ -246,7 +246,7 @@ async def fetch_info_model_publishers() -> dict:
 
 
 # concepts
-async def fetch_all_concepts():
+async def fetch_all_concepts() -> List[dict]:
     concepts_query = urllib.parse.quote_plus(get_concepts_query())
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={concepts_query}"
     async with AsyncClient() as session:
@@ -279,7 +279,7 @@ async def fetch_concept_publishers() -> dict:
 
 
 # dataservices
-async def fetch_dataservices() -> dict:
+async def fetch_dataservices() -> List[dict]:
     dataservice_query = urllib.parse.quote_plus(get_dataservice_query())
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={dataservice_query}"
     async with AsyncClient() as session:

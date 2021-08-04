@@ -80,6 +80,7 @@ def lint(session: Session) -> None:
     args = session.posargs or locations
     session.install(
         "flake8",
+        "flake8-annotations",
         "flake8-bandit",
         "flake8-black",
         "flake8-bugbear",

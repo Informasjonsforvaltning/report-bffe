@@ -11,7 +11,7 @@ from fdk_reports_bff.endpoints import Ping, Ready, Report, TimeSeries, Updates
 from fdk_reports_bff.utils import StartSchedulerError
 
 
-def create_app(test_config=None):
+def create_app(test_config: any = None) -> Flask:
     # Create and configure the app
     load_dotenv(override=True)
     app = Flask(__name__, instance_relative_config=True)

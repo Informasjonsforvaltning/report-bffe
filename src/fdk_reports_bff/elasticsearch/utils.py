@@ -27,12 +27,12 @@ from fdk_reports_bff.referenced_data_store import (
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
-def add_key_as_node_uri(key, value):
+def add_key_as_node_uri(key: str, value: dict) -> dict:
     value[EsMappings.NODE_URI] = key
     return value
 
 
-async def get_all_organizations_with_publisher(publishers):
+async def get_all_organizations_with_publisher(publishers: dict) -> None:
     await get_organizations()
     OrganizationStore.get_instance().add_all_publishers(publishers)
 
@@ -103,7 +103,7 @@ def add_los_path_to_document(json_rdf_values: dict, los_themes: List[dict]) -> d
     return json_rdf_values
 
 
-def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
+def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]) -> any:
     recreate_index(index_key=index_key)
     try:
         result = helpers.bulk(
@@ -116,7 +116,7 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
         )
 
 
-def yield_documents(documents):
+def yield_documents(documents: list) -> None:
     for doc in documents:
         yield doc
 
@@ -127,7 +127,7 @@ def get_values_from_nested_dict(entry: dict) -> dict:
 
 
 # noinspection PyBroadException
-def recreate_index(index_key):
+def recreate_index(index_key: str) -> None:
     """delete and recreate an index with settings and mapping from file"""
     logging.info("reindexing {0}".format(index_key))
     with open(
@@ -145,11 +145,11 @@ def recreate_index(index_key):
 
 def elasticsearch_get_report_aggregations(
     report_type: ServiceKey,
-    orgpath=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-):
+    orgpath: any = None,
+    theme: any = None,
+    theme_profile: any = None,
+    organization_id: any = None,
+) -> any:
     query = AggregationQuery(
         report_type=report_type,
         orgpath=orgpath,
@@ -163,11 +163,11 @@ def elasticsearch_get_report_aggregations(
 
 def elasticsearch_get_concept_report_aggregations(
     report_type: ServiceKey,
-    orgpath=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-):
+    orgpath: any = None,
+    theme: any = None,
+    theme_profile: any = None,
+    organization_id: any = None,
+) -> any:
     query_array = [
         {"index": "datasets"},
         {
@@ -200,12 +200,12 @@ def elasticsearch_get_concept_report_aggregations(
 
 def elasticsearch_get_time_series(
     report_type: ServiceKey,
-    org_path=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-    series_field=None,
-):
+    org_path: any = None,
+    theme: any = None,
+    theme_profile: any = None,
+    organization_id: any = None,
+    series_field: any = None,
+) -> any:
     query = TimeSeriesQuery(
         series_field,
         orgpath=org_path,
@@ -217,7 +217,7 @@ def elasticsearch_get_time_series(
     return aggregations
 
 
-def get_unique_records(items: dict):
+def get_unique_records(items: List[dict]) -> List[dict]:
     seen = set()
     unique_records = []
     for obj in items:

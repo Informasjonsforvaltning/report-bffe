@@ -7,7 +7,7 @@ from fdk_reports_bff.information_model_aggregation import (
 from fdk_reports_bff.utils import QueryParameter, ServiceKey
 
 
-def get_report(content_type: ServiceKey, args: dict):
+def get_report(content_type: ServiceKey, args: dict) -> any:
     orgpath = args.get(QueryParameter.ORG_PATH)
     theme = args.get(QueryParameter.THEME)
     theme_profile = args.get(QueryParameter.THEME_PROFILE)

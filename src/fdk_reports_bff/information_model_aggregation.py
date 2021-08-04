@@ -8,7 +8,9 @@ from fdk_reports_bff.responses import InformationModelResponse
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
-def create_information_model_report(orgpath, organization_id):
+def create_information_model_report(
+    orgpath: str, organization_id: str
+) -> InformationModelResponse:
     es_report = elasticsearch_get_report_aggregations(
         report_type=ServiceKey.INFO_MODELS,
         orgpath=orgpath,

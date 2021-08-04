@@ -27,7 +27,7 @@ es_client = Elasticsearch([ES_HOST + ":" + ES_PORT])
 update_interval = 2 * 60 * 60
 
 
-def schedule_updates(connection_attempts=0):
+def schedule_updates(connection_attempts: int = 0) -> bool:
     if connection_attempts > 4:
         raise StartSchedulerError(hosts=es_client.transport.hosts)
     es_connection_ok = False
@@ -58,14 +58,16 @@ class Update:
     FAILED = "failed"
     ES_INDEX = "update"
 
-    def __init__(self):
+    def __init__(self: any) -> any:
         self.status = Update.IN_PROGRESS
         self.start_time = self.get_local_time()
         self.end_time = None
         self.id = None
 
     @staticmethod
-    def start_update(connection_attempts=0, ignore_previous_updates=False):
+    def start_update(
+        connection_attempts: int = 0, ignore_previous_updates: bool = False
+    ) -> bool:
         if connection_attempts == 4:
             return
         update = Update()
@@ -105,7 +107,7 @@ class Update:
         Update.complete_update(doc_id, update, status)
 
     @staticmethod
-    def complete_update(doc_id, update_obj, status):
+    def complete_update(doc_id: any, update_obj: any, status: any) -> None:
         update_obj.end_time = Update.get_local_time()
         update_obj.status = status
         try:
@@ -117,7 +119,7 @@ class Update:
             )
 
     @staticmethod
-    def is_running(connection_attempts=0):
+    def is_running(connection_attempts: int = 0) -> bool:
         if connection_attempts == 4:
             return False
         try:
@@ -132,14 +134,14 @@ class Update:
             sleep(5)
             return Update.is_running(connection_attempts + 1)
 
-    def doc(self):
+    def doc(self: any) -> dict:
         doc = {"status": self.status, "start_time": self.start_time}
         if self.end_time:
             doc["end_time"] = self.end_time
         return doc
 
     @staticmethod
-    def get_local_time():
+    def get_local_time() -> datetime.datetime:
         local_tz = pytz.timezone("Europe/Oslo")
         return datetime.datetime.now(tz=local_tz)
 

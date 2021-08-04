@@ -17,7 +17,7 @@ from fdk_reports_bff.service_requests import (
 from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
-def insert_dataservices(success_status, failed_status):
+def insert_dataservices(success_status: str, failed_status: str) -> str:
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -41,7 +41,7 @@ def insert_dataservices(success_status, failed_status):
         return failed_status
 
 
-async def prepare_documents(documents: dict, publishers) -> List[dict]:
+async def prepare_documents(documents: dict, publishers: dict) -> List[dict]:
     await get_all_organizations_with_publisher(publishers)
     dataservices_with_fdk_portal_paths = await asyncio.gather(
         *[add_org_paths_to_document(rdf_values=entry) for entry in documents]
@@ -77,7 +77,7 @@ async def prepare_documents(documents: dict, publishers) -> List[dict]:
     ]
 
 
-def reduce_dataservice(dataservice: dict):
+def reduce_dataservice(dataservice: dict) -> dict:
     reduced_dict = dataservice.copy()
     for items in dataservice.items():
         key = items[0]

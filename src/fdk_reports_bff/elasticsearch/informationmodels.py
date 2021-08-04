@@ -17,7 +17,7 @@ from fdk_reports_bff.service_requests import (
 from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
-def insert_informationmodels(success_status, failed_status):
+def insert_informationmodels(success_status: str, failed_status: str) -> str:
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -42,7 +42,7 @@ def insert_informationmodels(success_status, failed_status):
         return failed_status
 
 
-async def prepare_documents(documents: dict, publishers) -> List[dict]:
+async def prepare_documents(documents: dict, publishers: dict) -> List[dict]:
     unique_record_items = get_unique_records(documents)
 
     await get_all_organizations_with_publisher(publishers)
@@ -56,7 +56,7 @@ async def prepare_documents(documents: dict, publishers) -> List[dict]:
     ]
 
 
-def reduce_informationmodel(informationmodel: dict):
+def reduce_informationmodel(informationmodel: dict) -> dict:
     reduced_dict = informationmodel.copy()
     for items in informationmodel.items():
         key = items[0]

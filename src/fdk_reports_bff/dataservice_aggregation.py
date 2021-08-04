@@ -8,7 +8,7 @@ from fdk_reports_bff.responses import DataServiceResponse
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
-def create_dataservice_report(orgpath, organization_id):
+def create_dataservice_report(orgpath: any, organization_id: any) -> any:
     es_report = elasticsearch_get_report_aggregations(
         report_type=ServiceKey.DATA_SERVICES,
         orgpath=orgpath,

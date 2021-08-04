@@ -5,7 +5,7 @@ from fdk_reports_bff.responses import TimeSeriesResponse
 from fdk_reports_bff.utils import QueryParameter, ServiceKey
 
 
-def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
+def get_time_series(content_type: ServiceKey, args: any) -> TimeSeriesResponse:
     orgpath = args.get(QueryParameter.ORG_PATH)
     theme = args.get(QueryParameter.THEME)
     theme_profile = args.get(QueryParameter.THEME_PROFILE)
@@ -38,12 +38,12 @@ def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
 
 
 def get_time_series_response(
-    report_type=None,
-    org_path=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-    series_field=None,
+    report_type: any = None,
+    org_path: any = None,
+    theme: any = None,
+    theme_profile: any = None,
+    organization_id: any = None,
+    series_field: any = None,
 ) -> TimeSeriesResponse:
     es_time_series = elasticsearch_get_time_series(
         report_type=report_type,

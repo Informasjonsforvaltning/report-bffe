@@ -10,7 +10,7 @@ from fdk_reports_bff.responses import ConceptResponse
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
-def create_concept_report(orgpath, organization_id):
+def create_concept_report(orgpath: any, organization_id: any) -> ConceptResponse:
     es_report = elasticsearch_get_concept_report_aggregations(
         report_type=ServiceKey.CONCEPTS,
         orgpath=orgpath,

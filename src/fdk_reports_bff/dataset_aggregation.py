@@ -11,7 +11,9 @@ from fdk_reports_bff.responses import DataSetResponse
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
-def create_dataset_report(orgpath, theme, theme_profile, organization_id):
+def create_dataset_report(
+    orgpath: any, theme: any, theme_profile: any, organization_id: any
+) -> any:
     es_report = elasticsearch_get_report_aggregations(
         report_type=ServiceKey.DATA_SETS,
         orgpath=orgpath,
@@ -57,7 +59,7 @@ def create_dataset_report(orgpath, theme, theme_profile, organization_id):
     )
 
 
-async def map_access_rights_to_code(access_right: dict):
+async def map_access_rights_to_code(access_right: dict) -> dict:
     rdf_key = access_right[ContentKeys.KEY]
     if rdf_key == EsMappings.MISSING:
         code_key = EsMappings.MISSING
