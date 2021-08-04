@@ -55,8 +55,10 @@ async def add_org_and_los_paths_to_document(
 async def add_org_paths_to_document(rdf_values: dict) -> dict:
     if ContentKeys.SAME_AS in rdf_values.keys():
         uri = rdf_values[ContentKeys.SAME_AS][ContentKeys.VALUE]
-    else:
+    elif ContentKeys.PUBLISHER in rdf_values.keys():
         uri = rdf_values[ContentKeys.PUBLISHER][ContentKeys.VALUE]
+    else:
+        return rdf_values
     try:
         ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
         referenced_organization = await get_organization(ref_object)
