@@ -39,5 +39,5 @@ def create_app(test_config=None):
     try:
         schedule_updates()
     except StartSchedulerError as err:
-        logging.warning(err.message)
+        logging.warning(str(err))
     return app

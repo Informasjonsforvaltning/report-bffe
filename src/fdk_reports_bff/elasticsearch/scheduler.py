@@ -79,12 +79,7 @@ class Update:
         except NotFoundError:
             logging.info("Initiating elasticsearch index: update")
             pass
-        except (
-            ConnectionError,
-            ConnectionTimeout,
-            TransportError,
-            ConnectionRefusedError,
-        ):
+        except (ConnectionError, ConnectionTimeout, TransportError):
             logging.warning(
                 "start_update in scheduler.py: connection error when attempting to contact elasticsearch"
             )
@@ -116,12 +111,7 @@ class Update:
         try:
             es_client.delete(index="updates", id=doc_id)
             es_client.index(index="updates", body=update_obj.doc())
-        except (
-            ConnectionError,
-            ConnectionTimeout,
-            TransportError,
-            ConnectionRefusedError,
-        ):
+        except (ConnectionError, ConnectionTimeout, TransportError):
             logging.warning(
                 "Elasticsearch complete_update: could not write to elasticsearch"
             )
