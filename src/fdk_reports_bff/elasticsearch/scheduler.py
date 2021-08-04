@@ -2,6 +2,7 @@ import atexit
 import datetime
 import logging
 import os
+import traceback
 from time import sleep
 
 import pytz
@@ -136,7 +137,7 @@ class Update:
             return False
         except (ConnectionError, ConnectionTimeout, TransportError):
             logging.error(
-                f"Connection error checking for jobs in progress. Attempts: {connection_attempts}"
+                f"{traceback.format_exc()} Connection error checking for jobs in progress. Attempts: {connection_attempts}"
             )
             sleep(5)
             return Update.is_running(connection_attempts + 1)
