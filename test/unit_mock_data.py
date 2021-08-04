@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from fdk_reports_bff.organization_parser import OrganizationReferencesObject
 
 informationmodels = {
@@ -495,7 +497,7 @@ def single_parsed_org_mock(
         )
 
 
-def mocked_access_rights(uri: str) -> str:
+def mocked_access_rights(uri: str) -> Optional[str]:
     if (
         uri
         == "<http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC>"
@@ -525,7 +527,7 @@ def mocked_org_paths(uri: str, name: str, **args):
         return f"/ANNET{name}"
 
 
-def mocked_los_paths(uri: str) -> str:
+def mocked_los_paths(uri: str) -> Optional[List[str]]:
     if (
         uri
         == "http://objektkatalog.geonorge.no/Objekttype/Index/EAID_EDD3FB30_A0A2_4ced_B367_5C4A5979F676"

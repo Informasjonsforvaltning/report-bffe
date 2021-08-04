@@ -69,5 +69,5 @@ class MockResponse:
     def json(self):
         return self.json_data
 
-    def raise_for_status(self) -> None:
+    def raise_for_status(self):
         return self.status

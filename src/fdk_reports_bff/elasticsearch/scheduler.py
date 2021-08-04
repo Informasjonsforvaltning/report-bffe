@@ -4,6 +4,7 @@ import logging
 import os
 from time import sleep
 import traceback
+from typing import Any, Optional
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from elasticsearch import (
@@ -58,7 +59,7 @@ class Update:
     FAILED = "failed"
     ES_INDEX = "update"
 
-    def __init__(self: any) -> any:
+    def __init__(self: Any) -> None:
         self.status = Update.IN_PROGRESS
         self.start_time = self.get_local_time()
         self.end_time = None
@@ -67,9 +68,9 @@ class Update:
     @staticmethod
     def start_update(
         connection_attempts: int = 0, ignore_previous_updates: bool = False
-    ) -> bool:
+    ) -> Optional[bool]:
         if connection_attempts == 4:
-            return
+            return None
         update = Update()
         try:
             if not ignore_previous_updates:
@@ -105,9 +106,10 @@ class Update:
                 success_status=Update.COMPLETED, failed_status=Update.FAILED
             )
         Update.complete_update(doc_id, update, status)
+        return None
 
     @staticmethod
-    def complete_update(doc_id: any, update_obj: any, status: any) -> None:
+    def complete_update(doc_id: Any, update_obj: Any, status: Any) -> None:
         update_obj.end_time = Update.get_local_time()
         update_obj.status = status
         try:
@@ -134,7 +136,7 @@ class Update:
             sleep(5)
             return Update.is_running(connection_attempts + 1)
 
-    def doc(self: any) -> dict:
+    def doc(self: Any) -> dict:
         doc = {"status": self.status, "start_time": self.start_time}
         if self.end_time:
             doc["end_time"] = self.end_time

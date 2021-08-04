@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import Any, List
 
 from dateutil import parser
 
@@ -61,7 +61,7 @@ class ServiceKey:
     SPARQL_BASE = "sparql_base"
 
     @staticmethod
-    def get_key(string_key: str) -> "ServiceKey":
+    def get_key(string_key: str) -> str:
         if string_key == ServiceKey.ORGANIZATIONS:
             return ServiceKey.ORGANIZATIONS
         if string_key == ServiceKey.INFO_MODELS:
@@ -86,12 +86,12 @@ ORGANIZATION_CATALOG_PATTERN = "fellesdatakatalog.digdir.no/organizations"
 
 class ParsedDataPoint:
     def __init__(
-        self: any,
-        es_bucket: any = None,
-        month: any = None,
-        year: any = None,
+        self: Any,
+        es_bucket: Any = None,
+        month: Any = None,
+        year: Any = None,
         last_month_count: int = 0,
-    ) -> any:
+    ) -> None:
         if es_bucket is not None:
             self.y_axis = es_bucket["doc_count"] + last_month_count
             self.x_axis = es_bucket["key_as_string"]
@@ -99,7 +99,7 @@ class ParsedDataPoint:
         else:
             self.y_axis = last_month_count
             next_date = None
-            if month < 10:
+            if month and month < 10:
                 next_date = f"01.0{month}.{year}"
             else:
                 next_date = f"01.{month}.{year}"
@@ -108,17 +108,17 @@ class ParsedDataPoint:
             self.year = year
             self.month = month
 
-    def response_dict(self: any) -> dict:
+    def response_dict(self: Any) -> dict:
         return {
             ContentKeys.TIME_SERIES_Y_AXIS: self.y_axis,
             ContentKeys.TIME_SERIES_X_AXIS: self.x_axis,
         }
 
-    def parse_date(self: any) -> any:
+    def parse_date(self: Any) -> Any:
         date = parser.parse(self.x_axis)
         return date.month, date.year
 
-    def get_next_month(self: any) -> "ParsedDataPoint":
+    def get_next_month(self: Any) -> "ParsedDataPoint":
         next_month = self.month + 1
         next_year = self.year
         if next_month == 13:
@@ -128,7 +128,7 @@ class ParsedDataPoint:
             month=next_month, year=next_year, last_month_count=self.y_axis
         )
 
-    def __eq__(self: any, other: "ParsedDataPoint") -> bool:
+    def __eq__(self: Any, other: Any) -> bool:
         return (
             other is not None and self.month == other.month and self.year == other.year
         )
@@ -164,13 +164,13 @@ class QueryParameter:
 
 
 class NotAServiceKeyException(Exception):
-    def __init__(self: any, string_key: str) -> any:
+    def __init__(self: Any, string_key: str) -> None:
         self.status = 400
         self.reason = f"service not recognized: {string_key}"
 
 
 class FetchFromServiceException(Exception):
-    def __init__(self: any, execution_point: str, url: str = None) -> any:
+    def __init__(self: Any, execution_point: str, url: str = None) -> None:
         self.status = 500
         self.reason = (
             f"Connection error when attempting to fetch {execution_point} from {url}"
@@ -178,20 +178,20 @@ class FetchFromServiceException(Exception):
 
 
 class NotInNationalRegistryException(Exception):
-    def __init__(self: any, uri: str) -> any:
+    def __init__(self: Any, uri: str) -> None:
         self.reason = f"{uri} was not found in the nationalRegistry"
 
 
 class BadOrgPathException(Exception):
-    def __init__(self: any, org_path: str) -> any:
+    def __init__(self: Any, org_path: str) -> None:
         self.reason = f"could not find any organization with {org_path}"
 
 
 class NoOrganizationEntriesException(Exception):
-    def __init__(self: any) -> any:
+    def __init__(self: Any) -> None:
         self.reason = "organization store is empty"
 
 
 class StartSchedulerError(Exception):
-    def __init__(self: any, hosts: List[dict]) -> any:
+    def __init__(self: Any, hosts: List[dict]) -> None:
         self.message = f"Failed to contact ElasticSearch when attempting to start scheduler.\n hosts: {hosts} "

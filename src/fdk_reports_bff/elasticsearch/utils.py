@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import traceback
-from typing import List
+from typing import Any, List
 
 from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
@@ -93,17 +93,19 @@ async def add_formats_to_document(rdf_values: dict) -> dict:
 
 def add_los_path_to_document(json_rdf_values: dict, los_themes: List[dict]) -> dict:
     if JsonRDF.dcat.theme in json_rdf_values.keys():
-        los_uris = [
-            theme.get(ContentKeys.VALUE)
-            for theme in json_rdf_values.get(JsonRDF.dcat.theme)
-        ]
+        themes = (
+            json_rdf_values[JsonRDF.dcat.theme]
+            if json_rdf_values.get(JsonRDF.dcat.theme)
+            else []
+        )
+        los_uris = [theme.get(ContentKeys.VALUE) for theme in themes]
         los_paths = get_los_path(uri_list=los_uris, los_themes=los_themes)
         if len(los_paths) > 0:
             json_rdf_values[EsMappings.LOS] = los_paths
     return json_rdf_values
 
 
-def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]) -> any:
+def elasticsearch_ingest(index_key: str, documents: List[dict]) -> Any:
     recreate_index(index_key=index_key)
     try:
         result = helpers.bulk(
@@ -116,7 +118,7 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]) -> any:
         )
 
 
-def yield_documents(documents: list) -> None:
+def yield_documents(documents: list) -> Any:
     for doc in documents:
         yield doc
 
@@ -144,12 +146,12 @@ def recreate_index(index_key: str) -> None:
 
 
 def elasticsearch_get_report_aggregations(
-    report_type: ServiceKey,
-    orgpath: any = None,
-    theme: any = None,
-    theme_profile: any = None,
-    organization_id: any = None,
-) -> any:
+    report_type: str,
+    orgpath: Any = None,
+    theme: Any = None,
+    theme_profile: Any = None,
+    organization_id: Any = None,
+) -> Any:
     query = AggregationQuery(
         report_type=report_type,
         orgpath=orgpath,
@@ -162,12 +164,12 @@ def elasticsearch_get_report_aggregations(
 
 
 def elasticsearch_get_concept_report_aggregations(
-    report_type: ServiceKey,
-    orgpath: any = None,
-    theme: any = None,
-    theme_profile: any = None,
-    organization_id: any = None,
-) -> any:
+    report_type: str,
+    orgpath: Any = None,
+    theme: Any = None,
+    theme_profile: Any = None,
+    organization_id: Any = None,
+) -> Any:
     query_array = [
         {"index": "datasets"},
         {
@@ -199,13 +201,13 @@ def elasticsearch_get_concept_report_aggregations(
 
 
 def elasticsearch_get_time_series(
-    report_type: ServiceKey,
-    org_path: any = None,
-    theme: any = None,
-    theme_profile: any = None,
-    organization_id: any = None,
-    series_field: any = None,
-) -> any:
+    report_type: str,
+    org_path: Any = None,
+    theme: Any = None,
+    theme_profile: Any = None,
+    organization_id: Any = None,
+    series_field: Any = None,
+) -> Any:
     query = TimeSeriesQuery(
         series_field,
         orgpath=org_path,

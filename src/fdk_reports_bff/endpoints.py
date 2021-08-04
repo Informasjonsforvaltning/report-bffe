@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import request
 from flask_restful import abort, Resource
 
@@ -14,15 +16,15 @@ from fdk_reports_bff.utils import (
 
 
 class Ping(Resource):
-    def get(self: any) -> any:
+    def get(self: Any) -> Any:
         return 200
 
 
 class Updates(Resource):
-    def get(self: any) -> any:
+    def get(self: Any) -> Any:
         return get_all_update_entries()
 
-    def post(self: any) -> any:
+    def post(self: Any) -> Any:
         try:
             should_ignore = request.args["ignore_previous"]
         except KeyError:
@@ -32,12 +34,12 @@ class Updates(Resource):
 
 
 class Ready(Resource):
-    def get(self: any) -> any:
+    def get(self: Any) -> Any:
         return 200
 
 
 class Report(Resource):
-    def get(self: any, content_type: str) -> any:
+    def get(self: Any, content_type: str) -> Any:
         try:
             result = get_report(
                 content_type=ServiceKey.get_key(content_type), args=request.args
@@ -52,7 +54,7 @@ class Report(Resource):
 
 
 class TimeSeries(Resource):
-    def get(self: any, content_type: str) -> any:
+    def get(self: Any, content_type: str) -> Any:
         try:
             result: TimeSeriesResponse = get_time_series(
                 ServiceKey.get_key(content_type), args=request.args

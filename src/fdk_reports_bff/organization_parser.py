@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from fdk_reports_bff.utils import (
     ContentKeys,
@@ -11,19 +11,19 @@ from fdk_reports_bff.utils import (
 class OrganizationReferencesObject:
     def __init__(
         self: "OrganizationReferencesObject",
-        org_uri: str = None,
-        org_path: str = None,
-        same_as_entry: str = None,
-        name: str = None,
-    ) -> "OrganizationReferencesObject":
-        self.org_uri: str = org_uri
-        self.org_path: str = org_path
-        self.same_as: List[str] = list()
+        org_uri: Optional[str] = None,
+        org_path: Optional[str] = None,
+        same_as_entry: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> None:
+        self.org_uri: Optional[str] = org_uri
+        self.org_path: Optional[str] = org_path
+        self.same_as: Optional[List[str]] = list()
         if same_as_entry:
             self.same_as.append(same_as_entry)
-        self.name: str = name
+        self.name: Optional[str] = name
 
-    def __eq__(self: "OrganizationReferencesObject", other: any) -> bool:
+    def __eq__(self: "OrganizationReferencesObject", other: Any) -> bool:
         if type(other) == OrganizationReferencesObject:
             if self.org_uri:
                 if self.__eq_on_org_uri(other):
@@ -37,8 +37,7 @@ class OrganizationReferencesObject:
                 return False
             else:
                 return self.org_path == other
-        else:
-            return False
+        return False
 
     def __eq_on_org_uri(
         self: "OrganizationReferencesObject", other: "OrganizationReferencesObject"
@@ -69,10 +68,13 @@ class OrganizationReferencesObject:
         return suffix_1 == suffix_2
 
     @staticmethod
-    def __eq_on_national_registry(uri_1: str, uri_2: str) -> bool:
-        suffix_1 = uri_1.split("/")
-        suffix_2 = uri_2.split("/")
-        return suffix_1[-1] == suffix_2[-1]
+    def __eq_on_national_registry(uri_1: Optional[str], uri_2: Optional[str]) -> bool:
+        if uri_1 and uri_2:
+            suffix_1 = uri_1.split("/")
+            suffix_2 = uri_2.split("/")
+            return suffix_1[-1] == suffix_2[-1]
+        else:
+            return False
 
     @staticmethod
     def from_organization_catalog_single_response(
@@ -87,7 +89,7 @@ class OrganizationReferencesObject:
     @staticmethod
     def from_organization_catalog_list_response(
         organizations: List[dict],
-    ) -> "OrganizationReferencesObject":
+    ) -> List["OrganizationReferencesObject"]:
         return [
             OrganizationReferencesObject.from_organization_catalog_single_response(org)
             for org in organizations
@@ -97,29 +99,33 @@ class OrganizationReferencesObject:
     def from_sparql_query_result(organization: dict) -> "OrganizationReferencesObject":
         keys = organization.keys()
         if ContentKeys.ORG_NAME in keys:
-            name = organization.get(ContentKeys.ORG_NAME).get(ContentKeys.VALUE)
+            name = organization[ContentKeys.ORG_NAME].get(ContentKeys.VALUE)
         else:
             name = ""
 
         reference_object = OrganizationReferencesObject(name=name)
         if ContentKeys.PUBLISHER in keys:
-            publisher_uri = organization.get(ContentKeys.PUBLISHER).get(
-                ContentKeys.VALUE
-            )
+            publisher_uri = organization[ContentKeys.PUBLISHER].get(ContentKeys.VALUE)
             if OrganizationReferencesObject.is_national_registry_uri(publisher_uri):
                 reference_object.org_uri = publisher_uri
             else:
-                reference_object.same_as.append(publisher_uri)
+                if reference_object.same_as:
+                    reference_object.same_as.append(publisher_uri)
+                else:
+                    reference_object.same_as = [publisher_uri]
         if ContentKeys.SAME_AS in keys:
-            same_as_uri = organization.get(ContentKeys.SAME_AS).get(ContentKeys.VALUE)
+            same_as_uri = organization[ContentKeys.SAME_AS].get(ContentKeys.VALUE)
             if OrganizationReferencesObject.is_national_registry_uri(same_as_uri):
                 reference_object.org_uri = same_as_uri
             else:
-                reference_object.same_as.append(reference_object)
+                if reference_object.same_as:
+                    reference_object.same_as.append(same_as_uri)
+                else:
+                    reference_object.same_as = [same_as_uri]
         return reference_object
 
     @staticmethod
-    def from_dct_publisher(org_uri: str) -> any:
+    def from_dct_publisher(org_uri: str) -> Any:
         if org_uri:
             if OrganizationReferencesObject.is_national_registry_uri(org_uri):
                 return OrganizationReferencesObject(org_uri=org_uri)
@@ -142,7 +148,7 @@ class OrganizationReferencesObject:
         )
 
     @staticmethod
-    def resolve_id(uri: str) -> Optional[str]:
+    def resolve_id(uri: Optional[str]) -> Optional[str]:
         if uri:
             uri_parts = uri.split("/")
             return uri_parts[-1]
@@ -151,9 +157,9 @@ class OrganizationReferencesObject:
 
 
 class OrganizationStore:
-    __instance__: "OrganizationStore" = None
+    __instance__: Optional["OrganizationStore"] = None
 
-    def __init__(self: any) -> any:
+    def __init__(self: Any) -> None:
         if OrganizationStore.__instance__ is None:
             self.organizations: List = None
             OrganizationStore.__instance__ = self
@@ -161,12 +167,12 @@ class OrganizationStore:
             raise OrganizationStoreExistsException()
 
     def update(
-        self: any, organizations: List[OrganizationReferencesObject] = None
-    ) -> any:
+        self: Any, organizations: List[OrganizationReferencesObject] = None
+    ) -> Any:
         if not self.organizations:
             self.organizations = organizations
 
-    def add_organization(self: any, organization: OrganizationReferencesObject) -> None:
+    def add_organization(self: Any, organization: OrganizationReferencesObject) -> None:
         if self.organizations is None:
             self.organizations = list()
         try:
@@ -174,10 +180,10 @@ class OrganizationStore:
         except ValueError:
             self.organizations.append(organization)
             org_idx = self.organizations.index(organization)
-        if len(organization.same_as) > 0:
+        if organization.same_as and len(organization.same_as) > 0:
             self.organizations[org_idx].same_as.extend(organization.same_as)
 
-    def get_orgpath(self: any, uri: str) -> str:
+    def get_orgpath(self: Any, uri: str) -> Optional[str]:
         try:
             org_idx = self.organizations.index(uri)
             return self.organizations[org_idx].org_path
@@ -186,13 +192,13 @@ class OrganizationStore:
         except AttributeError:
             raise OrganizationStoreNotInitiatedException()
 
-    def get_organization(self: any, org: any) -> OrganizationReferencesObject:
+    def get_organization(self: Any, org: Any) -> Optional[OrganizationReferencesObject]:
         try:
             return self.organizations[self.organizations.index(org)]
         except ValueError:
             return None
 
-    def add_all_publishers(self: any, publishers: List[dict]) -> None:
+    def add_all_publishers(self: Any, publishers: dict) -> None:
         for reference in publishers["results"]["bindings"]:
             self.add_organization(
                 OrganizationReferencesObject.from_sparql_query_result(reference)
@@ -207,10 +213,10 @@ class OrganizationStore:
 
 
 class OrganizationStoreExistsException(Exception):
-    def __init__(self: any) -> any:
+    def __init__(self: Any) -> None:
         self.message = "organization store is already created"
 
 
 class OrganizationStoreNotInitiatedException(Exception):
-    def __init__(self: any) -> any:
+    def __init__(self: Any) -> None:
         self.message = "no content in OrganizationStore"

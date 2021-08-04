@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Any
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -11,7 +12,7 @@ from fdk_reports_bff.endpoints import Ping, Ready, Report, TimeSeries, Updates
 from fdk_reports_bff.utils import StartSchedulerError
 
 
-def create_app(test_config: any = None) -> Flask:
+def create_app(test_config: Any = None) -> Flask:
     # Create and configure the app
     load_dotenv(override=True)
     app = Flask(__name__, instance_relative_config=True)

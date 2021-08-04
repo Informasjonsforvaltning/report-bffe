@@ -65,7 +65,7 @@ async def prepare_documents(
     open_licenses: List[str],
     media_types: List[dict],
     publishers: dict,
-) -> dict:
+) -> list:
     await get_all_organizations_with_publisher(publishers)
 
     documents_list = list(documents.items())
@@ -105,10 +105,15 @@ def merge_dataset_information(
     )
     if dataset_record is not None:
         dataset[EsMappings.RECORD] = dataset_record
+        is_part_of = (
+            dataset_record[JsonRDF.dct.isPartOf]
+            if dataset_record.get(JsonRDF.dct.isPartOf)
+            else []
+        )
         dataset[EsMappings.PART_OF_CATALOG] = reference_mapper.get_dataset_catalog_name(
-            record_part_of_uri=dataset_record.get(JsonRDF.dct.isPartOf)[0][
-                ContentKeys.VALUE
-            ],
+            record_part_of_uri=is_part_of[0].get(ContentKeys.VALUE)
+            if len(is_part_of) > 0
+            else None,
             dataset_node_uri=dataset[EsMappings.NODE_URI],
         )
     if dataset.get(JsonRDF.dcat.distribution):

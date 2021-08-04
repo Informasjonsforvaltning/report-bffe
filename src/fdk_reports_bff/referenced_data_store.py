@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List, Optional
 
 from asyncstdlib.functools import lru_cache as alru_cache
 
@@ -20,11 +20,11 @@ from fdk_reports_bff.utils import NotInNationalRegistryException
 
 
 class ParsedReferenceData:
-    def __init__(self: any, uri: str, reference: str = None) -> any:
+    def __init__(self: Any, uri: str, reference: str = None) -> None:
         self.uri = uri
         self.ref_value = reference
 
-    def __eq__(self: any, other: any) -> bool:
+    def __eq__(self: Any, other: Any) -> bool:
         if type(other) is str:
             return self.uri == other
         elif type(other) == ParsedReferenceData:
@@ -33,7 +33,7 @@ class ParsedReferenceData:
             return False
 
     @staticmethod
-    def from_rights_statement(json: dict) -> any:
+    def from_rights_statement(json: dict) -> Any:
         try:
             return ParsedReferenceData(uri=json["uri"], reference=json["code"])
         except KeyError:
@@ -48,7 +48,7 @@ class ParsedReferenceData:
         return access_rights_list
 
     @staticmethod
-    def from_los_themes_and_topics_list(json: dict) -> any:
+    def from_los_themes_and_topics_list(json: dict) -> Any:
         try:
             return ParsedReferenceData(uri=json["uri"], reference=json["losPaths"])
         except KeyError:
@@ -64,11 +64,11 @@ class ParsedReferenceData:
 
 
 class MediaTypes:
-    def __init__(self: any, name: str, code: str) -> any:
+    def __init__(self: Any, name: Optional[str], code: Optional[str]) -> None:
         self.name = name
         self.code = code
 
-    def __eq__(self: any, other: any) -> bool:
+    def __eq__(self: Any, other: Any) -> bool:
         other_lower = other.lower()
         return other_lower in self.code.lower() or other_lower in self.name.lower()
 
@@ -81,11 +81,11 @@ class MediaTypes:
 
 
 class OpenLicense:
-    def __init__(self: any, open_license_uri: any) -> any:
+    def __init__(self: Any, open_license_uri: Any) -> None:
         self.uri = open_license_uri
         self.base_uri = OpenLicense.get_base_uri(open_license_uri)
 
-    def __eq__(self: any, other: any) -> bool:
+    def __eq__(self: Any, other: Any) -> bool:
         if type(other) == str:
             return self.base_uri == OpenLicense.get_base_uri(other)
         else:
@@ -116,9 +116,9 @@ async def get_los_paths() -> List[dict]:
 
 
 @alru_cache
-async def get_open_licenses() -> List[str]:
+async def get_open_licenses() -> List[OpenLicense]:
     open_licenses_response = await fetch_open_licences_from_reference_data()
-    licences: List[str] = [
+    licences: List[OpenLicense] = [
         OpenLicense(licence.get("uri")) for licence in open_licenses_response
     ]
     return licences
@@ -139,7 +139,8 @@ async def get_organizations() -> List[OrganizationReferencesObject]:
         )
     )
     org_store = OrganizationStore.get_instance()
-    [org_store.add_organization(org) for org in parsed_organizations]
+    for org in parsed_organizations:
+        org_store.add_organization(org)
     return org_store.organizations
 
 
@@ -148,10 +149,9 @@ async def get_organization_from_organization_catalog(
     uri: str, name: str
 ) -> OrganizationReferencesObject:
     try:
-        if OrganizationReferencesObject.is_national_registry_uri(uri):
-            org = await fetch_organization_from_catalog(
-                OrganizationReferencesObject.resolve_id(uri=uri), name
-            )
+        org_id = OrganizationReferencesObject.resolve_id(uri=uri)
+        if org_id and OrganizationReferencesObject.is_national_registry_uri(uri):
+            org = await fetch_organization_from_catalog(org_id, name)
         else:
             org = await attempt_fetch_organization_by_name_from_catalog(name)
         parsed_org = (
@@ -176,13 +176,13 @@ async def get_organization(
     try:
         org_catalog = await get_organizations()
         org_idx = org_catalog.index(organization)
-        organization: OrganizationReferencesObject = org_catalog[org_idx]
-        if organization.org_path is None:
+        cat_organization: OrganizationReferencesObject = org_catalog[org_idx]
+        if cat_organization.org_path is None:
             return await get_organization_from_organization_catalog(
-                uri=organization.org_uri, name=organization.name
+                uri=cat_organization.org_uri, name=cat_organization.name
             )
         else:
-            return organization
+            return cat_organization
     except ValueError:
         org: OrganizationReferencesObject = (
             await get_organization_from_organization_catalog(
@@ -196,7 +196,7 @@ def clean_uri(uri_from_sparql: str) -> str:
     return uri_from_sparql.replace("<", "").replace(">", "")
 
 
-async def get_access_rights_code(uri: str) -> str:
+async def get_access_rights_code(uri: str) -> Optional[str]:
     raw_uri = clean_uri(uri)
     access_rights = await get_rights_statements()
     try:
@@ -207,7 +207,7 @@ async def get_access_rights_code(uri: str) -> str:
 
 
 def get_los_path(uri_list: List[str], los_themes: List[dict]) -> List[str]:
-    uri_to_los_path_list = []
+    uri_to_los_path_list: List = []
     for uri in uri_list:
         raw_uri = clean_uri(uri)
         try:

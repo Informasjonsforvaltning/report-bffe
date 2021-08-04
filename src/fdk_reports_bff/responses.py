@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.utils import ParsedDataPoint, ThemeProfile
@@ -7,20 +7,20 @@ from fdk_reports_bff.utils import ParsedDataPoint, ThemeProfile
 
 class Response:
     def __init__(
-        self: any,
-        total_objects: int,
-        organization_count: int,
-        new_last_week: int,
-        catalogs: List[dict],
-        org_paths: List[dict],
-    ) -> any:
+        self: Any,
+        total_objects: Optional[int],
+        organization_count: Optional[int],
+        new_last_week: Optional[int],
+        catalogs: Optional[List[dict]],
+        org_paths: Optional[List[dict]],
+    ) -> None:
         self.totalObjects = total_objects
         self.newLastWeek = new_last_week
         self.catalogs = catalogs or []
         self.orgPaths = org_paths or []
         self.organizationCount = organization_count
 
-    def populate_from_es(self: any, es_result: dict) -> "Response":
+    def populate_from_es(self: Any, es_result: dict) -> None:
         self.totalObjects = es_result["page"]["totalElements"]
         harvest_aggs = es_result["aggregations"]["firstHarvested"]["buckets"]
         self.newLastWeek = [
@@ -31,29 +31,29 @@ class Response:
 
 class InformationModelResponse(Response):
     def __init__(
-        self: any,
-        total_objects: int = None,
-        new_last_week: int = None,
-        catalogs: List[dict] = None,
-        org_paths: List[dict] = None,
+        self: Any,
+        total_objects: Optional[int] = None,
+        new_last_week: Optional[int] = None,
+        catalogs: Optional[List[dict]] = None,
+        org_paths: Optional[List[dict]] = None,
         organization_count: int = 0,
-    ) -> any:
+    ) -> None:
         super().__init__(
             total_objects, organization_count, new_last_week, catalogs, org_paths
         )
 
     @staticmethod
-    def from_es(es_result: dict) -> any:
+    def from_es(es_result: dict) -> Any:
         response = InformationModelResponse()
         response.populate_from_es(es_result=es_result)
         return response
 
-    def json(self: any) -> dict:
+    def json(self: Any) -> dict:
         serialized = self.__dict__
         return serialized
 
     @staticmethod
-    def empty_response() -> any:
+    def empty_response() -> Any:
         return InformationModelResponse(
             total_objects=0, new_last_week=0, catalogs=None, org_paths=None
         )
@@ -61,31 +61,31 @@ class InformationModelResponse(Response):
 
 class DataServiceResponse(Response):
     def __init__(
-        self: any,
+        self: Any,
         total_objects: int = None,
         new_last_week: int = None,
         catalogs: List[dict] = None,
         org_paths: List[dict] = None,
         organization_count: int = 0,
         media_types: List[dict] = None,
-    ) -> any:
+    ) -> None:
         super().__init__(
             total_objects, organization_count, new_last_week, catalogs, org_paths
         )
         self.formats = media_types or []
 
     @staticmethod
-    def from_es(es_result: dict) -> any:
+    def from_es(es_result: dict) -> Any:
         response = DataServiceResponse()
         response.populate_from_es(es_result=es_result)
         return response
 
-    def json(self: any) -> dict:
+    def json(self: Any) -> dict:
         serialized = self.__dict__
         return serialized
 
     @staticmethod
-    def empty_response() -> any:
+    def empty_response() -> Any:
         return DataServiceResponse(
             total_objects=0, new_last_week=0, catalogs=None, org_paths=None
         )
@@ -93,14 +93,14 @@ class DataServiceResponse(Response):
 
 class ConceptResponse(Response):
     def __init__(
-        self: any,
+        self: Any,
         total_objects: int = 0,
         new_last_week: int = None,
         catalogs: list = None,
         most_in_use: list = None,
         org_paths: list = None,
         organization_count: int = 0,
-    ) -> any:
+    ) -> None:
         super().__init__(
             total_objects, organization_count, new_last_week, catalogs, org_paths
         )
@@ -108,7 +108,7 @@ class ConceptResponse(Response):
             self.mostInUse = most_in_use
 
     @staticmethod
-    def from_es(es_result: dict, most_in_use: dict) -> any:
+    def from_es(es_result: dict, most_in_use: dict) -> Any:
         response = ConceptResponse()
         response.populate_from_es(es_result=es_result)
         response.mostInUse = ConceptResponse.parse_reference_list(most_in_use)
@@ -123,12 +123,12 @@ class ConceptResponse(Response):
             reference_list.append(ref)
         return reference_list
 
-    def json(self: any) -> any:
+    def json(self: Any) -> Any:
         serialized = self.__dict__
         return serialized
 
     @staticmethod
-    def empty_response() -> any:
+    def empty_response() -> Any:
         return ConceptResponse(
             total_objects=0,
             new_last_week=0,
@@ -141,20 +141,20 @@ class ConceptResponse(Response):
 
 class DataSetResponse(Response):
     def __init__(
-        self: any,
-        dist_formats: List[dict],
-        total: str,
+        self: Any,
+        dist_formats: Optional[List[dict]],
+        total: int,
         organization_count: int,
-        new_last_week: str,
+        new_last_week: int,
         opendata: str,
         national_component: str,
         with_subject: str,
-        catalogs: List[dict],
-        org_paths: List[dict],
-        themes: List[dict],
-        access_rights: List[dict],
+        catalogs: Optional[List[dict]],
+        org_paths: Optional[List[dict]],
+        themes: Optional[List[dict]],
+        access_rights: Optional[List[dict]],
         theme_profile: Optional[ThemeProfile] = None,
-    ) -> any:
+    ) -> None:
         super().__init__(
             total_objects=total,
             new_last_week=new_last_week,
@@ -172,7 +172,7 @@ class DataSetResponse(Response):
         if theme_profile is not None:
             self.customize_for_theme_profile(theme_profile)
 
-    def customize_for_theme_profile(self: any, theme_profile: ThemeProfile) -> None:
+    def customize_for_theme_profile(self: Any, theme_profile: ThemeProfile) -> None:
         if theme_profile == ThemeProfile.TRANSPORT:
             theme_profile_themes = [
                 theme
@@ -181,33 +181,35 @@ class DataSetResponse(Response):
             ]
             self.themesAndTopicsCount = theme_profile_themes
 
-    def json(self: any) -> dict:
+    def json(self: Any) -> dict:
         serialized = self.__dict__
         return serialized
 
     @staticmethod
-    def empty_response() -> None:
+    def empty_response() -> Any:
         return DataSetResponse(
             dist_formats=None,
-            total="0",
-            new_last_week="0",
+            total=0,
+            organization_count=0,
+            new_last_week=0,
             opendata="0",
             national_component="0",
             with_subject="0",
             catalogs=None,
+            org_paths=None,
             themes=None,
             access_rights=None,
         )
 
 
 class TimeSeriesResponse:
-    def __init__(self: any, es_time_series: List[dict]) -> any:
-        self.time_series = []
+    def __init__(self: Any, es_time_series: List[dict]) -> None:
+        self.time_series: List = []
         self.last_data_point: ParsedDataPoint = None
         self.parse_es_time_series(es_time_series=es_time_series)
         self.add_months_from_last_data_point_to_now()
 
-    def parse_es_time_series(self: any, es_time_series: dict) -> None:
+    def parse_es_time_series(self: Any, es_time_series: dict) -> None:
         last_count = 0
         time_buckets = es_time_series[EsMappings.AGGREGATIONS][EsMappings.TIME_SERIES][
             EsMappings.BUCKETS
@@ -219,7 +221,7 @@ class TimeSeriesResponse:
             last_count = new_data_point.y_axis
             self.add(new_data_point)
 
-    def add(self: any, parsed_entry: any) -> None:
+    def add(self: Any, parsed_entry: Any) -> None:
         if len(self.time_series) == 0:
             self.time_series.append(parsed_entry.response_dict())
             self.last_data_point = parsed_entry
@@ -234,7 +236,7 @@ class TimeSeriesResponse:
             self.time_series.append(parsed_entry.response_dict())
             self.last_data_point = parsed_entry
 
-    def add_months_from_last_data_point_to_now(self: any) -> None:
+    def add_months_from_last_data_point_to_now(self: Any) -> None:
         if self.last_data_point is not None:
             now_data_point = ParsedDataPoint.from_date_time(
                 datetime.now(), self.last_data_point
@@ -245,5 +247,5 @@ class TimeSeriesResponse:
                 self.time_series.append(next_month.response_dict())
                 self.last_data_point = next_month
 
-    def json(self: any) -> List[dict]:
+    def json(self: Any) -> List[dict]:
         return self.time_series

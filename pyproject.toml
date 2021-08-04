@@ -32,6 +32,7 @@ flake8-import-order = "^0.18.1"
 flake8-bandit = "^2.1.2"
 flake8-bugbear = "^21.4.3"
 flake8-annotations = "^2.6.2"
+mypy = "^0.910"
 
 [tool.coverage.paths]
 source = ["src"]

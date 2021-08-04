@@ -1,3 +1,5 @@
+from typing import Any
+
 from fdk_reports_bff.aggregation_utils import (
     get_es_aggregation,
     get_es_cardinality_aggregation,
@@ -9,7 +11,7 @@ from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
 def create_information_model_report(
-    orgpath: str, organization_id: str
+    orgpath: Any, organization_id: Any
 ) -> InformationModelResponse:
     es_report = elasticsearch_get_report_aggregations(
         report_type=ServiceKey.INFO_MODELS,

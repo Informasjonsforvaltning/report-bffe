@@ -41,7 +41,7 @@ def insert_dataservices(success_status: str, failed_status: str) -> str:
         return failed_status
 
 
-async def prepare_documents(documents: dict, publishers: dict) -> List[dict]:
+async def prepare_documents(documents: List[dict], publishers: dict) -> List[dict]:
     await get_all_organizations_with_publisher(publishers)
     dataservices_with_fdk_portal_paths = await asyncio.gather(
         *[add_org_paths_to_document(rdf_values=entry) for entry in documents]
@@ -60,16 +60,18 @@ async def prepare_documents(documents: dict, publishers: dict) -> List[dict]:
                 None,
             )
 
-            document_value = document["mediaType"]["value"]
+            if item:
+                document_value = document["mediaType"]["value"]
 
-            if item.get("mediaType", {}).get("value"):
-                if not isinstance(item["mediaType"]["value"], list):
-                    item["mediaType"]["value"] = [item["mediaType"]["value"]]
-                if document_value not in item["mediaType"]["value"]:
-                    item["mediaType"]["value"].append(document_value)
-            else:
-                item["mediaType"]["value"] = document_value
-                print(item)
+                item_value = item.get("mediaType", {}).get("value")
+                if item_value:
+                    if not isinstance(item_value, list):
+                        item["mediaType"]["value"] = [item_value]
+                    if document_value not in item_value:
+                        item_value.append(document_value)
+                        item["mediaType"]["value"] = item_value
+                else:
+                    item["mediaType"]["value"] = document_value
 
     return [
         reduce_dataservice(dataservice=dataservice)

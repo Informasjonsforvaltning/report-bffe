@@ -39,7 +39,7 @@ def insert_concepts(success_status: str, failed_status: str) -> str:
         return failed_status
 
 
-async def prepare_documents(documents: dict, publishers: dict) -> List[dict]:
+async def prepare_documents(documents: List[dict], publishers: dict) -> List[dict]:
     unique_record_items = get_unique_records(documents)
 
     await get_all_organizations_with_publisher(publishers)
