@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from typing import List
+import traceback
 
 from fdk_reports_bff.elasticsearch.queries import CONCEPT_AGGREGATION_FIELDS
 from fdk_reports_bff.elasticsearch.utils import (
@@ -31,7 +32,7 @@ def insert_concepts(success_status, failed_status):
         return success_status
 
     except FetchFromServiceException as err:
-        logging.error(err.reason)
+        logging.error(f"{traceback.format_exc()} {err.reason}")
         return failed_status
 
 

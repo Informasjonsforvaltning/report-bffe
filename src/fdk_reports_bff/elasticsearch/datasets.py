@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import traceback
 from typing import List
 
 from fdk_reports_bff.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, EsMappings
@@ -54,7 +55,7 @@ def insert_datasets(success_status, failed_status):
         elasticsearch_ingest(index_key=ServiceKey.DATA_SETS, documents=prepared_docs)
         return success_status
     except FetchFromServiceException as err:
-        logging.error(err.reason)
+        logging.error(f"{traceback.format_exc()} {err.reason}")
         return failed_status
 
 

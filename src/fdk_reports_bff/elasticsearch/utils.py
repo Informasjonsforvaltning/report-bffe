@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import traceback
 from typing import List
 
 from elasticsearch import helpers
@@ -101,7 +102,9 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
         )
         return result
     except BulkIndexError as err:
-        logging.error(f"ingest {ServiceKey.DATA_SETS}", err.errors)
+        logging.error(
+            f"{traceback.format_exc()} ingest {ServiceKey.DATA_SETS}", err.errors
+        )
 
 
 def yield_documents(documents):
@@ -125,7 +128,9 @@ def recreate_index(index_key):
             es_client.indices.delete(index=index_key, ignore=[400, 404])
             es_client.indices.create(index=index_key, body=json.load(mapping))
         except BaseException:
-            logging.error("error when attempting to update {0} ".format(index_key))
+            logging.error(
+                f"{traceback.format_exc()} error when attempting to update {index_key}"
+            )
         return None
 
 

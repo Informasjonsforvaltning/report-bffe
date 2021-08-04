@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import traceback
 from typing import List
 
 from fdk_reports_bff.elasticsearch.queries import DATASERVICE_AGGREGATION_FIELDS
@@ -33,7 +34,7 @@ def insert_dataservices(success_status, failed_status):
         )
         return success_status
     except FetchFromServiceException as err:
-        logging.error(err.reason)
+        logging.error(f"{traceback.format_exc()} {err.reason}")
         return failed_status
 
 

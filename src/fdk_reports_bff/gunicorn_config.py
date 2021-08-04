@@ -1,11 +1,12 @@
 import logging
 import multiprocessing
-from os import environ as env
 import sys
+from os import environ as env
+from typing import Any
+
 from dotenv import load_dotenv
 from gunicorn import glogging
 from pythonjsonlogger import jsonlogger
-from typing import Any
 
 load_dotenv()
 
@@ -35,6 +36,7 @@ class StackdriverJsonFormatter(jsonlogger.JsonFormatter, object):
     def process_log_record(self, log_record):  # noqa
         log_record["severity"] = log_record["levelname"]
         del log_record["levelname"]
+        log_record["serviceContext"] = {"service": "fdk-reports-bff"}
         return super(StackdriverJsonFormatter, self).process_log_record(log_record)
 
 
