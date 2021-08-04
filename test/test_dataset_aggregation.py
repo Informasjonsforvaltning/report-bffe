@@ -1,9 +1,8 @@
-from test.unit_mock_data import mock_access_rights_catalog_response
-
 import pytest
 
 from fdk_reports_bff.dataset_aggregation import create_dataset_report
 from fdk_reports_bff.responses import DataSetResponse
+from test.unit_mock_data import mock_access_rights_catalog_response
 
 
 @pytest.mark.unit

@@ -1,5 +1,5 @@
 from flask import request
-from flask_restful import Resource, abort
+from flask_restful import abort, Resource
 
 from fdk_reports_bff.aggregation import get_report
 from fdk_reports_bff.elasticsearch import get_all_update_entries

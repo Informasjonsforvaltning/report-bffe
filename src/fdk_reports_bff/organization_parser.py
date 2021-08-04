@@ -1,9 +1,9 @@
 from typing import List
 
 from fdk_reports_bff.utils import (
+    ContentKeys,
     NATIONAL_REGISTRY_PATTERN,
     ORGANIZATION_CATALOG_PATTERN,
-    ContentKeys,
     OrgCatalogKeys,
 )
 

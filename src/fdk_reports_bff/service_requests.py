@@ -1,18 +1,18 @@
 import os
-import urllib.parse
 from typing import List
+import urllib.parse
 
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
 from fdk_reports_bff.sparql import (
-    get_concepts_query,
     get_concept_publishers_query,
+    get_concepts_query,
     get_dataservice_publisher_query,
     get_dataservice_query,
     get_dataset_publisher_query,
-    get_info_models_query,
     get_info_model_publishers_query,
+    get_info_models_query,
 )
 from fdk_reports_bff.utils import (
     ContentKeys,

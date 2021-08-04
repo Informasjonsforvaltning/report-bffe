@@ -6,6 +6,7 @@ from typing import List
 
 from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
+
 from fdk_reports_bff.elasticsearch import es_client
 from fdk_reports_bff.elasticsearch.queries import (
     AggregationQuery,

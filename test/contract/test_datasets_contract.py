@@ -1,7 +1,7 @@
 from datetime import datetime
 
-import pytest
 from dateutil import parser
+import pytest
 from requests import get
 
 service_url = "http://localhost:8000"

@@ -1,7 +1,7 @@
 import logging
 import multiprocessing
-import sys
 from os import environ as env
+import sys
 from typing import Any
 
 from dotenv import load_dotenv

@@ -1,12 +1,11 @@
-from test.mock.dataservice_graph import dataservices
-from test.unit_mock_data import concepts_response, informationmodels
-
 import pytest
 
 from fdk_reports_bff.service_requests import (
     fetch_dataservices,
     get_informationmodels_statistic,
 )
+from test.mock.dataservice_graph import dataservices
+from test.unit_mock_data import concepts_response, informationmodels
 
 
 # @pytest.mark.unit

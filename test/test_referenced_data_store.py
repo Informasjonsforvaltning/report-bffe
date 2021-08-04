@@ -1,14 +1,14 @@
 import asyncio
-from test.unit_mock_data import open_licenses_mock_reponse
 
 import pytest
 
 from fdk_reports_bff.referenced_data_store import (
-    OpenLicense,
     get_access_rights_code,
     get_los_path,
     get_open_licenses,
+    OpenLicense,
 )
+from test.unit_mock_data import open_licenses_mock_reponse
 
 
 @pytest.mark.unit

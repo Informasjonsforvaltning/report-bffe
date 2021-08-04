@@ -2,12 +2,10 @@ import atexit
 import datetime
 import logging
 import os
-import traceback
 from time import sleep
+import traceback
 
-import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
-
 from elasticsearch import (
     ConnectionError,
     ConnectionTimeout,
@@ -15,6 +13,8 @@ from elasticsearch import (
     NotFoundError,
     TransportError,
 )
+import pytz
+
 from fdk_reports_bff.elasticsearch.concepts import insert_concepts
 from fdk_reports_bff.elasticsearch.dataservices import insert_dataservices
 from fdk_reports_bff.elasticsearch.datasets import insert_datasets

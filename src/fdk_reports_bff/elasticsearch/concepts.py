@@ -1,7 +1,7 @@
 import asyncio
 import logging
-from typing import List
 import traceback
+from typing import List
 
 from fdk_reports_bff.elasticsearch.queries import CONCEPT_AGGREGATION_FIELDS
 from fdk_reports_bff.elasticsearch.utils import (
