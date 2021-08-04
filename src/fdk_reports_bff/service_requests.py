@@ -11,6 +11,8 @@ from fdk_reports_bff.sparql import (
     get_dataservice_publisher_query,
     get_dataservice_query,
     get_dataset_publisher_query,
+    get_info_models_query,
+    get_info_model_publishers_query,
 )
 from fdk_reports_bff.utils import (
     ContentKeys,
@@ -213,32 +215,41 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
 
 # informationmodels
 async def get_informationmodels_statistic():
-    print("fetch information models")
-    # async with AsyncClient() as session:
-    #     try:
-    #         informationmodels: List = []
-    #         page_number = 0
-    #         while True:
-    #             url: str = (
-    #                 f"{service_urls.get(ServiceKey.INFO_MODELS)}/informationmodels"
-    #             )
-    #
-    #             response = await session.post(url=url, json={"page": page_number})
-    #             page_count = response.json()[ContentKeys.PAGE_OBJECT][
-    #                 ContentKeys.TOTAL_PAGES
-    #             ]
-    #             informationmodels.extend(response.json()[ContentKeys.HITS])
-    #
-    #             if page_count - 1 == page_number:
-    #                 break
-    #             page_number += 1
-    #
-    #         return informationmodels
-    #
-    #     except HTTPError:
-    #         raise FetchFromServiceException(
-    #             execution_point="fetching informationmodels", url=url
-    #         )
+    models_query = urllib.parse.quote_plus(get_info_models_query())
+    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={models_query}"
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(
+                url=url,
+                headers=default_headers,
+                timeout=60)
+            response.raise_for_status()
+            res_json = response.json()
+            sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
+                ContentKeys.SPARQL_BINDINGS
+            ]
+            return sparql_bindings
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="fetching information models catalog", url=url
+            )
+
+
+async def fetch_info_model_publishers() -> dict:
+    publisher_query = urllib.parse.quote_plus(get_info_model_publishers_query())
+    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(
+                url=url,
+                headers=default_headers,
+                timeout=60)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="fetching publishers from information models catalog", url=url
+            )
 
 
 # concepts

@@ -1,9 +1,16 @@
 import asyncio
 import logging
+from typing import List
 
-from fdk_reports_bff.elasticsearch.queries import EsMappings, INFORMATION_MODEL_AGGREGATION_FIELDS
-from fdk_reports_bff.organization_parser import OrganizationReferencesObject
-from fdk_reports_bff.utils import FetchFromServiceException
+from fdk_reports_bff.elasticsearch.queries import INFORMATION_MODEL_AGGREGATION_FIELDS
+from fdk_reports_bff.elasticsearch.utils import (
+    add_org_paths_to_document,
+    elasticsearch_ingest,
+    get_all_organizations_with_publisher,
+    get_unique_records,
+)
+from fdk_reports_bff.service_requests import fetch_info_model_publishers, get_informationmodels_statistic
+from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
 def insert_informationmodels(success_status, failed_status):
@@ -13,14 +20,15 @@ def insert_informationmodels(success_status, failed_status):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        # informationmodels = loop.run_until_complete(get_informationmodels_statistic())
-        #
-        # informationmodels = [
-        #     add_es_aggregation_fields(informationmodel=informationmodel)
-        #     for informationmodel in informationmodels
-        # ]
-        #
-        # elasticsearch_ingest(ServiceKey.INFO_MODELS, informationmodels)
+        model_tasks = asyncio.gather(get_informationmodels_statistic(), fetch_info_model_publishers())
+        info_models, publishers = loop.run_until_complete(model_tasks)
+
+        prepared_docs = loop.run_until_complete(
+            prepare_documents(documents=info_models, publishers=publishers)
+        )
+
+        elasticsearch_ingest(ServiceKey.INFO_MODELS, prepared_docs)
+
         return success_status
 
     except FetchFromServiceException as err:
@@ -28,17 +36,18 @@ def insert_informationmodels(success_status, failed_status):
         return failed_status
 
 
-def add_es_aggregation_fields(informationmodel) -> dict:
-    if informationmodel.get(EsMappings.PUBLISHER):
-        informationmodel[EsMappings.ORG_PATH] = informationmodel[EsMappings.PUBLISHER][
-            EsMappings.ORG_PATH
-        ]
-        informationmodel[
-            EsMappings.ORGANIZATION_ID
-        ] = OrganizationReferencesObject.resolve_id(
-            informationmodel[EsMappings.PUBLISHER][EsMappings.URI]
-        )
-    return reduce_informationmodel(informationmodel=informationmodel)
+async def prepare_documents(documents: dict, publishers) -> List[dict]:
+    unique_record_items = get_unique_records(documents)
+
+    await get_all_organizations_with_publisher(publishers)
+    models_with_fdk_portal_paths = await asyncio.gather(
+        *[add_org_paths_to_document(rdf_values=entry) for entry in unique_record_items]
+    )
+
+    return [
+        reduce_informationmodel(informationmodel=informationmodel)
+        for informationmodel in models_with_fdk_portal_paths
+    ]
 
 
 def reduce_informationmodel(informationmodel: dict):
