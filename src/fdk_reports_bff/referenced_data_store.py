@@ -2,7 +2,10 @@ from typing import List
 
 from asyncstdlib.functools import lru_cache as alru_cache
 
-from fdk_reports_bff.organization_parser import OrganizationReferencesObject, OrganizationStore
+from fdk_reports_bff.organization_parser import (
+    OrganizationReferencesObject,
+    OrganizationStore,
+)
 from fdk_reports_bff.service_requests import (
     attempt_fetch_organization_by_name_from_catalog,
     fetch_access_rights_from_reference_data,

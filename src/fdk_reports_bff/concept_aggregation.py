@@ -1,6 +1,11 @@
-from fdk_reports_bff.aggregation_utils import get_es_aggregation, get_es_cardinality_aggregation
+from fdk_reports_bff.aggregation_utils import (
+    get_es_aggregation,
+    get_es_cardinality_aggregation,
+)
 from fdk_reports_bff.elasticsearch.queries import EsMappings
-from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_concept_report_aggregations
+from fdk_reports_bff.elasticsearch.utils import (
+    elasticsearch_get_concept_report_aggregations,
+)
 from fdk_reports_bff.responses import ConceptResponse
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 

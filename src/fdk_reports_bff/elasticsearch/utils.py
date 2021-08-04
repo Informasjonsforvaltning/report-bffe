@@ -7,14 +7,22 @@ from typing import List
 from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
 from fdk_reports_bff.elasticsearch import es_client
-from fdk_reports_bff.elasticsearch.queries import AggregationQuery, EsMappings, TimeSeriesQuery
+from fdk_reports_bff.elasticsearch.queries import (
+    AggregationQuery,
+    EsMappings,
+    TimeSeriesQuery,
+)
 from fdk_reports_bff.organization_parser import (
     OrganizationReferencesObject,
     OrganizationStore,
     OrganizationStoreNotInitiatedException,
 )
 from fdk_reports_bff.rdf_namespaces import JsonRDF
-from fdk_reports_bff.referenced_data_store import get_los_path, get_organization, get_organizations
+from fdk_reports_bff.referenced_data_store import (
+    get_los_path,
+    get_organization,
+    get_organizations,
+)
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 

@@ -1,7 +1,9 @@
 from fdk_reports_bff.concept_aggregation import create_concept_report
 from fdk_reports_bff.dataservice_aggregation import create_dataservice_report
 from fdk_reports_bff.dataset_aggregation import create_dataset_report
-from fdk_reports_bff.information_model_aggregation import create_information_model_report
+from fdk_reports_bff.information_model_aggregation import (
+    create_information_model_report,
+)
 from fdk_reports_bff.utils import QueryParameter, ServiceKey
 
 

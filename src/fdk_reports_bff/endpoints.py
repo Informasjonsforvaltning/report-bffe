@@ -6,7 +6,11 @@ from fdk_reports_bff.elasticsearch import get_all_update_entries
 from fdk_reports_bff.elasticsearch.scheduler import Update
 from fdk_reports_bff.responses import TimeSeriesResponse
 from fdk_reports_bff.timeseries import get_time_series
-from fdk_reports_bff.utils import FetchFromServiceException, NotAServiceKeyException, ServiceKey
+from fdk_reports_bff.utils import (
+    FetchFromServiceException,
+    NotAServiceKeyException,
+    ServiceKey,
+)
 
 
 class Ping(Resource):

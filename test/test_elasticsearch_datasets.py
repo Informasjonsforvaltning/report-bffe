@@ -834,4 +834,6 @@ def test_merge_dataset_information_with_mixed_distributions():
 @pytest.fixture
 def mock_cwd(mocker):
     project_root = os.getcwd().split("/test")[0]
-    return mocker.patch("fdk_reports_bff.elasticsearch.os.getcwd", return_value=project_root)
+    return mocker.patch(
+        "fdk_reports_bff.elasticsearch.os.getcwd", return_value=project_root
+    )

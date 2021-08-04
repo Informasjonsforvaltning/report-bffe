@@ -10,7 +10,10 @@ from fdk_reports_bff.elasticsearch.utils import (
     get_all_organizations_with_publisher,
     get_unique_records,
 )
-from fdk_reports_bff.service_requests import fetch_all_concepts, fetch_concept_publishers
+from fdk_reports_bff.service_requests import (
+    fetch_all_concepts,
+    fetch_concept_publishers,
+)
 from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
@@ -45,8 +48,7 @@ async def prepare_documents(documents: dict, publishers) -> List[dict]:
     )
 
     return [
-        reduce_concept(concept=concept)
-        for concept in concepts_with_fdk_portal_paths
+        reduce_concept(concept=concept) for concept in concepts_with_fdk_portal_paths
     ]
 
 

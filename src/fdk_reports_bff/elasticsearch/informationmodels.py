@@ -10,7 +10,10 @@ from fdk_reports_bff.elasticsearch.utils import (
     get_all_organizations_with_publisher,
     get_unique_records,
 )
-from fdk_reports_bff.service_requests import fetch_info_model_publishers, get_informationmodels_statistic
+from fdk_reports_bff.service_requests import (
+    fetch_info_model_publishers,
+    get_informationmodels_statistic,
+)
 from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
@@ -21,7 +24,9 @@ def insert_informationmodels(success_status, failed_status):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        model_tasks = asyncio.gather(get_informationmodels_statistic(), fetch_info_model_publishers())
+        model_tasks = asyncio.gather(
+            get_informationmodels_statistic(), fetch_info_model_publishers()
+        )
         info_models, publishers = loop.run_until_complete(model_tasks)
 
         prepared_docs = loop.run_until_complete(
