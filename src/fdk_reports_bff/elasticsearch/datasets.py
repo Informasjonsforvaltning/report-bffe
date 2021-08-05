@@ -21,7 +21,7 @@ from fdk_reports_bff.service_requests import (
 from fdk_reports_bff.utils import ContentKeys, FetchFromServiceException, ServiceKey
 
 
-def insert_datasets(success_status, failed_status):
+def insert_datasets(success_status: str, failed_status: str) -> str:
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -60,8 +60,12 @@ def insert_datasets(success_status, failed_status):
 
 
 async def prepare_documents(
-    documents: dict, los_themes: List[dict], open_licenses, media_types, publishers
-) -> dict:
+    documents: dict,
+    los_themes: List[dict],
+    open_licenses: List[str],
+    media_types: List[dict],
+    publishers: dict,
+) -> list:
     await get_all_organizations_with_publisher(publishers)
 
     documents_list = list(documents.items())
@@ -93,16 +97,23 @@ async def prepare_documents(
     ]
 
 
-def merge_dataset_information(dataset, reference_mapper) -> dict:
+def merge_dataset_information(
+    dataset: dict, reference_mapper: RdfReferenceMapper
+) -> dict:
     dataset_record = reference_mapper.get_catalog_record_for_dataset(
         dataset[EsMappings.NODE_URI]
     )
     if dataset_record is not None:
         dataset[EsMappings.RECORD] = dataset_record
+        is_part_of = (
+            dataset_record[JsonRDF.dct.isPartOf]
+            if dataset_record.get(JsonRDF.dct.isPartOf)
+            else []
+        )
         dataset[EsMappings.PART_OF_CATALOG] = reference_mapper.get_dataset_catalog_name(
-            record_part_of_uri=dataset_record.get(JsonRDF.dct.isPartOf)[0][
-                ContentKeys.VALUE
-            ],
+            record_part_of_uri=is_part_of[0].get(ContentKeys.VALUE)
+            if len(is_part_of) > 0
+            else None,
             dataset_node_uri=dataset[EsMappings.NODE_URI],
         )
     if dataset.get(JsonRDF.dcat.distribution):
@@ -121,7 +132,7 @@ def merge_dataset_information(dataset, reference_mapper) -> dict:
     return reduce_dataset(dataset)
 
 
-def reduce_dataset(dataset: dict):
+def reduce_dataset(dataset: dict) -> dict:
     reduced_dict = dataset.copy()
     for items in dataset.items():
         key = items[0]

@@ -1,18 +1,18 @@
 import os
-import urllib.parse
 from typing import List
+import urllib.parse
 
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
 from fdk_reports_bff.sparql import (
-    get_concepts_query,
     get_concept_publishers_query,
+    get_concepts_query,
     get_dataservice_publisher_query,
     get_dataservice_query,
     get_dataset_publisher_query,
-    get_info_models_query,
     get_info_model_publishers_query,
+    get_info_models_query,
 )
 from fdk_reports_bff.utils import (
     ContentKeys,
@@ -107,7 +107,7 @@ async def attempt_fetch_organization_by_name_from_catalog(name: str) -> dict:
             raise NotInNationalRegistryException(name)
 
 
-async def fetch_generated_org_path_from_organization_catalog(name: str):
+async def fetch_generated_org_path_from_organization_catalog(name: str) -> str:
     if name is None:
         return None
     url: str = f"{service_urls.get(ServiceKey.ORGANIZATIONS)}/organizations/orgpath/{name.upper()}"
@@ -153,7 +153,7 @@ async def fetch_open_licences_from_reference_data() -> List[dict]:
             )
 
 
-async def fetch_access_rights_from_reference_data():
+async def fetch_access_rights_from_reference_data() -> list:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/rightsstatement"
     async with AsyncClient() as session:
         try:
@@ -166,7 +166,7 @@ async def fetch_access_rights_from_reference_data():
             )
 
 
-async def fetch_media_types_from_reference_data():
+async def fetch_media_types_from_reference_data() -> list:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/mediatypes"
     async with AsyncClient() as session:
         try:
@@ -212,15 +212,12 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
 
 
 # informationmodels
-async def get_informationmodels_statistic():
+async def get_informationmodels_statistic() -> List[dict]:
     models_query = urllib.parse.quote_plus(get_info_models_query())
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={models_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(
-                url=url,
-                headers=default_headers,
-                timeout=60)
+            response = await session.get(url=url, headers=default_headers, timeout=60)
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -238,28 +235,23 @@ async def fetch_info_model_publishers() -> dict:
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(
-                url=url,
-                headers=default_headers,
-                timeout=60)
+            response = await session.get(url=url, headers=default_headers, timeout=60)
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
-                execution_point="fetching publishers from information models catalog", url=url
+                execution_point="fetching publishers from information models catalog",
+                url=url,
             )
 
 
 # concepts
-async def fetch_all_concepts():
+async def fetch_all_concepts() -> List[dict]:
     concepts_query = urllib.parse.quote_plus(get_concepts_query())
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={concepts_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(
-                url=url,
-                headers=default_headers,
-                timeout=60)
+            response = await session.get(url=url, headers=default_headers, timeout=60)
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -277,10 +269,7 @@ async def fetch_concept_publishers() -> dict:
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(
-                url=url,
-                headers=default_headers,
-                timeout=60)
+            response = await session.get(url=url, headers=default_headers, timeout=60)
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -290,7 +279,7 @@ async def fetch_concept_publishers() -> dict:
 
 
 # dataservices
-async def fetch_dataservices() -> dict:
+async def fetch_dataservices() -> List[dict]:
     dataservice_query = urllib.parse.quote_plus(get_dataservice_query())
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={dataservice_query}"
     async with AsyncClient() as session:

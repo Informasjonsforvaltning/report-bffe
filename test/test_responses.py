@@ -1,5 +1,3 @@
-from test.unit_mock_data import concepts_aggregation, concepts_in_use
-
 import pytest
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
@@ -10,6 +8,7 @@ from fdk_reports_bff.responses import (
     TimeSeriesResponse,
 )
 from fdk_reports_bff.utils import ContentKeys, ThemeProfile
+from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 
 @pytest.mark.skip

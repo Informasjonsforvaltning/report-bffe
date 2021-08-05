@@ -1,6 +1,6 @@
-from test.unit_mock_data import mocked_organization_catalog_response
-
 import pytest
+
+from test.unit_mock_data import mocked_organization_catalog_response
 
 
 @pytest.fixture

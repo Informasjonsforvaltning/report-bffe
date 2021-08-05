@@ -2,28 +2,37 @@ import json
 import logging
 import os
 import traceback
-from typing import List
+from typing import Any, List
 
 from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
+
 from fdk_reports_bff.elasticsearch import es_client
-from fdk_reports_bff.elasticsearch.queries import AggregationQuery, EsMappings, TimeSeriesQuery
+from fdk_reports_bff.elasticsearch.queries import (
+    AggregationQuery,
+    EsMappings,
+    TimeSeriesQuery,
+)
 from fdk_reports_bff.organization_parser import (
     OrganizationReferencesObject,
     OrganizationStore,
     OrganizationStoreNotInitiatedException,
 )
 from fdk_reports_bff.rdf_namespaces import JsonRDF
-from fdk_reports_bff.referenced_data_store import get_los_path, get_organization, get_organizations
+from fdk_reports_bff.referenced_data_store import (
+    get_los_path,
+    get_organization,
+    get_organizations,
+)
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
-def add_key_as_node_uri(key, value):
+def add_key_as_node_uri(key: str, value: dict) -> dict:
     value[EsMappings.NODE_URI] = key
     return value
 
 
-async def get_all_organizations_with_publisher(publishers):
+async def get_all_organizations_with_publisher(publishers: dict) -> None:
     await get_organizations()
     OrganizationStore.get_instance().add_all_publishers(publishers)
 
@@ -86,17 +95,19 @@ async def add_formats_to_document(rdf_values: dict) -> dict:
 
 def add_los_path_to_document(json_rdf_values: dict, los_themes: List[dict]) -> dict:
     if JsonRDF.dcat.theme in json_rdf_values.keys():
-        los_uris = [
-            theme.get(ContentKeys.VALUE)
-            for theme in json_rdf_values.get(JsonRDF.dcat.theme)
-        ]
+        themes = (
+            json_rdf_values[JsonRDF.dcat.theme]
+            if json_rdf_values.get(JsonRDF.dcat.theme)
+            else []
+        )
+        los_uris = [theme.get(ContentKeys.VALUE) for theme in themes]
         los_paths = get_los_path(uri_list=los_uris, los_themes=los_themes)
         if len(los_paths) > 0:
             json_rdf_values[EsMappings.LOS] = los_paths
     return json_rdf_values
 
 
-def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
+def elasticsearch_ingest(index_key: str, documents: List[dict]) -> Any:
     recreate_index(index_key=index_key)
     try:
         result = helpers.bulk(
@@ -109,7 +120,7 @@ def elasticsearch_ingest(index_key: ServiceKey, documents: List[dict]):
         )
 
 
-def yield_documents(documents):
+def yield_documents(documents: list) -> Any:
     for doc in documents:
         yield doc
 
@@ -120,7 +131,7 @@ def get_values_from_nested_dict(entry: dict) -> dict:
 
 
 # noinspection PyBroadException
-def recreate_index(index_key):
+def recreate_index(index_key: str) -> None:
     """delete and recreate an index with settings and mapping from file"""
     logging.info("reindexing {0}".format(index_key))
     with open(
@@ -137,12 +148,12 @@ def recreate_index(index_key):
 
 
 def elasticsearch_get_report_aggregations(
-    report_type: ServiceKey,
-    orgpath=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-):
+    report_type: str,
+    orgpath: Any = None,
+    theme: Any = None,
+    theme_profile: Any = None,
+    organization_id: Any = None,
+) -> Any:
     query = AggregationQuery(
         report_type=report_type,
         orgpath=orgpath,
@@ -155,12 +166,12 @@ def elasticsearch_get_report_aggregations(
 
 
 def elasticsearch_get_concept_report_aggregations(
-    report_type: ServiceKey,
-    orgpath=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-):
+    report_type: str,
+    orgpath: Any = None,
+    theme: Any = None,
+    theme_profile: Any = None,
+    organization_id: Any = None,
+) -> Any:
     query_array = [
         {"index": "datasets"},
         {
@@ -192,13 +203,13 @@ def elasticsearch_get_concept_report_aggregations(
 
 
 def elasticsearch_get_time_series(
-    report_type: ServiceKey,
-    org_path=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-    series_field=None,
-):
+    report_type: str,
+    org_path: Any = None,
+    theme: Any = None,
+    theme_profile: Any = None,
+    organization_id: Any = None,
+    series_field: Any = None,
+) -> Any:
     query = TimeSeriesQuery(
         series_field,
         orgpath=org_path,
@@ -210,7 +221,7 @@ def elasticsearch_get_time_series(
     return aggregations
 
 
-def get_unique_records(items: dict):
+def get_unique_records(items: List[dict]) -> List[dict]:
     seen = set()
     unique_records = []
     for obj in items:

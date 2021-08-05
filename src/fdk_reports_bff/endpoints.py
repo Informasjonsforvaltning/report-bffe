@@ -1,24 +1,30 @@
+from typing import Any
+
 from flask import request
-from flask_restful import Resource, abort
+from flask_restful import abort, Resource
 
 from fdk_reports_bff.aggregation import get_report
 from fdk_reports_bff.elasticsearch import get_all_update_entries
 from fdk_reports_bff.elasticsearch.scheduler import Update
 from fdk_reports_bff.responses import TimeSeriesResponse
 from fdk_reports_bff.timeseries import get_time_series
-from fdk_reports_bff.utils import FetchFromServiceException, NotAServiceKeyException, ServiceKey
+from fdk_reports_bff.utils import (
+    FetchFromServiceException,
+    NotAServiceKeyException,
+    ServiceKey,
+)
 
 
 class Ping(Resource):
-    def get(self):
+    def get(self: Any) -> Any:
         return 200
 
 
 class Updates(Resource):
-    def get(self):
+    def get(self: Any) -> Any:
         return get_all_update_entries()
 
-    def post(self):
+    def post(self: Any) -> Any:
         try:
             should_ignore = request.args["ignore_previous"]
         except KeyError:
@@ -28,12 +34,12 @@ class Updates(Resource):
 
 
 class Ready(Resource):
-    def get(self):
+    def get(self: Any) -> Any:
         return 200
 
 
 class Report(Resource):
-    def get(self, content_type):
+    def get(self: Any, content_type: str) -> Any:
         try:
             result = get_report(
                 content_type=ServiceKey.get_key(content_type), args=request.args
@@ -48,7 +54,7 @@ class Report(Resource):
 
 
 class TimeSeries(Resource):
-    def get(self, content_type):
+    def get(self: Any, content_type: str) -> Any:
         try:
             result: TimeSeriesResponse = get_time_series(
                 ServiceKey.get_key(content_type), args=request.args

@@ -8,6 +8,7 @@ import nox_poetry
 locations = "src", "test", "noxfile.py"
 nox.options.sessions = (
     "lint",
+    "mypy",
     "safety",
     "unit_tests",
     "contract_tests",
@@ -80,6 +81,11 @@ def lint(session: Session) -> None:
     args = session.posargs or locations
     session.install(
         "flake8",
+        "flake8-annotations",
+        "flake8-bandit",
+        "flake8-black",
+        "flake8-bugbear",
+        "flake8-import-order",
         "pep8-naming",
     )
     session.run("flake8", *args)
@@ -91,6 +97,14 @@ def coverage(session: Session) -> None:
     session.install("coverage[toml]", "codecov")
     session.run("coverage", "xml", "--fail-under=0")
     session.run("codecov", *session.posargs)
+
+
+@nox_poetry.session
+def mypy(session: Session) -> None:
+    """Type-check using mypy."""
+    args = session.posargs or locations
+    session.install("mypy")
+    session.run("mypy", *args)
 
 
 @nox_poetry.session

@@ -1,4 +1,5 @@
 import abc
+from typing import Any, Optional
 
 from fdk_reports_bff.rdf_namespaces import JsonRDF
 from fdk_reports_bff.utils import ContentKeys, ServiceKey, ThemeProfile
@@ -76,11 +77,13 @@ CONCEPT_AGGREGATION_FIELDS = [
 
 
 class Query(metaclass=abc.ABCMeta):
-    def __init__(self):
+    def __init__(self: Any) -> None:
         self.aggregations = None
         self.query = None
 
-    def add_filters(self, orgpath, themes, theme_profile, organization_id):
+    def add_filters(
+        self: Any, orgpath: Any, themes: Any, theme_profile: Any, organization_id: Any
+    ) -> None:
         if orgpath or themes or theme_profile or organization_id:
             self.query = {"bool": {"filter": []}}
             if themes:
@@ -98,7 +101,7 @@ class Query(metaclass=abc.ABCMeta):
                     get_term_query(EsMappings.ORGANIZATION_ID, organization_id)
                 )
 
-    def build(self):
+    def build(self: Any) -> dict:
         body = {"size": 0, "aggregations": self.aggregations}
         if self.query:
             body["query"] = self.query
@@ -107,13 +110,13 @@ class Query(metaclass=abc.ABCMeta):
 
 class AggregationQuery(Query):
     def __init__(
-        self,
-        report_type: ServiceKey,
-        orgpath=None,
-        theme=None,
-        theme_profile=None,
-        organization_id=None,
-    ):
+        self: Any,
+        report_type: str,
+        orgpath: Any = None,
+        theme: Any = None,
+        theme_profile: Any = None,
+        organization_id: Any = None,
+    ) -> None:
         super().__init__()
         if report_type == ServiceKey.DATA_SETS:
             issued_field = f"{EsMappings.RECORD}.{JsonRDF.dct.issued}.value"
@@ -148,7 +151,7 @@ class AggregationQuery(Query):
         self.query = None
         self.add_filters(orgpath, theme, theme_profile, organization_id)
 
-    def __add_datasets_aggregation(self):
+    def __add_datasets_aggregation(self: Any) -> None:
         self.aggregations[
             ContentKeys.ACCESS_RIGHTS_CODE
         ] = AggregationQuery.json_rdf_terms_aggregation(JsonRDF.dct.accessRights)
@@ -176,7 +179,7 @@ class AggregationQuery(Query):
             }
         }
 
-    def __add_dataservice_aggregation(self):
+    def __add_dataservice_aggregation(self: Any) -> None:
         self.aggregations[ContentKeys.MEDIATYPE] = {
             "terms": {
                 "field": f"{EsMappings.MEDIATYPE}.value.keyword",
@@ -186,11 +189,11 @@ class AggregationQuery(Query):
         }
 
     @staticmethod
-    def es_keyword_key(json_ld_key: str):
+    def es_keyword_key(json_ld_key: str) -> str:
         return f"{json_ld_key}{EsMappings.VALUE_KEYWORD}"
 
     @staticmethod
-    def json_rdf_terms_aggregation(json_ld_field: str, size: int = None):
+    def json_rdf_terms_aggregation(json_ld_field: str, size: int = None) -> dict:
         return {
             "terms": {
                 "field": AggregationQuery.es_keyword_key(json_ld_field),
@@ -201,7 +204,14 @@ class AggregationQuery(Query):
 
 
 class TimeSeriesQuery(Query):
-    def __init__(self, series_field, orgpath, theme, theme_profile, organization_id):
+    def __init__(
+        self: Any,
+        series_field: Any,
+        orgpath: Any,
+        theme: Any,
+        theme_profile: Any,
+        organization_id: Any,
+    ) -> None:
         super().__init__()
         self.aggregations = {
             f"{EsMappings.TIME_SERIES}": {
@@ -236,31 +246,33 @@ def open_data_aggregation() -> dict:
     }
 
 
-def get_last_x_days_filter(key: str, days: int):
+def get_last_x_days_filter(key: str, days: int) -> dict:
     range_str = f"now-{days}d/d"
     return {"filter": {"range": {key: {"gte": range_str, "lt": "now+1d/d"}}}}
 
 
-def get_los_path_filter(themes_str: str = None, profile_themes_list=None):
+def get_los_path_filter(
+    themes_str: Optional[str] = None, profile_themes_list: Optional[list] = None
+) -> list:
     if themes_str is not None:
         themes_list = themes_str.split(",")
     elif profile_themes_list is not None:
         themes_list = profile_themes_list
     else:
-        return
+        return []
     terms = []
     for theme in themes_list:
         terms.append({"term": {EsMappings.LOS: theme}})
     return terms
 
 
-def get_org_path_filter(org_path: str):
+def get_org_path_filter(org_path: str) -> dict:
     if org_path == EsMappings.MISSING:
         return must_not_filter(EsMappings.ORG_PATH)
     return {"term": {EsMappings.ORG_PATH: org_path}}
 
 
-def get_theme_profile_filter(profile: ThemeProfile):
+def get_theme_profile_filter(profile: str) -> dict:
     if profile == ThemeProfile.TRANSPORT:
         should_list = get_los_path_filter(
             profile_themes_list=ThemeProfile.TRANSPORT_THEMES
@@ -280,12 +292,14 @@ def get_theme_profile_filter(profile: ThemeProfile):
                 ]
             }
         }
+    else:
+        return {}
 
 
-def get_term_query(field, value) -> dict:
+def get_term_query(field: str, value: str) -> dict:
     return {"term": {f"{field}.keyword": {"value": value}}}
 
 
-def must_not_filter(filter_key: str):
+def must_not_filter(filter_key: str) -> dict:
     missing_filter = {"bool": {"must_not": {"exists": {"field": filter_key}}}}
     return missing_filter

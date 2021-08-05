@@ -1,3 +1,5 @@
+from typing import Any
+
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_time_series
 from fdk_reports_bff.rdf_namespaces import JsonRDF
@@ -5,7 +7,7 @@ from fdk_reports_bff.responses import TimeSeriesResponse
 from fdk_reports_bff.utils import QueryParameter, ServiceKey
 
 
-def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
+def get_time_series(content_type: str, args: Any) -> TimeSeriesResponse:
     orgpath = args.get(QueryParameter.ORG_PATH)
     theme = args.get(QueryParameter.THEME)
     theme_profile = args.get(QueryParameter.THEME_PROFILE)
@@ -38,12 +40,12 @@ def get_time_series(content_type: ServiceKey, args) -> TimeSeriesResponse:
 
 
 def get_time_series_response(
-    report_type=None,
-    org_path=None,
-    theme=None,
-    theme_profile=None,
-    organization_id=None,
-    series_field=None,
+    report_type: str,
+    org_path: Any = None,
+    theme: Any = None,
+    theme_profile: Any = None,
+    organization_id: Any = None,
+    series_field: Any = None,
 ) -> TimeSeriesResponse:
     es_time_series = elasticsearch_get_time_series(
         report_type=report_type,

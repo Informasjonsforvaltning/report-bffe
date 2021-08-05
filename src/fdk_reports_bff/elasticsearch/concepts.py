@@ -1,7 +1,7 @@
 import asyncio
 import logging
-from typing import List
 import traceback
+from typing import List
 
 from fdk_reports_bff.elasticsearch.queries import CONCEPT_AGGREGATION_FIELDS
 from fdk_reports_bff.elasticsearch.utils import (
@@ -10,11 +10,14 @@ from fdk_reports_bff.elasticsearch.utils import (
     get_all_organizations_with_publisher,
     get_unique_records,
 )
-from fdk_reports_bff.service_requests import fetch_all_concepts, fetch_concept_publishers
+from fdk_reports_bff.service_requests import (
+    fetch_all_concepts,
+    fetch_concept_publishers,
+)
 from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
-def insert_concepts(success_status, failed_status):
+def insert_concepts(success_status: str, failed_status: str) -> str:
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -36,7 +39,7 @@ def insert_concepts(success_status, failed_status):
         return failed_status
 
 
-async def prepare_documents(documents: dict, publishers) -> List[dict]:
+async def prepare_documents(documents: List[dict], publishers: dict) -> List[dict]:
     unique_record_items = get_unique_records(documents)
 
     await get_all_organizations_with_publisher(publishers)
@@ -45,12 +48,11 @@ async def prepare_documents(documents: dict, publishers) -> List[dict]:
     )
 
     return [
-        reduce_concept(concept=concept)
-        for concept in concepts_with_fdk_portal_paths
+        reduce_concept(concept=concept) for concept in concepts_with_fdk_portal_paths
     ]
 
 
-def reduce_concept(concept: dict):
+def reduce_concept(concept: dict) -> dict:
     reduced_dict = concept.copy()
     for items in concept.items():
         key = items[0]

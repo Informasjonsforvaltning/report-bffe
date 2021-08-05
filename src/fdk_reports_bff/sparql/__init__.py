@@ -1,4 +1,4 @@
-def get_dataset_publisher_query():
+def get_dataset_publisher_query() -> str:
     return """
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -16,7 +16,7 @@ def get_dataset_publisher_query():
     """
 
 
-def get_dataservice_query():
+def get_dataservice_query() -> str:
     return """
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -38,7 +38,7 @@ def get_dataservice_query():
     """
 
 
-def get_dataservice_publisher_query():
+def get_dataservice_publisher_query() -> str:
     return """
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -54,7 +54,7 @@ def get_dataservice_publisher_query():
     """
 
 
-def get_concepts_query():
+def get_concepts_query() -> str:
     return """
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -74,7 +74,7 @@ def get_concepts_query():
     """
 
 
-def get_concept_publishers_query():
+def get_concept_publishers_query() -> str:
     return """
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -90,7 +90,7 @@ def get_concept_publishers_query():
     """
 
 
-def get_info_models_query():
+def get_info_models_query() -> str:
     return """
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -110,7 +110,7 @@ def get_info_models_query():
     """
 
 
-def get_info_model_publishers_query():
+def get_info_model_publishers_query() -> str:
     return """
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX dcat: <http://www.w3.org/ns/dcat#>

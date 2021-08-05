@@ -1,6 +1,10 @@
 import asyncio
+from typing import Any, Optional
 
-from fdk_reports_bff.aggregation_utils import get_es_aggregation, get_es_cardinality_aggregation
+from fdk_reports_bff.aggregation_utils import (
+    get_es_aggregation,
+    get_es_cardinality_aggregation,
+)
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_report_aggregations
 from fdk_reports_bff.referenced_data_store import get_access_rights_code
@@ -8,7 +12,9 @@ from fdk_reports_bff.responses import DataSetResponse
 from fdk_reports_bff.utils import ContentKeys, ServiceKey
 
 
-def create_dataset_report(orgpath, theme, theme_profile, organization_id):
+def create_dataset_report(
+    orgpath: Any, theme: Any, theme_profile: Any, organization_id: Any
+) -> Any:
     es_report = elasticsearch_get_report_aggregations(
         report_type=ServiceKey.DATA_SETS,
         orgpath=orgpath,
@@ -54,13 +60,14 @@ def create_dataset_report(orgpath, theme, theme_profile, organization_id):
     )
 
 
-async def map_access_rights_to_code(access_right: dict):
+async def map_access_rights_to_code(access_right: dict) -> dict:
     rdf_key = access_right[ContentKeys.KEY]
+    code_key: Optional[str] = None
     if rdf_key == EsMappings.MISSING:
         code_key = EsMappings.MISSING
     else:
         code_key = await get_access_rights_code(rdf_key)
     return {
-        ContentKeys.KEY: code_key,
+        ContentKeys.KEY: code_key if code_key else EsMappings.MISSING,
         ContentKeys.COUNT: access_right[ContentKeys.COUNT],
     }

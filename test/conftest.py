@@ -1,15 +1,16 @@
 import asyncio
 import time
+
+import pytest
+import requests
+from urllib3.exceptions import MaxRetryError, NewConnectionError
+
 from test.unit_mock_data import (
     mock_access_rights_catalog_response,
     mock_los_path_reference_response,
     parsed_org_catalog_mock,
     single_parsed_org_mock,
 )
-
-import pytest
-import requests
-from urllib3.exceptions import MaxRetryError, NewConnectionError
 
 
 @pytest.fixture(scope="session")

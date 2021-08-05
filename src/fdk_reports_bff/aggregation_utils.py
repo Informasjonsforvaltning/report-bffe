@@ -1,8 +1,10 @@
+from typing import Any
+
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.utils import ContentKeys
 
 
-def get_es_aggregation(es_hits: dict, content_key):
+def get_es_aggregation(es_hits: dict, content_key: str) -> Any:
     single_aggregations = [
         ContentKeys.NEW_LAST_WEEK,
         ContentKeys.NATIONAL_COMPONENT,
@@ -10,21 +12,17 @@ def get_es_aggregation(es_hits: dict, content_key):
         ContentKeys.WITH_SUBJECT,
     ]
     if content_key in single_aggregations:
-        return es_hits.get(EsMappings.AGGREGATIONS).get(content_key)[
-            EsMappings.DOC_COUNT
-        ]
+        return es_hits[EsMappings.AGGREGATIONS][content_key][EsMappings.DOC_COUNT]
     else:
-        buckets = es_hits.get(EsMappings.AGGREGATIONS).get(content_key)[
-            EsMappings.BUCKETS
-        ]
+        buckets = es_hits[EsMappings.AGGREGATIONS][content_key][EsMappings.BUCKETS]
         return rename_doc_count_to_count(buckets)
 
 
-def get_es_cardinality_aggregation(es_hits: dict, content_key):
-    return es_hits.get(EsMappings.AGGREGATIONS).get(content_key)[ContentKeys.VALUE]
+def get_es_cardinality_aggregation(es_hits: dict, content_key: str) -> Any:
+    return es_hits[EsMappings.AGGREGATIONS][content_key][ContentKeys.VALUE]
 
 
-def rename_doc_count_to_count(aggregation_buckets):
+def rename_doc_count_to_count(aggregation_buckets: Any) -> list:
     return [
         {
             ContentKeys.KEY: bucket[ContentKeys.KEY],

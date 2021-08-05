@@ -1,14 +1,13 @@
-from typing import List
+from typing import Any, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import CATALOG_RECORD_AGGREGATION_FIELDS
 from fdk_reports_bff.elasticsearch.utils import get_values_from_nested_dict
 from fdk_reports_bff.rdf_namespaces import JsonRDF
-from fdk_reports_bff.referenced_data_store import MediaTypes
 from fdk_reports_bff.utils import ContentKeys
 
 
 class CatalogRecords:
-    def __init__(self, record_entry):
+    def __init__(self: Any, record_entry: Any) -> None:
         self.uri = record_entry[0]
         content = record_entry[1]
         content_keys = content.keys()
@@ -20,12 +19,14 @@ class CatalogRecords:
         ]
         self.issued = content.get(JsonRDF.dct.issued)[0][ContentKeys.VALUE]
 
-    def primary_topic_is(self, uri) -> bool:
+    def primary_topic_is(self: Any, uri: Any) -> bool:
         return self.primary_topic == uri
 
 
 class CatalogReference:
-    def __init__(self, catalog_entry: tuple, catalog_records: List[CatalogRecords]):
+    def __init__(
+        self: Any, catalog_entry: tuple, catalog_records: List[CatalogRecords]
+    ) -> None:
         catalog_entry_content = catalog_entry[1]
         if JsonRDF.dct.title in catalog_entry_content:
             self.name = catalog_entry_content[JsonRDF.dct.title][0][ContentKeys.VALUE]
@@ -43,7 +44,7 @@ class CatalogReference:
         else:
             self.datasets = list()
 
-    def __eq__(self, other):
+    def __eq__(self: Any, other: Any) -> bool:
         if type(other) == str:
             eq_str = other.strip()
             return (
@@ -51,15 +52,17 @@ class CatalogReference:
                 or eq_str in self.datasets
                 or eq_str in self.record_refs
             )
+        else:
+            return False
 
 
 class RdfReferenceMapper:
     def __init__(
-        self,
-        document_list: List[dict],
+        self: Any,
+        document_list: List,
         open_licenses: List[str],
-        media_types: List[MediaTypes],
-    ):
+        media_types: List,
+    ) -> None:
         self.media_types = media_types
         self.catalog_records = [
             CatalogRecords(entry)
@@ -84,12 +87,17 @@ class RdfReferenceMapper:
             if JsonRDF.rdf_type_equals(JsonRDF.dcat.distribution_type, entry)
         ]
 
-    def has_open_license(self, dcat_distributions: List[dict]) -> bool:
+    def has_open_license(self: Any, dcat_distributions: List[dict]) -> bool:
         for license_entry in dcat_distributions:
             try:
-                licence_value = license_entry.get(JsonRDF.dct.license)[0][
-                    ContentKeys.VALUE
-                ]
+                licenses = (
+                    license_entry[JsonRDF.dct.license]
+                    if license_entry.get(JsonRDF.dct.license)
+                    else []
+                )
+                licence_value = (
+                    licenses[0].get(ContentKeys.VALUE) if len(licenses) else None
+                )
                 if licence_value in self.open_licenses:
                     return True
                 elif licence_value in self.open_license_b_nodes:
@@ -98,7 +106,7 @@ class RdfReferenceMapper:
                 continue
         return False
 
-    def get_distributions_in_entry(self, entry: dict, node_uri: str):
+    def get_distributions_in_entry(self: Any, entry: dict, node_uri: str) -> List:
         distribution_node_refs = [
             entry.get("value") for entry in entry[JsonRDF.dcat.distribution]
         ]
@@ -113,7 +121,7 @@ class RdfReferenceMapper:
 
         return ref_distribution_values
 
-    def get_open_license_nodes_from_license_docs(self) -> List[str]:
+    def get_open_license_nodes_from_license_docs(self: Any) -> List[Any]:
         source_values = [
             {
                 "uri": list(licence_doc.items())[0][0],
@@ -123,15 +131,19 @@ class RdfReferenceMapper:
             }
             for licence_doc in self.dct_licence_documents
         ]
-        return [
-            doc.get("uri")
-            for doc in source_values
-            if doc.get(ContentKeys.VALUE)[0][ContentKeys.VALUE] in self.open_licenses
-        ]
+        nodes = []
+        for doc in source_values:
+            values = doc[ContentKeys.VALUE] if doc.get(ContentKeys.VALUE) else []
+            lic_value = values[0].get(ContentKeys.VALUE) if len(values) > 0 else None
+            if lic_value in self.open_licenses:
+                nodes.append(doc.get("uri"))
+        return nodes
 
     def get_dataset_catalog_name(
-        self, record_part_of_uri: str = None, dataset_node_uri: str = None
-    ) -> str:
+        self: Any,
+        record_part_of_uri: Optional[str] = None,
+        dataset_node_uri: Optional[str] = None,
+    ) -> Optional[str]:
         from_dct_part_of = self.__get_catalog_name_by_dct_part_of(record_part_of_uri)
         if from_dct_part_of is not None:
             return from_dct_part_of
@@ -143,7 +155,9 @@ class RdfReferenceMapper:
             except (ValueError, AttributeError):
                 return None
 
-    def __get_catalog_name_by_dct_part_of(self, record_part_of_uri: str):
+    def __get_catalog_name_by_dct_part_of(
+        self: Any, record_part_of_uri: str
+    ) -> Optional[str]:
         if record_part_of_uri is not None:
             try:
                 catalog_idx = self.catalogs.index(record_part_of_uri)
@@ -154,12 +168,13 @@ class RdfReferenceMapper:
         else:
             return None
 
-    def get_catalog_record_for_dataset(self, dataset_uri: str) -> dict:
+    def get_catalog_record_for_dataset(self: Any, dataset_uri: str) -> Optional[dict]:
         for record in self.catalog_records:
             if record.primary_topic_is(dataset_uri):
                 return reduce_record(record.json_rdf_entry)
+        return None
 
-    def get_formats_with_codes(self, dcat_distributions):
+    def get_formats_with_codes(self: Any, dcat_distributions: List) -> List[str]:
         distributions_formats = [
             dist.get(JsonRDF.dct.format) for dist in dcat_distributions
         ]
@@ -180,7 +195,7 @@ class RdfReferenceMapper:
         return formats
 
 
-def reduce_record(record: dict):
+def reduce_record(record: dict) -> dict:
     reduced_record = record[1].copy()
     for items in record[1].items():
         key = items[0]
@@ -189,7 +204,7 @@ def reduce_record(record: dict):
     return reduced_record
 
 
-def remove_nested_distributions(distribution: dict):
+def remove_nested_distributions(distribution: dict) -> dict:
     reduced_dict = distribution.copy()
     reduced_dict.pop(JsonRDF.dcat.distribution)
     return reduced_dict

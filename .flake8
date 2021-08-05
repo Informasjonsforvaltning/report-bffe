@@ -2,3 +2,4 @@
 max-line-length = 125
 application-import-names = fdk_reports_bff, test
 per-file-ignores = test/*:S101,ANN,E501
+import-order-style = google

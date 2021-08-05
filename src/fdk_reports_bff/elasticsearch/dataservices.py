@@ -10,11 +10,14 @@ from fdk_reports_bff.elasticsearch.utils import (
     get_all_organizations_with_publisher,
     get_unique_records,
 )
-from fdk_reports_bff.service_requests import fetch_dataservices, fetch_publishers_from_dataservice
+from fdk_reports_bff.service_requests import (
+    fetch_dataservices,
+    fetch_publishers_from_dataservice,
+)
 from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
 
 
-def insert_dataservices(success_status, failed_status):
+def insert_dataservices(success_status: str, failed_status: str) -> str:
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -38,7 +41,7 @@ def insert_dataservices(success_status, failed_status):
         return failed_status
 
 
-async def prepare_documents(documents: dict, publishers) -> List[dict]:
+async def prepare_documents(documents: List[dict], publishers: dict) -> List[dict]:
     await get_all_organizations_with_publisher(publishers)
     dataservices_with_fdk_portal_paths = await asyncio.gather(
         *[add_org_paths_to_document(rdf_values=entry) for entry in documents]
@@ -57,16 +60,18 @@ async def prepare_documents(documents: dict, publishers) -> List[dict]:
                 None,
             )
 
-            document_value = document["mediaType"]["value"]
+            if item:
+                document_value = document["mediaType"]["value"]
 
-            if item.get("mediaType", {}).get("value"):
-                if not isinstance(item["mediaType"]["value"], list):
-                    item["mediaType"]["value"] = [item["mediaType"]["value"]]
-                if document_value not in item["mediaType"]["value"]:
-                    item["mediaType"]["value"].append(document_value)
-            else:
-                item["mediaType"]["value"] = document_value
-                print(item)
+                item_value = item.get("mediaType", {}).get("value")
+                if item_value:
+                    if not isinstance(item_value, list):
+                        item["mediaType"]["value"] = [item_value]
+                    if document_value not in item_value:
+                        item_value.append(document_value)
+                        item["mediaType"]["value"] = item_value
+                else:
+                    item["mediaType"]["value"] = document_value
 
     return [
         reduce_dataservice(dataservice=dataservice)
@@ -74,7 +79,7 @@ async def prepare_documents(documents: dict, publishers) -> List[dict]:
     ]
 
 
-def reduce_dataservice(dataservice: dict):
+def reduce_dataservice(dataservice: dict) -> dict:
     reduced_dict = dataservice.copy()
     for items in dataservice.items():
         key = items[0]

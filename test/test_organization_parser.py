@@ -1,3 +1,9 @@
+import pytest
+
+from fdk_reports_bff.organization_parser import (
+    OrganizationReferencesObject,
+    OrganizationStore,
+)
 from test.unit_mock_data import (
     brreg_org,
     mocked_organization_catalog_response,
@@ -5,9 +11,6 @@ from test.unit_mock_data import (
     parsed_org_catalog_mock,
 )
 
-import pytest
-
-from fdk_reports_bff.organization_parser import OrganizationReferencesObject, OrganizationStore
 
 aas_kommune_sparql = {
     "name": {"type": "literal", "value": "Ås kommune"},
