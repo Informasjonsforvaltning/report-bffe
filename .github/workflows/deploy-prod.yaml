@@ -36,11 +36,12 @@ jobs:
     - name: Run tests with nox
       run: nox
 
-    - name: Build Docker image with GitHub commit sha tag and latest tag
-      run: docker build . -t eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:$GITHUB_SHA -t eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:latest
-
-    - name: Publish docker image to Google Cloud
-      run: docker -- push eu.gcr.io/digdir-fdk-infra/fdk-reports-bff -a
+    - name: Tag and publish docker image to Google Cloud
+      run: |
+        docker tag eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:test eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:$GITHUB_SHA
+        docker tag eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:test eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:latest
+        docker rmi eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:test
+        docker -- push eu.gcr.io/digdir-fdk-infra/fdk-reports-bff -a
 
     - name: Apply Helm template
       run: |
