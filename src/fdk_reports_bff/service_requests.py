@@ -23,16 +23,16 @@ from fdk_reports_bff.utils import (
 
 service_urls = {
     ServiceKey.ORGANIZATIONS: os.getenv("ORGANIZATION_CATALOG_URL")
-    or "http://localhost:8080",
+    or "http://localhost:8000",
     ServiceKey.INFO_MODELS: os.getenv("INFORMATIONMODELS_HARVESTER_URL")
-    or "http://localhost:8080",
-    ServiceKey.DATA_SERVICES: os.getenv("FDK_BASE") or "http://localhost:8080",
-    ServiceKey.DATA_SETS: os.getenv("DATASET_HARVESTER_URL") or "http://localhost:8080",
-    ServiceKey.CONCEPTS: os.getenv("CONCEPT_HARVESTER_URL") or "http://localhost:8080",
+    or "http://localhost:8000",
+    ServiceKey.DATA_SERVICES: os.getenv("FDK_BASE") or "http://localhost:8000",
+    ServiceKey.DATA_SETS: os.getenv("DATASET_HARVESTER_URL") or "http://localhost:8000",
+    ServiceKey.CONCEPTS: os.getenv("CONCEPT_HARVESTER_URL") or "http://localhost:8000",
     ServiceKey.REFERENCE_DATA: os.getenv("REFERENCE_DATA_URL")
-    or "http://localhost:8080/reference-data",
-    ServiceKey.FDK_BASE: os.getenv("FDK_BASE") or "http://localhost:8080",
-    ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8080",
+    or "http://localhost:8000/reference-data",
+    ServiceKey.FDK_BASE: os.getenv("FDK_BASE") or "http://localhost:8000",
+    ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8000",
 }
 
 default_headers = {"accept": "application/json"}
