@@ -2,10 +2,13 @@ import asyncio
 import os
 import time
 
+from flask import Flask
+from flask.testing import FlaskClient
 import pytest
 import requests
 from urllib3.exceptions import MaxRetryError, NewConnectionError
 
+from fdk_reports_bff import create_app
 from test.unit_mock_data import (
     mock_access_rights_catalog_response,
     mock_los_path_reference_response,
@@ -51,6 +54,21 @@ def docker_compose_file(pytestconfig):
 def api():
     wait_for_es()
     yield
+
+
+@pytest.mark.integration
+@pytest.fixture
+def app():
+    """Returns a Flask app for integration testing."""
+    app = create_app({})
+    yield app
+
+
+@pytest.mark.integration
+@pytest.fixture
+def client(app: Flask) -> FlaskClient:
+    """Returns a client for integration testing."""
+    return app.test_client()
 
 
 @pytest.fixture(scope="session")
