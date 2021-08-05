@@ -1,4 +1,5 @@
 import asyncio
+import os
 import time
 
 import pytest
@@ -11,6 +12,45 @@ from test.unit_mock_data import (
     parsed_org_catalog_mock,
     single_parsed_org_mock,
 )
+from .utils import wait_for_es
+
+HOST_PORT = int(os.environ.get("HOST_PORT", "8080"))
+
+
+def is_responsive(url):
+    """Return true if response from service is 200."""
+    url = f"{url}/ready"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            time.sleep(2)  # sleep extra 2 sec
+            return True
+    except OSError:
+        return False
+
+
+@pytest.fixture(scope="session")
+def docker_service(docker_ip, docker_services):
+    """Ensure that HTTP service is up and responsive."""
+    # `port_for` takes a container port and returns the corresponding host port
+    port = docker_services.port_for("fdk-reports-bff", HOST_PORT)
+    url = "http://{}:{}".format(docker_ip, port)
+    docker_services.wait_until_responsive(
+        timeout=30.0, pause=0.1, check=lambda: is_responsive(url)
+    )
+    return url
+
+
+@pytest.fixture(scope="session")
+def docker_compose_file(pytestconfig):
+    """Override default location of docker-compose.yml file."""
+    return os.path.join(str(pytestconfig.rootdir), "./", "docker-compose.yml")
+
+
+@pytest.fixture(scope="session")
+def api():
+    wait_for_es()
+    yield
 
 
 @pytest.fixture(scope="session")
