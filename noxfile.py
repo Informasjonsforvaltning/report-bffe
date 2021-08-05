@@ -12,6 +12,7 @@ nox.options.sessions = (
     "safety",
     "unit_tests",
     "contract_tests",
+    "integration_tests",
 )
 
 
@@ -62,6 +63,25 @@ def contract_tests(session: Session) -> None:
     session.run(
         "pytest",
         "-m contract",
+        "-rA",
+        *args,
+    )
+
+
+@nox_poetry.session
+def integration_tests(session: Session) -> None:
+    """Run the integration test suite."""
+    args = session.posargs
+    session.install(
+        ".",
+        "pytest",
+        "pytest-docker",
+        "requests-mock",
+        "pytest-mock",
+    )
+    session.run(
+        "pytest",
+        "-m integration",
         "-rA",
         *args,
     )
