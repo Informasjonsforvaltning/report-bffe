@@ -1,14 +1,14 @@
 import pytest
 from requests import get
 
-service_url = "http://localhost:8000"
+service_url = "http://localhost:8080"
 concepts_report_url = f"{service_url}/report/concepts"
+concepts_timeseries_url = f"{service_url}/timeseries/concepts"
 
 
 class TestConceptsReport:
     @pytest.mark.contract
-    @pytest.mark.skip
-    def test_has_correct_format(self, wait_for_ready):
+    def test_has_correct_format(self, docker_service, api):
         result = get(url=concepts_report_url)
         assert result.status_code == 200
         keys = result.json().keys()
@@ -17,3 +17,8 @@ class TestConceptsReport:
         assert "orgPaths" in keys
         assert "organizationCount" in keys
         assert "mostInUse" in keys
+
+    @pytest.mark.contract
+    def test_timeseries_has_correct_status(self, docker_service, api):
+        result = get(url=concepts_timeseries_url)
+        assert result.status_code == 200
