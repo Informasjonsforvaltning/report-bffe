@@ -48,3 +48,42 @@ class TestDatasetsReport:
         now = datetime.now()
         assert dt.month == now.month
         assert dt.year == now.year
+
+    @pytest.mark.integration
+    def test_report_filter_on_org_path(self, client: Flask, docker_service, api):
+        result = client.get("/report/datasets?orgPath=/STAT/972417858/971040238")
+        assert result.status_code == 200
+        content = result.json
+        assert content["totalObjects"] == 110
+        for org in content["orgPaths"]:
+            exp_orgpath_parts = "/STAT/972417858/971040238".split("/")
+            for orgpath_part in org.get("key").split("/"):
+                assert orgpath_part in exp_orgpath_parts
+
+    @pytest.mark.integration
+    def test_organization_id_filter(self, client: Flask, docker_service, api):
+        test_org_id = "950037687"
+        exp_org_path = ["/PRIVAT/950037687", "/PRIVAT"]
+        result = client.get(f"/report/datasets?organizationId={test_org_id}")
+        assert result.status_code == 200
+        content = result.json
+        assert len(content) > 0
+        for orgpath in content.get("orgPaths"):
+            assert orgpath["key"] in exp_org_path
+
+    @pytest.mark.integration
+    def test_theme_profile_los_path_filter(self, client: Flask, docker_service, api):
+        accepted_paths = [
+            "trafikk-og-transport",
+            "trafikk-og-transport/mobilitetstilbud",
+            "trafikk-og-transport/trafikkinformasjon",
+            "trafikk-og-transport/veg-og-vegregulering",
+            "trafikk-og-transport/yrkestransport",
+        ]
+        result = client.get("/report/datasets?themeprofile=transport")
+        result_paths = result.json.get("themesAndTopicsCount")
+        assert len(result_paths) > 0
+        for path in result_paths:
+            assert path["key"] in accepted_paths
+        assert result.json.get("organizationCount") == 4
+        assert result.json.get("opendata") == 20
