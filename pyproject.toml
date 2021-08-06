@@ -42,6 +42,7 @@ source = ["src"]
 [tool.coverage.run]
 branch = true
 source = ["fdk_reports_bff"]
+omit = ["*gunicorn_config.py"]
 
 [tool.coverage.report]
 show_missing = true
