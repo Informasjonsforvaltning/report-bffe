@@ -4,15 +4,14 @@ from dateutil import parser
 import pytest
 from requests import get
 
-service_url = "http://localhost:8000"
+service_url = "http://localhost:8080"
 dataset_report_url = f"{service_url}/report/datasets"
 dataset_time_series_url = f"{service_url}/timeseries/datasets"
 
 
 class TestDatasetsReport:
     @pytest.mark.contract
-    @pytest.mark.skip
-    def test_report_has_correct_format(self, wait_for_ready):
+    def test_report_has_correct_format(self, docker_service, api):
         result = get(url=dataset_report_url)
         assert result.status_code == 200
         content = result.json()
@@ -84,8 +83,7 @@ class TestDatasetsReport:
         assert result.json().get("opendata") == 20
 
     @pytest.mark.contract
-    @pytest.mark.skip
-    def test_time_series_has_correct_format(self, wait_for_ready):
+    def test_time_series_has_correct_format(self, docker_service, api):
         result = get(url=dataset_time_series_url)
         assert result.status_code == 200
         time_series = result.json()
