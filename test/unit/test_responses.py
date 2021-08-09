@@ -11,7 +11,7 @@ from fdk_reports_bff.utils import ContentKeys, ThemeProfile
 from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 
-@pytest.mark.skip
+@pytest.mark.unit
 def test_information_model_response():
     es_result = {
         "_embedded": {"informationmodels": []},
@@ -46,7 +46,7 @@ def test_information_model_response():
     assert len(result.catalogs) == 6
 
 
-@pytest.mark.skip
+@pytest.mark.unit
 def test_concept_response():
     result = ConceptResponse.from_es(concepts_aggregation, concepts_in_use)
     assert len(result.mostInUse) == 3
