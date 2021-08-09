@@ -8,7 +8,10 @@ from fdk_reports_bff.referenced_data_store import (
     get_open_licenses,
     OpenLicense,
 )
-from test.unit_mock_data import open_licenses_mock_reponse
+from test.unit_mock_data import (
+    mock_los_path_reference_response,
+    open_licenses_mock_reponse,
+)
 
 
 @pytest.mark.unit
@@ -66,13 +69,13 @@ def test_get_open_licenses(event_loop, fetch_open_licenses_mock):
     assert "http://creativecommons.org/licenses/by/4.0/deed" not in result
 
 
-@pytest.mark.skip
-def test_get_los_path(event_loop, get_los_paths_mock):
-    los_path_tasks = asyncio.gather(
-        get_los_path(["https://psi.norge.no/los/ord/festival"]),
-        get_los_path(["https://psi.norge.no/los/ord/boligfinansiering"]),
+@pytest.mark.unit
+def test_get_los_path():
+    los_paths = mock_los_path_reference_response()
+    single_result = get_los_path(["https://psi.norge.no/los/ord/festival"], los_paths)
+    several_paths_result = get_los_path(
+        ["https://psi.norge.no/los/ord/boligfinansiering"], los_paths
     )
-    single_result, several_paths_result = event_loop.run_until_complete(los_path_tasks)
     assert single_result.__len__() == 1
     assert "kultur-idrett-og-fritid/kultur/festival" in single_result
     assert several_paths_result.__len__() == 2
