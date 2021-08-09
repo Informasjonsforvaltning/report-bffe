@@ -2,9 +2,9 @@ from typing import Any
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_time_series
-from fdk_reports_bff.rdf_namespaces import JsonRDF
 from fdk_reports_bff.responses import TimeSeriesResponse
-from fdk_reports_bff.utils import QueryParameter, ServiceKey
+from fdk_reports_bff.service.rdf_namespaces import JsonRDF
+from fdk_reports_bff.service.utils import QueryParameter, ServiceKey
 
 
 def get_time_series(content_type: str, args: Any) -> TimeSeriesResponse:

@@ -20,7 +20,7 @@ from fdk_reports_bff.elasticsearch.concepts import insert_concepts
 from fdk_reports_bff.elasticsearch.dataservices import insert_dataservices
 from fdk_reports_bff.elasticsearch.datasets import insert_datasets
 from fdk_reports_bff.elasticsearch.informationmodels import insert_informationmodels
-from fdk_reports_bff.utils import StartSchedulerError
+from fdk_reports_bff.service.utils import StartSchedulerError
 
 ES_HOST = os.getenv("ELASTIC_HOST", "localhost")
 ES_PORT = os.getenv("ELASTIC_PORT", "9200")

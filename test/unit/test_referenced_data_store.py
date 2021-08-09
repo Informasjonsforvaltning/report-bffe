@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from fdk_reports_bff.referenced_data_store import (
+from fdk_reports_bff.service.referenced_data_store import (
     get_access_rights_code,
     get_los_path,
     get_open_licenses,
@@ -89,6 +89,6 @@ def test_get_los_path():
 @pytest.fixture
 def fetch_open_licenses_mock(mocker):
     mocker.patch(
-        "fdk_reports_bff.referenced_data_store.fetch_open_licences_from_reference_data",
+        "fdk_reports_bff.service.referenced_data_store.fetch_open_licences_from_reference_data",
         side_effect=open_licenses_mock_reponse,
     )

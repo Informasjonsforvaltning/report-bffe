@@ -2,11 +2,11 @@ from typing import Any, List, Optional
 
 from asyncstdlib.functools import lru_cache as alru_cache
 
-from fdk_reports_bff.organization_parser import (
+from fdk_reports_bff.service.organization_parser import (
     OrganizationReferencesObject,
     OrganizationStore,
 )
-from fdk_reports_bff.service_requests import (
+from fdk_reports_bff.service.service_requests import (
     attempt_fetch_organization_by_name_from_catalog,
     fetch_access_rights_from_reference_data,
     fetch_generated_org_path_from_organization_catalog,
@@ -16,7 +16,7 @@ from fdk_reports_bff.service_requests import (
     fetch_organizations_from_organizations_catalog,
     fetch_themes_and_topics_from_reference_data,
 )
-from fdk_reports_bff.utils import NotInNationalRegistryException
+from fdk_reports_bff.service.utils import NotInNationalRegistryException
 
 
 class ParsedReferenceData:

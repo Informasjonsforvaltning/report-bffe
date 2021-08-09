@@ -10,11 +10,11 @@ from fdk_reports_bff.elasticsearch.utils import (
     get_all_organizations_with_publisher,
     get_unique_records,
 )
-from fdk_reports_bff.service_requests import (
+from fdk_reports_bff.service.service_requests import (
     fetch_dataservices,
     fetch_publishers_from_dataservice,
 )
-from fdk_reports_bff.utils import FetchFromServiceException, ServiceKey
+from fdk_reports_bff.service.utils import FetchFromServiceException, ServiceKey
 
 
 def insert_dataservices(success_status: str, failed_status: str) -> str:

@@ -1,6 +1,6 @@
 import pytest
 
-from fdk_reports_bff.organization_parser import (
+from fdk_reports_bff.service.organization_parser import (
     OrganizationReferencesObject,
     OrganizationStore,
 )

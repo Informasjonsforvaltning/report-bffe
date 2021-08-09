@@ -7,7 +7,7 @@ from fdk_reports_bff.responses import (
     InformationModelResponse,
     TimeSeriesResponse,
 )
-from fdk_reports_bff.utils import ContentKeys, ThemeProfile
+from fdk_reports_bff.service.utils import ContentKeys, ThemeProfile
 from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 

@@ -1,7 +1,7 @@
 from typing import Any
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
-from fdk_reports_bff.utils import ContentKeys
+from fdk_reports_bff.service.utils import ContentKeys
 
 
 def get_es_aggregation(es_hits: dict, content_key: str) -> Any:

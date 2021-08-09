@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
-from fdk_reports_bff.utils import ParsedDataPoint, ThemeProfile
+from fdk_reports_bff.service.utils import ParsedDataPoint, ThemeProfile
 
 
 class Response:
