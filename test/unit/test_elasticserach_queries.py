@@ -1,7 +1,7 @@
 import pytest
 
 from fdk_reports_bff.elasticsearch.queries import AggregationQuery
-from fdk_reports_bff.utils import ServiceKey
+from fdk_reports_bff.service.utils import ServiceKey
 
 
 @pytest.mark.unit

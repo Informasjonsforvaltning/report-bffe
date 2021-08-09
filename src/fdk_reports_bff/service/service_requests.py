@@ -5,6 +5,12 @@ import urllib.parse
 from httpcore import ConnectError
 from httpx import AsyncClient, ConnectTimeout, HTTPError
 
+from fdk_reports_bff.service.utils import (
+    ContentKeys,
+    FetchFromServiceException,
+    NotInNationalRegistryException,
+    ServiceKey,
+)
 from fdk_reports_bff.sparql import (
     get_concept_publishers_query,
     get_concepts_query,
@@ -13,12 +19,6 @@ from fdk_reports_bff.sparql import (
     get_dataset_publisher_query,
     get_info_model_publishers_query,
     get_info_models_query,
-)
-from fdk_reports_bff.utils import (
-    ContentKeys,
-    FetchFromServiceException,
-    NotInNationalRegistryException,
-    ServiceKey,
 )
 
 service_urls = {

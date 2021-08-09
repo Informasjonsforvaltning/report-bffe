@@ -7,9 +7,9 @@ from fdk_reports_bff.elasticsearch.rdf_reference_mappers import (
     RdfReferenceMapper,
 )
 from fdk_reports_bff.elasticsearch.utils import add_key_as_node_uri
-from fdk_reports_bff.rdf_namespaces import JsonRDF
-from fdk_reports_bff.referenced_data_store import OpenLicense
-from fdk_reports_bff.utils import ContentKeys
+from fdk_reports_bff.service.rdf_namespaces import JsonRDF
+from fdk_reports_bff.service.referenced_data_store import OpenLicense
+from fdk_reports_bff.service.utils import ContentKeys
 
 
 @pytest.mark.unit

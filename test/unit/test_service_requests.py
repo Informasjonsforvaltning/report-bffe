@@ -1,6 +1,6 @@
 import pytest
 
-from fdk_reports_bff.service_requests import (
+from fdk_reports_bff.service.service_requests import (
     fetch_all_concepts,
     fetch_dataservices,
     get_informationmodels_statistic,

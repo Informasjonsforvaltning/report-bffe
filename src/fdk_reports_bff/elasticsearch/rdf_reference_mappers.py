@@ -2,8 +2,8 @@ from typing import Any, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import CATALOG_RECORD_AGGREGATION_FIELDS
 from fdk_reports_bff.elasticsearch.utils import get_values_from_nested_dict
-from fdk_reports_bff.rdf_namespaces import JsonRDF
-from fdk_reports_bff.utils import ContentKeys
+from fdk_reports_bff.service.rdf_namespaces import JsonRDF
+from fdk_reports_bff.service.utils import ContentKeys
 
 
 class CatalogRecords:

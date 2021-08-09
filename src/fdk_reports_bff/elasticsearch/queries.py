@@ -1,8 +1,8 @@
 import abc
 from typing import Any, Optional
 
-from fdk_reports_bff.rdf_namespaces import JsonRDF
-from fdk_reports_bff.utils import ContentKeys, ServiceKey, ThemeProfile
+from fdk_reports_bff.service.rdf_namespaces import JsonRDF
+from fdk_reports_bff.service.utils import ContentKeys, ServiceKey, ThemeProfile
 
 
 class EsMappings:

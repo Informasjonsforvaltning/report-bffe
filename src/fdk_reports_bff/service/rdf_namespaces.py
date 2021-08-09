@@ -1,7 +1,7 @@
 import abc
 from typing import Any
 
-from fdk_reports_bff.utils import ContentKeys
+from fdk_reports_bff.service.utils import ContentKeys
 
 
 class NamespaceProperty(metaclass=abc.ABCMeta):

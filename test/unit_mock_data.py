@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fdk_reports_bff.organization_parser import OrganizationReferencesObject
+from fdk_reports_bff.service.organization_parser import OrganizationReferencesObject
 
 informationmodels = {
     "head": {"vars": ["record", "issued", "publisher"]},
