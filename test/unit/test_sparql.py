@@ -36,12 +36,15 @@ def test_dataservice_query():
         "PREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0A++++++++"
         "SELECT+%3Frecord+%3Fpublisher+%3Fissued+%3FsameAs+%3FmediaType%0A++++++++"
         "FROM+%3Chttps%3A%2F%2Fdataservices.fellesdatakatalog.digdir.no%3E%0A++++++++"
-        "WHERE+%7B%7B%0A++++++++++++%3Fcatalog+a+dcat%3ACatalog+.%0A++++++++++++%3Fcatalog+dct%3A"
-        "publisher+%3Fpublisher+.%0A++++++++++++%3Fcatalog+dcat%3Aservice+%3Fservice+."
-        "%0A++++++++++++%3Frecord+foaf%3AprimaryTopic+%3Fservice+."
+        "WHERE+%7B%7B%0A++++++++++++%3Fcatalog+a+dcat%3ACatalog+.%0A++++++++++++%3F"
+        "catalog+dcat%3Aservice+%3Fservice+.%0A++++++++++++%3Frecord+foaf%3AprimaryTopic+%3Fservice+."
         "%0A++++++++++++%3Frecord+dct%3Aissued+%3Fissued+.%0A++++++++++++"
-        "OPTIONAL+%7B%7B%0A++++++++++++++++%3Fpublisher+owl%3AsameAs+%3FsameAs+."
-        "%0A++++++++++++++++%3Fservice+dcat%3AmediaType+%3FmediaType+.%0A++++++++++++%7D%7D%0A++++++++%7D%7D"
+        "OPTIONAL+%7B%7B+%3Fservice+dct%3Apublisher+%3FservicePublisher+.+%7D%7D%0A++++++++++++"
+        "OPTIONAL+%7B%7B+%3Fcatalog+dct%3Apublisher+%3FcatPublisher+.+%7D%7D%0A++++++++++++"
+        "BIND+%28+IF%28+EXISTS+%7B%7B+%3Fservice+dct%3Apublisher+%3FservicePublisher+.+%7D%7D%2C%0A++++++++++++++++%3F"
+        "servicePublisher%2C+%3FcatPublisher+%29+AS+%3Fpublisher+%29+.%0A++++++++++++OPTIONAL+%7B%7B%0A"
+        "++++++++++++++++%3Fpublisher+owl%3AsameAs+%3FsameAs+.%0A++++++++++++++++%3F"
+        "service+dcat%3AmediaType+%3FmediaType+.%0A++++++++++++%7D%7D%0A++++++++%7D%7D"
     )
 
 

@@ -8,10 +8,13 @@ def get_dataservice_query() -> str:
         FROM <https://dataservices.fellesdatakatalog.digdir.no>
         WHERE {{
             ?catalog a dcat:Catalog .
-            ?catalog dct:publisher ?publisher .
             ?catalog dcat:service ?service .
             ?record foaf:primaryTopic ?service .
             ?record dct:issued ?issued .
+            OPTIONAL {{ ?service dct:publisher ?servicePublisher . }}
+            OPTIONAL {{ ?catalog dct:publisher ?catPublisher . }}
+            BIND ( IF( EXISTS {{ ?service dct:publisher ?servicePublisher . }},
+                ?servicePublisher, ?catPublisher ) AS ?publisher ) .
             OPTIONAL {{
                 ?publisher owl:sameAs ?sameAs .
                 ?service dcat:mediaType ?mediaType .
