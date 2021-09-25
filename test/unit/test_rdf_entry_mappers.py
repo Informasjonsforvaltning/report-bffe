@@ -8,7 +8,11 @@ from fdk_reports_bff.elasticsearch.rdf_reference_mappers import (
 )
 from fdk_reports_bff.elasticsearch.utils import add_key_as_node_uri
 from fdk_reports_bff.service.rdf_namespaces import JsonRDF
-from fdk_reports_bff.service.referenced_data_store import OpenLicense
+from fdk_reports_bff.service.referenced_data_store import (
+    FileTypes,
+    MediaTypes,
+    OpenLicense,
+)
 from fdk_reports_bff.service.utils import ContentKeys
 
 
@@ -304,6 +308,7 @@ def test_reference_mapper_for_catalogs(empty_open_licence_b_nodes_patch):
         + mock_licence_documents,
         open_licenses=mock_open_licenses,
         media_types=[],
+        file_types=[],
     )
 
     assert len(result.catalogs) == 4
@@ -346,6 +351,7 @@ def test_get_record_for_dataset(empty_open_licence_b_nodes_patch):
         + mock_licence_documents,
         open_licenses=mock_open_licenses,
         media_types=[],
+        file_types=[],
     )
 
     result = mapper.get_catalog_record_for_dataset(
@@ -394,6 +400,7 @@ def test_get_distributions_in_entry(empty_open_licence_b_nodes_patch):
         document_list=documents_list,
         open_licenses=mock_open_licenses,
         media_types=[],
+        file_types=[],
     )
 
     result = mapper.get_distributions_in_entry(
@@ -428,6 +435,7 @@ def test_get_distributions_in_self_referencing_entry(empty_open_licence_b_nodes_
         document_list=documents_list,
         open_licenses=mock_open_licenses,
         media_types=[],
+        file_types=[],
     )
 
     result = mapper.get_distributions_in_entry(
@@ -442,6 +450,44 @@ def test_get_distributions_in_self_referencing_entry(empty_open_licence_b_nodes_
         == "Antall deployments av applikasjoner i NAV"
     )
     assert hasattr(result[0], JsonRDF.dcat.distribution) is False
+
+
+@pytest.mark.unit
+def test_get_prefixed_formats_for_distributions(empty_open_licence_b_nodes_patch):
+
+    documents_list = list(mock_datasets + mock_distributions + mock_licence_documents)
+
+    dicts_with_mapped_node_uri = [
+        add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list
+    ]
+    datasets = [
+        entry
+        for entry in dicts_with_mapped_node_uri
+        if JsonRDF.rdf_type_equals(JsonRDF.dcat.type_dataset, entry)
+        and (
+            entry[EsMappings.NODE_URI]
+            == "https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd"
+        )
+    ]
+
+    mapper = RdfReferenceMapper(
+        document_list=documents_list,
+        open_licenses=mock_open_licenses,
+        media_types=mock_media_types,
+        file_types=mock_file_types,
+    )
+
+    distributions = mapper.get_distributions_in_entry(
+        entry=datasets[0],
+        node_uri="https://kartkatalog.geonorge.no/Metadata/uuid/de19fbbf-3734-47a0-89f5-6c5769071cdd",
+    )
+
+    prefixed_formats = mapper.get_prefixed_formats_for_distributions(distributions)
+    assert prefixed_formats is not None
+    assert "UNKNOWN" in prefixed_formats
+    assert "MEDIA_TYPE json" in prefixed_formats
+    assert "FILE_TYPE CSV" in prefixed_formats
+    assert "FILE_TYPE RDF" in prefixed_formats
 
 
 @pytest.fixture
@@ -976,7 +1022,13 @@ mock_distributions = [
             "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
                 {"type": "uri", "value": "http://www.w3.org/ns/dcat#Distribution"}
             ],
-            "http://purl.org/dc/terms/format": [{"type": "literal", "value": "XLSX"}],
+            "http://purl.org/dc/terms/format": [
+                {"type": "literal", "value": "XLSX"},
+                {
+                    "type": "uri",
+                    "value": "https://www.iana.org/assignments/media-types/application/json",
+                },
+            ],
             "http://www.w3.org/ns/dcat#accessURL": [
                 {
                     "type": "uri",
@@ -1002,7 +1054,27 @@ mock_distributions = [
             "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
                 {"type": "uri", "value": "http://www.w3.org/ns/dcat#Distribution"}
             ],
-            "http://purl.org/dc/terms/format": [{"type": "literal", "value": "FGDB"}],
+            "http://purl.org/dc/terms/format": [
+                {"type": "literal", "value": "json"},
+                {
+                    "type": "uri",
+                    "value": "http://www.iana.org/assignments/media-types/application/json",
+                },
+                {
+                    "type": "uri",
+                    "value": "https://publications.europa.eu/resource/authority/file-type/CSV",
+                },
+            ],
+            "http://www.w3.org/ns/dcat#mediaType": [
+                {
+                    "type": "uri",
+                    "value": "https://publications.europa.eu/resource/authority/file-type/CSV",
+                },
+                {
+                    "type": "uri",
+                    "value": "http://publications.europa.eu/resource/authority/file-type/RDF",
+                },
+            ],
             "http://www.w3.org/ns/dcat#accessURL": [
                 {
                     "type": "uri",
@@ -1066,9 +1138,24 @@ mock_distributions = [
                 {"type": "uri", "value": "http://www.w3.org/ns/dcat#Distribution"}
             ],
             "http://purl.org/dc/terms/format": [
-                {"type": "literal", "value": "JSON"},
-                {"type": "literal", "value": "CSV"},
-                {"type": "literal", "value": "RDF"},
+                {
+                    "type": "uri",
+                    "value": "https://www.iana.org/assignments/media-types/application/json",
+                },
+                {
+                    "type": "uri",
+                    "value": "http://publications.europa.eu/resource/authority/file-type/CSV",
+                },
+            ],
+            "http://www.w3.org/ns/dcat#mediaType": [
+                {
+                    "type": "uri",
+                    "value": "http://publications.europa.eu/resource/authority/file-type/CSV",
+                },
+                {
+                    "type": "uri",
+                    "value": "http://publications.europa.eu/resource/authority/file-type/RDF",
+                },
             ],
             "http://www.w3.org/ns/dcat#accessURL": [
                 {"type": "uri", "value": "http://kulturnav.org/"}
@@ -1352,6 +1439,30 @@ mock_open_licenses = [
     OpenLicense("http://data.norge.no/nlod/no/"),
     OpenLicense("http://data.norge.no/nlod/no/1.0"),
     OpenLicense("http://data.norge.no/nlod/no/2.0"),
+]
+mock_media_types = [
+    MediaTypes(
+        uri="https://www.iana.org/assignments/media-types/application/json",
+        name="json",
+        code="application/json",
+    ),
+    MediaTypes(
+        uri="https://www.iana.org/assignments/media-types/application/xml",
+        name="xml",
+        code="application/xml",
+    ),
+]
+mock_file_types = [
+    FileTypes(
+        uri="http://publications.europa.eu/resource/authority/file-type/CSV", code="CSV"
+    ),
+    FileTypes(
+        uri="http://publications.europa.eu/resource/authority/file-type/JSON",
+        code="JSON",
+    ),
+    FileTypes(
+        uri="http://publications.europa.eu/resource/authority/file-type/RDF", code="RDF"
+    ),
 ]
 mock_distribution_b_node_in_dataset = {
     "http://www.w3.org/ns/dcat#distribution": [

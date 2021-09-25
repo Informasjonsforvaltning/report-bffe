@@ -12,7 +12,7 @@ class EsMappings:
     DOC_COUNT = "doc_count"
     ORGANIZATION_ID = "orgId"
     TIME_SERIES = "timeseries"
-    FORMAT = "formatCodes"
+    FORMAT = "format"
     LOS = "los"
     RECORD = "dcatRecord"
     VALUE_KEYWORD = ".value.keyword"
@@ -52,7 +52,7 @@ DATASERVICE_AGGREGATION_FIELDS = [
     EsMappings.ORGANIZATION_ID,
     EsMappings.TITLE,
     EsMappings.ISSUED,
-    EsMappings.MEDIATYPE,
+    EsMappings.FORMAT,
 ]
 
 INFORMATION_MODEL_AGGREGATION_FIELDS = [
@@ -180,9 +180,9 @@ class AggregationQuery(Query):
         }
 
     def __add_dataservice_aggregation(self: Any) -> None:
-        self.aggregations[ContentKeys.MEDIATYPE] = {
+        self.aggregations[ContentKeys.FORMAT] = {
             "terms": {
-                "field": f"{EsMappings.MEDIATYPE}.value.keyword",
+                "field": f"{EsMappings.FORMAT}.keyword",
                 "missing": "MISSING",
                 "size": 100000,
             }
@@ -223,7 +223,11 @@ class TimeSeriesQuery(Query):
 
 def org_path_aggregation() -> dict:
     return {
-        "terms": {"field": "orgPath", "missing": EsMappings.MISSING, "size": 1000000000}
+        "terms": {
+            "field": "orgPath.keyword",
+            "missing": EsMappings.MISSING,
+            "size": 1000000000,
+        }
     }
 
 

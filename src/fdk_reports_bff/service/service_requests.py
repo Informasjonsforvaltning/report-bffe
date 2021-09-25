@@ -31,6 +31,8 @@ service_urls = {
     ServiceKey.CONCEPTS: os.getenv("CONCEPT_HARVESTER_URL") or "http://localhost:8000",
     ServiceKey.REFERENCE_DATA: os.getenv("REFERENCE_DATA_URL")
     or "http://localhost:8000/reference-data",
+    ServiceKey.NEW_REFERENCE_DATA: os.getenv("NEW_REFERENCE_DATA_URL")
+    or "http://localhost:8000/new-reference-data",
     ServiceKey.FDK_BASE: os.getenv("FDK_BASE") or "http://localhost:8000",
     ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8000",
 }
@@ -128,12 +130,12 @@ async def fetch_generated_org_path_from_organization_catalog(name: str) -> str:
 
 # from reference data (called seldom, not a crisis if they're slow) !important
 async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
-    url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/los"
+    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/los/themes-and-words"
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
             response.raise_for_status()
-            return response.json()
+            return response.json().get("losNodes")
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="reference-data themes and topics", url=url
@@ -167,15 +169,28 @@ async def fetch_access_rights_from_reference_data() -> list:
 
 
 async def fetch_media_types_from_reference_data() -> list:
-    url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/mediatypes"
+    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/iana/media-types"
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
             response.raise_for_status()
-            return response.json()
+            return response.json().get("mediaTypes")
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
-                execution_point="reference-data get mediatypes rights", url=url
+                execution_point="reference-data get media-types", url=url
+            )
+
+
+async def fetch_file_types_from_reference_data() -> list:
+    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/eu/file-types"
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, timeout=5)
+            response.raise_for_status()
+            return response.json().get("fileTypes")
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="reference-data get file-types", url=url
             )
 
 

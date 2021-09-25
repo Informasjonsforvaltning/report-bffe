@@ -13,6 +13,7 @@ from fdk_reports_bff.elasticsearch.utils import (
 )
 from fdk_reports_bff.service.rdf_namespaces import JsonRDF
 from fdk_reports_bff.service.referenced_data_store import (
+    get_file_types,
     get_media_types,
     get_open_licenses,
 )
@@ -41,6 +42,7 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
             fetch_themes_and_topics_from_reference_data(),
             get_open_licenses(),
             get_media_types(),
+            get_file_types(),
             fetch_publishers_from_dataset_harvester(),
         )
         (
@@ -48,6 +50,7 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
             los_themes,
             open_licenses,
             media_types,
+            file_types,
             publishers,
         ) = loop.run_until_complete(collection_tasks)
         prepared_docs = loop.run_until_complete(
@@ -56,6 +59,7 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
                 los_themes=los_themes,
                 open_licenses=open_licenses,
                 media_types=media_types,
+                file_types=file_types,
                 publishers=publishers,
             )
         )
@@ -71,6 +75,7 @@ async def prepare_documents(
     los_themes: List[dict],
     open_licenses: List[str],
     media_types: List[dict],
+    file_types: List[dict],
     publishers: dict,
 ) -> list:
     await get_all_organizations_with_publisher(publishers)
@@ -88,6 +93,7 @@ async def prepare_documents(
         document_list=documents_list,
         open_licenses=open_licenses,
         media_types=media_types,
+        file_types=file_types,
     )
     datasets_with_fdk_portal_paths = await asyncio.gather(
         *[
@@ -133,7 +139,9 @@ def merge_dataset_information(
             dcat_distributions=dataset[JsonRDF.dcat.distribution]
         )
 
-        dataset[EsMappings.FORMAT] = reference_mapper.get_formats_with_codes(
+        dataset[
+            EsMappings.FORMAT
+        ] = reference_mapper.get_prefixed_formats_for_distributions(
             dcat_distributions=dataset[JsonRDF.dcat.distribution]
         )
     return reduce_dataset(dataset)

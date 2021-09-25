@@ -4,7 +4,7 @@ def get_dataservice_query() -> str:
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        SELECT ?record ?publisher ?issued ?sameAs ?mediaType
+        SELECT ?record ?publisher ?issued ?sameAs ?mediaType ?format
         FROM <https://dataservices.fellesdatakatalog.digdir.no>
         WHERE {{
             ?catalog a dcat:Catalog .
@@ -15,10 +15,9 @@ def get_dataservice_query() -> str:
             OPTIONAL {{ ?catalog dct:publisher ?catPublisher . }}
             BIND ( IF( EXISTS {{ ?service dct:publisher ?servicePublisher . }},
                 ?servicePublisher, ?catPublisher ) AS ?publisher ) .
-            OPTIONAL {{
-                ?publisher owl:sameAs ?sameAs .
-                ?service dcat:mediaType ?mediaType .
-            }}
+            OPTIONAL {{ ?publisher owl:sameAs ?sameAs . }}
+            OPTIONAL {{ ?service dcat:mediaType ?mediaType . }}
+            OPTIONAL {{ ?service dct:format ?format . }}
         }}
     """
 

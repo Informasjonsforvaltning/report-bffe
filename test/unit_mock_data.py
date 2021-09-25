@@ -603,7 +603,7 @@ def mock_los_path_reference_response():
             "internalId": None,
             "children": None,
             "parents": ["https://psi.norge.no/los/tema/kultur"],
-            "isTema": False,
+            "isTheme": False,
             "losPaths": ["kultur-idrett-og-fritid/kultur/festival"],
             "name": {"nn": "Festival", "nb": "Festival", "en": "Festivals"},
             "definition": None,
@@ -621,7 +621,7 @@ def mock_los_path_reference_response():
                 "https://psi.norge.no/los/ord/betalingssatser-for-kommunale-tjenester",
             ],
             "parents": ["https://psi.norge.no/los/tema/bygg-og-eiendom"],
-            "isTema": True,
+            "isTheme": True,
             "losPaths": ["bygg-og-eiendom/priser-og-gebyr-for-bygg-og-eiendom"],
             "name": {
                 "nn": "Prisar og gebyr for bygg og eigedom",
@@ -641,7 +641,7 @@ def mock_los_path_reference_response():
                 "https://psi.norge.no/los/tema/kjop-og-salg",
                 "https://psi.norge.no/los/tema/okonomiske-ytelser-og-radgivning",
             ],
-            "isTema": False,
+            "isTheme": False,
             "losPaths": [
                 "bygg-og-eiendom/kjop-og-salg/boligfinansiering",
                 "sosiale-tjenester/okonomiske-ytelser-og-radgivning/boligfinansiering",
@@ -681,7 +681,7 @@ def mock_los_path_reference_response():
             "internalId": None,
             "children": None,
             "parents": ["https://psi.norge.no/los/tema/barnevern-og-foreldrestotte"],
-            "isTema": False,
+            "isTheme": False,
             "losPaths": [
                 "familie-og-barn/barnevern-og-foreldrestotte/bekymringsmelding-til-barnevernet"
             ],
@@ -700,7 +700,7 @@ def mock_los_path_reference_response():
             "internalId": None,
             "children": None,
             "parents": ["https://psi.norge.no/los/tema/innbyggerrettigheter"],
-            "isTema": False,
+            "isTheme": False,
             "losPaths": [
                 "demokrati-og-innbyggerrettigheter/innbyggerrettigheter/pass-og-visum"
             ],

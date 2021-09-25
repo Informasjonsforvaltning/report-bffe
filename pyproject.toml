@@ -5,7 +5,7 @@ description = ""
 authors = ["NilsOveTen <nils.ove.tendenes@digdir.no>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 flask = "2.0.1"
 flask-cors = "3.0.10"
 flask-restful = "0.3.9"
@@ -14,8 +14,8 @@ requests = "2.26.0"
 gunicorn = "20.1.0"
 asyncstdlib = "3.10.1"
 httpx = "0.19.0"
-elasticsearch = "7.15.0"
-apscheduler = "3.7.0"
+elasticsearch = "7.14.1"
+apscheduler = "3.8.0"
 python-dateutil = "2.8.2"
 python-json-logger = "2.0.2"
 
