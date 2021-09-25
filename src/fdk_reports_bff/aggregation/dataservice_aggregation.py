@@ -24,5 +24,5 @@ def create_dataservice_report(orgpath: Any, organization_id: Any) -> Any:
         organization_count=get_es_cardinality_aggregation(
             es_report, ContentKeys.ORGANIZATION_COUNT
         ),
-        media_types=get_es_aggregation(es_report, ContentKeys.MEDIATYPE),
+        formats=get_es_aggregation(es_report, ContentKeys.FORMAT),
     )

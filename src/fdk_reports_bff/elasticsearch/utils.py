@@ -114,10 +114,8 @@ def elasticsearch_ingest(index_key: str, documents: List[dict]) -> Any:
             client=es_client, index=index_key, actions=yield_documents(documents)
         )
         return result
-    except BulkIndexError as err:
-        logging.error(
-            f"{traceback.format_exc()} ingest {ServiceKey.DATA_SETS}", err.errors
-        )
+    except BulkIndexError:
+        logging.error(f"{traceback.format_exc()} ingest {ServiceKey.DATA_SETS}")
 
 
 def yield_documents(documents: list) -> Any:
@@ -138,7 +136,7 @@ def recreate_index(index_key: str) -> None:
         os.getcwd() + "/mapping/{0}_properties.json".format(index_key)
     ) as mapping:
         try:
-            es_client.indices.delete(index=index_key, ignore=[400, 404])
+            es_client.indices.delete(index=index_key, ignore_unavailable="true")
             es_client.indices.create(index=index_key, body=json.load(mapping))
         except BaseException:
             logging.error(
@@ -225,7 +223,39 @@ def get_unique_records(items: List[dict]) -> List[dict]:
     seen = set()
     unique_records = []
     for obj in items:
+        obj["mediaTypes"] = []
+        obj["formats"] = []
         if obj["record"]["value"] not in seen:
             unique_records.append(obj)
             seen.add(obj["record"]["value"])
+
+        rec = [
+            x for x in unique_records if x["record"]["value"] == obj["record"]["value"]
+        ]
+        if "mediaType" in obj and rec:
+            rec[0]["mediaTypes"].append(obj["mediaType"]["value"])
+
+        if "format" in obj and rec:
+            rec[0]["formats"].append(obj["format"]["value"])
+
     return unique_records
+
+
+def map_formats_to_prefixed(
+    formats: List, media_types: dict, file_types: dict
+) -> List[str]:
+    formats_prefixed = []
+    for fmt in formats:
+        stripped_fmt = strip_http_scheme(fmt)
+        if stripped_fmt in media_types:
+            formats_prefixed.append("MEDIA_TYPE " + media_types[stripped_fmt].name)
+        elif stripped_fmt in file_types:
+            formats_prefixed.append("FILE_TYPE " + file_types[stripped_fmt].code)
+        else:
+            formats_prefixed.append("UNKNOWN")
+
+    return formats_prefixed
+
+
+def strip_http_scheme(uri: str) -> str:
+    return uri.replace("https://", "").replace("http://", "")

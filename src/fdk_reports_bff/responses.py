@@ -67,12 +67,12 @@ class DataServiceResponse(Response):
         catalogs: List[dict] = None,
         org_paths: List[dict] = None,
         organization_count: int = 0,
-        media_types: List[dict] = None,
+        formats: List[dict] = None,
     ) -> None:
         super().__init__(
             total_objects, organization_count, new_last_week, catalogs, org_paths
         )
-        self.formats = media_types or []
+        self.formats = formats or []
 
     @staticmethod
     def from_es(es_result: dict) -> Any:

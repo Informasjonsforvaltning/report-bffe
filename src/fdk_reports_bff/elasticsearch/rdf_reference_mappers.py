@@ -1,8 +1,13 @@
 from typing import Any, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import CATALOG_RECORD_AGGREGATION_FIELDS
-from fdk_reports_bff.elasticsearch.utils import get_values_from_nested_dict
+from fdk_reports_bff.elasticsearch.utils import (
+    get_values_from_nested_dict,
+    map_formats_to_prefixed,
+    strip_http_scheme,
+)
 from fdk_reports_bff.service.rdf_namespaces import JsonRDF
+from fdk_reports_bff.service.referenced_data_store import FileTypes, MediaTypes
 from fdk_reports_bff.service.utils import ContentKeys
 
 
@@ -61,9 +66,17 @@ class RdfReferenceMapper:
         self: Any,
         document_list: List,
         open_licenses: List[str],
-        media_types: List,
+        media_types: List[MediaTypes],
+        file_types: List[FileTypes],
     ) -> None:
-        self.media_types = media_types
+        self.media_types_dict = {}
+        for media_type in media_types:
+            self.media_types_dict[strip_http_scheme(media_type.uri)] = media_type
+
+        self.file_types_dict = {}
+        for file_type in file_types:
+            self.file_types_dict[strip_http_scheme(file_type.uri)] = file_type
+
         self.catalog_records = [
             CatalogRecords(entry)
             for entry in document_list
@@ -174,25 +187,29 @@ class RdfReferenceMapper:
                 return reduce_record(record.json_rdf_entry)
         return None
 
-    def get_formats_with_codes(self: Any, dcat_distributions: List) -> List[str]:
-        distributions_formats = [
-            dist.get(JsonRDF.dct.format) for dist in dcat_distributions
-        ]
-        format_str_values = [
-            formats[0][ContentKeys.VALUE]
-            for formats in distributions_formats
-            if formats is not None
-        ]
-        formats = []
-        for str_value in format_str_values:
-            try:
-                media_type_idx = self.media_types.index(str_value)
-                media_type_name = self.media_types[media_type_idx].name
-                formats.append(media_type_name)
-            except ValueError:
-                continue
+    def get_prefixed_formats_for_distributions(
+        self: Any, dcat_distributions: List
+    ) -> List[str]:
+        distributions_formats: List[dict] = []
+        for dist in dcat_distributions:
+            distributions_formats = (
+                distributions_formats
+                + (dist.get(JsonRDF.dct.format) or [])
+                + (dist.get(JsonRDF.dcat.mediaType) or [])
+            )
 
-        return formats
+        format_str_values = list(
+            set(
+                [
+                    formats[ContentKeys.VALUE]
+                    for formats in distributions_formats
+                    if formats is not None
+                ]
+            )
+        )
+        return map_formats_to_prefixed(
+            format_str_values, self.media_types_dict, self.file_types_dict
+        )
 
 
 def reduce_record(record: dict) -> dict:

@@ -9,6 +9,7 @@ from fdk_reports_bff.service.organization_parser import (
 from fdk_reports_bff.service.service_requests import (
     attempt_fetch_organization_by_name_from_catalog,
     fetch_access_rights_from_reference_data,
+    fetch_file_types_from_reference_data,
     fetch_generated_org_path_from_organization_catalog,
     fetch_media_types_from_reference_data,
     fetch_open_licences_from_reference_data,
@@ -64,18 +65,42 @@ class ParsedReferenceData:
 
 
 class MediaTypes:
-    def __init__(self: Any, name: Optional[str], code: Optional[str]) -> None:
+    def __init__(
+        self: Any, uri: Optional[str], name: Optional[str], code: Optional[str]
+    ) -> None:
+        self.uri = uri
         self.name = name
         self.code = code
 
     def __eq__(self: Any, other: Any) -> bool:
         other_lower = other.lower()
-        return other_lower in self.code.lower() or other_lower in self.name.lower()
+        return other_lower in self.uri.lower() or other_lower in self.code.lower()
 
     @staticmethod
     def from_reference_data_response(response: List[dict]) -> List:
         return [
-            MediaTypes(name=entry.get("name"), code=entry.get("code"))
+            MediaTypes(
+                uri=entry.get("uri", ""),
+                name=entry.get("name", ""),
+                code=entry.get("type", "") + "/" + entry.get("subType", ""),
+            )
+            for entry in response
+        ]
+
+
+class FileTypes:
+    def __init__(self: Any, uri: Optional[str], code: Optional[str]) -> None:
+        self.uri = uri
+        self.code = code
+
+    def __eq__(self: Any, other: Any) -> bool:
+        other_lower = other.lower()
+        return other_lower in self.uri.lower() or other_lower in self.code.lower()
+
+    @staticmethod
+    def from_reference_data_response(response: List[dict]) -> List:
+        return [
+            FileTypes(uri=entry.get("uri"), code=entry.get("code"))
             for entry in response
         ]
 
@@ -124,6 +149,12 @@ async def get_open_licenses() -> List[OpenLicense]:
         OpenLicense(licence.get("uri")) for licence in open_licenses_response
     ]
     return licences
+
+
+@alru_cache
+async def get_file_types() -> List[dict]:
+    file_types = await fetch_file_types_from_reference_data()
+    return FileTypes.from_reference_data_response(file_types)
 
 
 @alru_cache
