@@ -17,7 +17,6 @@ from fdk_reports_bff.sparql import (
     get_dataservice_publisher_query,
     get_dataservice_query,
     get_dataset_publisher_query,
-    get_info_model_publishers_query,
     get_info_models_query,
 )
 
@@ -242,21 +241,6 @@ async def get_informationmodels_statistic() -> List[dict]:
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="fetching information models catalog", url=url
-            )
-
-
-async def fetch_info_model_publishers() -> dict:
-    publisher_query = urllib.parse.quote_plus(get_info_model_publishers_query())
-    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
-            response.raise_for_status()
-            return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="fetching publishers from information models catalog",
-                url=url,
             )
 
 
