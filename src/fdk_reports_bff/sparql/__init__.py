@@ -8,6 +8,5 @@ from fdk_reports_bff.sparql.data_service import (
 )
 from fdk_reports_bff.sparql.dataset import get_dataset_publisher_query
 from fdk_reports_bff.sparql.information_model import (
-    get_info_model_publishers_query,
     get_info_models_query,
 )

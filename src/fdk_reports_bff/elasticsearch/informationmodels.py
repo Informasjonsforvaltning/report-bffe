@@ -3,17 +3,15 @@ import logging
 import traceback
 from typing import List
 
-from fdk_reports_bff.elasticsearch.queries import INFORMATION_MODEL_AGGREGATION_FIELDS
+from fdk_reports_bff.elasticsearch.queries import (
+    EsMappings,
+    INFORMATION_MODEL_AGGREGATION_FIELDS,
+)
 from fdk_reports_bff.elasticsearch.utils import (
-    add_org_paths_to_document,
     elasticsearch_ingest,
-    get_all_organizations_with_publisher,
     get_unique_records,
 )
-from fdk_reports_bff.service.service_requests import (
-    fetch_info_model_publishers,
-    get_informationmodels_statistic,
-)
+from fdk_reports_bff.service.service_requests import get_informationmodels_statistic
 from fdk_reports_bff.service.utils import FetchFromServiceException, ServiceKey
 
 
@@ -24,13 +22,11 @@ def insert_informationmodels(success_status: str, failed_status: str) -> str:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        model_tasks = asyncio.gather(
-            get_informationmodels_statistic(), fetch_info_model_publishers()
-        )
-        info_models, publishers = loop.run_until_complete(model_tasks)
+        model_tasks = asyncio.gather(get_informationmodels_statistic())
+        info_models = loop.run_until_complete(model_tasks)[0]
 
         prepared_docs = loop.run_until_complete(
-            prepare_documents(documents=info_models, publishers=publishers)
+            prepare_documents(documents=info_models)
         )
 
         elasticsearch_ingest(ServiceKey.INFO_MODELS, prepared_docs)
@@ -42,17 +38,11 @@ def insert_informationmodels(success_status: str, failed_status: str) -> str:
         return failed_status
 
 
-async def prepare_documents(documents: List[dict], publishers: dict) -> List[dict]:
+async def prepare_documents(documents: List[dict]) -> List[dict]:
     unique_record_items = get_unique_records(documents)
-
-    await get_all_organizations_with_publisher(publishers)
-    models_with_fdk_portal_paths = await asyncio.gather(
-        *[add_org_paths_to_document(rdf_values=entry) for entry in unique_record_items]
-    )
-
     return [
         reduce_informationmodel(informationmodel=informationmodel)
-        for informationmodel in models_with_fdk_portal_paths
+        for informationmodel in unique_record_items
     ]
 
 
@@ -62,4 +52,6 @@ def reduce_informationmodel(informationmodel: dict) -> dict:
         key = items[0]
         if key not in INFORMATION_MODEL_AGGREGATION_FIELDS:
             reduced_dict.pop(key)
+        elif key in EsMappings.ORG_PATH or key in EsMappings.ORGANIZATION_ID:
+            reduced_dict[key] = informationmodel[key]["value"]
     return reduced_dict
