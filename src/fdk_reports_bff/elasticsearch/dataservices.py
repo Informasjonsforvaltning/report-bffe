@@ -8,9 +8,7 @@ from fdk_reports_bff.elasticsearch.queries import (
     EsMappings,
 )
 from fdk_reports_bff.elasticsearch.utils import (
-    add_org_paths_to_document,
     elasticsearch_ingest,
-    get_all_organizations_with_publisher,
     get_unique_records,
     map_formats_to_prefixed,
     strip_http_scheme,
@@ -21,10 +19,7 @@ from fdk_reports_bff.service.referenced_data_store import (
     get_media_types,
     MediaTypes,
 )
-from fdk_reports_bff.service.service_requests import (
-    fetch_dataservices,
-    fetch_publishers_from_dataservice,
-)
+from fdk_reports_bff.service.service_requests import fetch_dataservices
 from fdk_reports_bff.service.utils import FetchFromServiceException, ServiceKey
 
 
@@ -38,17 +33,15 @@ def insert_dataservices(success_status: str, failed_status: str) -> str:
     try:
         collection_tasks = asyncio.gather(
             fetch_dataservices(),
-            fetch_publishers_from_dataservice(),
             get_media_types(),
             get_file_types(),
         )
-        dataservices, publishers, media_types, file_types = loop.run_until_complete(
+        dataservices, media_types, file_types = loop.run_until_complete(
             collection_tasks
         )
         prepared_docs = loop.run_until_complete(
             prepare_documents(
                 documents=dataservices,
-                publishers=publishers,
                 media_types=media_types,
                 file_types=file_types,
             )
@@ -64,16 +57,10 @@ def insert_dataservices(success_status: str, failed_status: str) -> str:
 
 async def prepare_documents(
     documents: List[dict],
-    publishers: dict,
     media_types: List[MediaTypes],
     file_types: List[FileTypes],
 ) -> List[dict]:
-    await get_all_organizations_with_publisher(publishers)
-    dataservices_with_fdk_portal_paths = await asyncio.gather(
-        *[add_org_paths_to_document(rdf_values=entry) for entry in documents]
-    )
-
-    unique_record_items = get_unique_records(dataservices_with_fdk_portal_paths)
+    unique_record_items = get_unique_records(documents)
 
     media_types_dict = {}
     for media_type in media_types:
@@ -119,4 +106,6 @@ def reduce_dataservice(dataservice: dict) -> dict:
         key = items[0]
         if key not in DATASERVICE_AGGREGATION_FIELDS:
             reduced_dict.pop(key)
+        elif key in EsMappings.ORG_PATH or key in EsMappings.ORGANIZATION_ID:
+            reduced_dict[key] = dataservice[key]["value"]
     return reduced_dict

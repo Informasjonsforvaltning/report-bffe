@@ -12,9 +12,7 @@ from fdk_reports_bff.service.utils import (
     ServiceKey,
 )
 from fdk_reports_bff.sparql import (
-    get_concept_publishers_query,
     get_concepts_query,
-    get_dataservice_publisher_query,
     get_dataservice_query,
     get_dataset_publisher_query,
     get_info_models_query,
@@ -263,20 +261,6 @@ async def fetch_all_concepts() -> List[dict]:
             )
 
 
-async def fetch_concept_publishers() -> dict:
-    publisher_query = urllib.parse.quote_plus(get_concept_publishers_query())
-    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
-            response.raise_for_status()
-            return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="fetching publishers from concept catalog", url=url
-            )
-
-
 # dataservices
 async def fetch_dataservices() -> List[dict]:
     dataservice_query = urllib.parse.quote_plus(get_dataservice_query())
@@ -293,18 +277,4 @@ async def fetch_dataservices() -> List[dict]:
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="fetching dataservices catalog", url=url
-            )
-
-
-async def fetch_publishers_from_dataservice() -> dict:
-    publisher_query = urllib.parse.quote_plus(get_dataservice_publisher_query())
-    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={publisher_query}"
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
-            response.raise_for_status()
-            return response.json()
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="fetching publishers from dataservice catalog", url=url
             )
