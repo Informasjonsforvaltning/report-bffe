@@ -31,12 +31,12 @@ class TestDatasetsReport:
         assert content.get("organizationCount") < len(content.get("orgPaths"))
         assert content.get("organizationCount") > len(content.get("catalogs"))
         assert len(content.get("catalogs")) > 1
-        assert content.get("totalObjects") == 1251
+        assert content.get("totalObjects") == 1548
         assert content.get("nationalComponent") > 0
         assert content.get("opendata") > 0
         assert len(content.get("catalogs")) > 0
         assert content.get("withSubject") > 0
-        assert len(content.get("accessRights")) == 4
+        assert len(content.get("accessRights")) == 5
         assert len(content.get("themesAndTopicsCount")) > 0
         assert len(content.get("formats")) > 0
 
@@ -45,8 +45,8 @@ class TestDatasetsReport:
         result = get(url=dataset_time_series_url)
         assert result.status_code == 200
         time_series = result.json()
-        assert time_series[0]["xAxis"] == "2020-08-01T00:00:00.000Z"
-        assert time_series[0]["yAxis"] == 1251
+        assert time_series[0]["xAxis"] == "2021-03-01T00:00:00.000Z"
+        assert time_series[0]["yAxis"] == 1515
         last_date = time_series[len(time_series) - 1]["xAxis"]
         dt = parser.parse(last_date)
         now = datetime.now()

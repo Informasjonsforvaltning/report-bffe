@@ -1,29 +1,26 @@
 import asyncio
 import logging
 import traceback
-from typing import List
+from typing import Any, Dict, List, Optional
 
-from fdk_reports_bff.elasticsearch.queries import DATASET_AGGREGATION_FIELDS, EsMappings
-from fdk_reports_bff.elasticsearch.rdf_reference_mappers import RdfReferenceMapper
+from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.elasticsearch.utils import (
-    add_key_as_node_uri,
-    add_org_and_los_paths_to_document,
     elasticsearch_ingest,
-    get_all_organizations_with_publisher,
+    get_unique_records,
+    map_formats_to_prefixed,
+    strip_http_scheme,
 )
 from fdk_reports_bff.service.rdf_namespaces import JsonRDF
 from fdk_reports_bff.service.referenced_data_store import (
     get_file_types,
+    get_los_path,
     get_media_types,
-    get_open_licenses,
 )
 from fdk_reports_bff.service.service_requests import (
-    fetch_catalog_from_dataset_harvester,
-    fetch_publishers_from_dataset_harvester,
+    fetch_datasets,
     fetch_themes_and_topics_from_reference_data,
 )
 from fdk_reports_bff.service.utils import (
-    ContentKeys,
     FetchFromServiceException,
     ServiceKey,
 )
@@ -38,29 +35,23 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
 
     try:
         collection_tasks = asyncio.gather(
-            fetch_catalog_from_dataset_harvester(),
+            fetch_datasets(),
             fetch_themes_and_topics_from_reference_data(),
-            get_open_licenses(),
             get_media_types(),
             get_file_types(),
-            fetch_publishers_from_dataset_harvester(),
         )
         (
-            dataset_rdf,
+            datasets,
             los_themes,
-            open_licenses,
             media_types,
             file_types,
-            publishers,
         ) = loop.run_until_complete(collection_tasks)
         prepared_docs = loop.run_until_complete(
             prepare_documents(
-                documents=dataset_rdf,
+                documents=datasets,
                 los_themes=los_themes,
-                open_licenses=open_licenses,
                 media_types=media_types,
                 file_types=file_types,
-                publishers=publishers,
             )
         )
         elasticsearch_ingest(index_key=ServiceKey.DATA_SETS, documents=prepared_docs)
@@ -71,86 +62,71 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
 
 
 async def prepare_documents(
-    documents: dict,
+    documents: List[dict],
     los_themes: List[dict],
-    open_licenses: List[str],
-    media_types: List[dict],
-    file_types: List[dict],
-    publishers: dict,
+    media_types: List,
+    file_types: List,
 ) -> list:
-    await get_all_organizations_with_publisher(publishers)
+    media_types_dict = {}
+    for media_type in media_types:
+        media_types_dict[strip_http_scheme(media_type.uri)] = media_type
 
-    documents_list = list(documents.items())
-    dicts_with_mapped_node_uri = [
-        add_key_as_node_uri(value=entry[1], key=entry[0]) for entry in documents_list
-    ]
-    datasets = [
-        entry
-        for entry in dicts_with_mapped_node_uri
-        if JsonRDF.rdf_type_equals(JsonRDF.dcat.type_dataset, entry)
-    ]
-    reference_mapper = RdfReferenceMapper(
-        document_list=documents_list,
-        open_licenses=open_licenses,
-        media_types=media_types,
-        file_types=file_types,
-    )
-    datasets_with_fdk_portal_paths = await asyncio.gather(
-        *[
-            add_org_and_los_paths_to_document(
-                json_rdf_values=entry, los_themes=los_themes
-            )
-            for entry in datasets
-        ]
-    )
+    file_types_dict = {}
+    for file_type in file_types:
+        file_types_dict[strip_http_scheme(file_type.uri)] = file_type
 
+    unique_datasets = get_unique_records(documents)
     return [
-        merge_dataset_information(dataset=dataset, reference_mapper=reference_mapper)
-        for dataset in datasets_with_fdk_portal_paths
+        reduce_dataset(
+            dataset=dataset,
+            los_themes=los_themes,
+            media_types=media_types_dict,
+            file_types=file_types_dict,
+        )
+        for dataset in unique_datasets
     ]
 
 
-def merge_dataset_information(
-    dataset: dict, reference_mapper: RdfReferenceMapper
+def reduce_dataset(
+    dataset: dict,
+    los_themes: List[dict],
+    media_types: dict,
+    file_types: dict,
 ) -> dict:
-    dataset_record = reference_mapper.get_catalog_record_for_dataset(
-        dataset[EsMappings.NODE_URI]
-    )
-    if dataset_record is not None:
-        dataset[EsMappings.RECORD] = dataset_record
-        is_part_of = (
-            dataset_record[JsonRDF.dct.isPartOf]
-            if dataset_record.get(JsonRDF.dct.isPartOf)
-            else []
-        )
-        dataset[EsMappings.PART_OF_CATALOG] = reference_mapper.get_dataset_catalog_name(
-            record_part_of_uri=is_part_of[0].get(ContentKeys.VALUE)
-            if len(is_part_of) > 0
-            else None,
-            dataset_node_uri=dataset[EsMappings.NODE_URI],
-        )
-    if dataset.get(JsonRDF.dcat.distribution):
-        dataset[
-            JsonRDF.dcat.distribution
-        ] = reference_mapper.get_distributions_in_entry(
-            entry=dataset, node_uri=dataset[EsMappings.NODE_URI]
-        )
-        dataset[EsMappings.OPEN_LICENSE] = reference_mapper.has_open_license(
-            dcat_distributions=dataset[JsonRDF.dcat.distribution]
-        )
+    reduced_dict: Dict[str, Any] = {
+        EsMappings.NODE_URI: string_value_from_sparql_result(dataset.get("dataset")),
+        EsMappings.ORG_PATH: string_value_from_sparql_result(dataset.get("orgPath")),
+        EsMappings.ORGANIZATION_ID: string_value_from_sparql_result(
+            dataset.get("orgId")
+        ),
+        JsonRDF.dct.accessRights: (
+            [dataset["accessRights"]] if dataset.get("accessRights") else None
+        ),
+        JsonRDF.dct.title: [
+            dataset["titles"][title_key] for title_key in dataset["titles"]
+        ],
+        JsonRDF.dcat.theme: dataset["themes"],
+        EsMappings.FORMAT: map_formats_to_prefixed(
+            dataset["formats"] + dataset["mediaTypes"], media_types, file_types
+        ),
+        EsMappings.OPEN_LICENSE: bool_value_from_sparql_result(
+            dataset.get("isOpenData")
+        ),
+        EsMappings.PART_OF_CATALOG: string_value_from_sparql_result(
+            dataset.get("catalogTitle")
+        ),
+        EsMappings.RECORD: {JsonRDF.dct.issued: [dataset["issued"]]},
+        JsonRDF.dct.provenance: dataset.get("provenance"),
+        JsonRDF.dct.subject: dataset["subjects"],
+        EsMappings.LOS: get_los_path(uri_list=dataset["themes"], los_themes=los_themes),
+    }
 
-        dataset[
-            EsMappings.FORMAT
-        ] = reference_mapper.get_prefixed_formats_for_distributions(
-            dcat_distributions=dataset[JsonRDF.dcat.distribution]
-        )
-    return reduce_dataset(dataset)
-
-
-def reduce_dataset(dataset: dict) -> dict:
-    reduced_dict = dataset.copy()
-    for items in dataset.items():
-        key = items[0]
-        if key not in DATASET_AGGREGATION_FIELDS:
-            reduced_dict.pop(key)
     return reduced_dict
+
+
+def string_value_from_sparql_result(obj: Optional[dict]) -> str:
+    return obj["value"] if obj else None
+
+
+def bool_value_from_sparql_result(obj: Optional[dict]) -> bool:
+    return bool(obj["value"]) if obj else False
