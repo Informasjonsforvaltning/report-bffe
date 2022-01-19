@@ -179,7 +179,7 @@ def elasticsearch_get_concept_report_aggregations(
             "aggregations": {
                 "most_in_use": {
                     "terms": {
-                        "field": "http://purl.org/dc/terms/subject.value.keyword",
+                        "field": "http://purl.org/dc/terms/subject.keyword",
                         "size": 5,
                     }
                 }
@@ -225,6 +225,9 @@ def get_unique_records(items: List[dict]) -> List[dict]:
     for obj in items:
         obj["mediaTypes"] = []
         obj["formats"] = []
+        obj["themes"] = []
+        obj["subjects"] = []
+        obj["titles"] = dict()
         if obj["record"]["value"] not in seen:
             unique_records.append(obj)
             seen.add(obj["record"]["value"])
@@ -237,6 +240,15 @@ def get_unique_records(items: List[dict]) -> List[dict]:
 
         if "format" in obj and rec:
             rec[0]["formats"].append(obj["format"]["value"])
+
+        if "theme" in obj and rec:
+            rec[0]["themes"].append(obj["theme"]["value"])
+
+        if "subject" in obj and rec:
+            rec[0]["subjects"].append(obj["subject"]["value"])
+
+        if "title" in obj and rec:
+            rec[0]["titles"][obj["title"].get("xml:lang")] = obj["title"]
 
     return unique_records
 

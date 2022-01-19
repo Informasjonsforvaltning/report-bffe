@@ -15,6 +15,7 @@ from fdk_reports_bff.sparql import (
     get_concepts_query,
     get_dataservice_query,
     get_dataset_publisher_query,
+    get_datasets_query,
     get_info_models_query,
 )
 
@@ -220,6 +221,24 @@ async def fetch_publishers_from_dataset_harvester() -> dict:
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="fetching publishers from dataset catalog", url=url
+            )
+
+
+async def fetch_datasets() -> List[dict]:
+    datasets_query = urllib.parse.quote_plus(get_datasets_query())
+    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={datasets_query}"
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response.raise_for_status()
+            res_json = response.json()
+            sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
+                ContentKeys.SPARQL_BINDINGS
+            ]
+            return sparql_bindings
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="fetching datasets catalog", url=url
             )
 
 
