@@ -2,22 +2,12 @@ from typing import Any, List, Optional
 
 from asyncstdlib.functools import lru_cache as alru_cache
 
-from fdk_reports_bff.service.organization_parser import (
-    OrganizationReferencesObject,
-    OrganizationStore,
-)
 from fdk_reports_bff.service.service_requests import (
-    attempt_fetch_organization_by_name_from_catalog,
     fetch_access_rights_from_reference_data,
     fetch_file_types_from_reference_data,
-    fetch_generated_org_path_from_organization_catalog,
     fetch_media_types_from_reference_data,
-    fetch_open_licences_from_reference_data,
-    fetch_organization_from_catalog,
-    fetch_organizations_from_organizations_catalog,
     fetch_themes_and_topics_from_reference_data,
 )
-from fdk_reports_bff.service.utils import NotInNationalRegistryException
 
 
 class ParsedReferenceData:
@@ -105,31 +95,6 @@ class FileTypes:
         ]
 
 
-class OpenLicense:
-    def __init__(self: Any, open_license_uri: Any) -> None:
-        self.uri = open_license_uri
-        self.base_uri = OpenLicense.get_base_uri(open_license_uri)
-
-    def __eq__(self: Any, other: Any) -> bool:
-        if type(other) == str:
-            return self.base_uri == OpenLicense.get_base_uri(other)
-        elif other:
-            return self.uri == other.uri
-        else:
-            return False
-
-    @staticmethod
-    def get_base_uri(uri: str) -> str:
-        try:
-            http_safe = uri.split("//")[1].strip()
-            if http_safe.endswith("/"):
-                return http_safe[0:-1]
-            else:
-                return http_safe
-        except IndexError:
-            return uri
-
-
 @alru_cache
 async def get_rights_statements() -> List[ParsedReferenceData]:
     rights_statements = await fetch_access_rights_from_reference_data()
@@ -143,15 +108,6 @@ async def get_los_paths() -> List[dict]:
 
 
 @alru_cache
-async def get_open_licenses() -> List[OpenLicense]:
-    open_licenses_response = await fetch_open_licences_from_reference_data()
-    licences: List[OpenLicense] = [
-        OpenLicense(licence.get("uri")) for licence in open_licenses_response
-    ]
-    return licences
-
-
-@alru_cache
 async def get_file_types() -> List[dict]:
     file_types = await fetch_file_types_from_reference_data()
     return FileTypes.from_reference_data_response(file_types)
@@ -161,68 +117,6 @@ async def get_file_types() -> List[dict]:
 async def get_media_types() -> List[dict]:
     media_types = await fetch_media_types_from_reference_data()
     return MediaTypes.from_reference_data_response(media_types)
-
-
-@alru_cache
-async def get_organizations() -> List[OrganizationReferencesObject]:
-    organizations = await fetch_organizations_from_organizations_catalog()
-    parsed_organizations = (
-        OrganizationReferencesObject.from_organization_catalog_list_response(
-            organizations
-        )
-    )
-    org_store = OrganizationStore.get_instance()
-    for org in parsed_organizations:
-        org_store.add_organization(org)
-    return org_store.organizations
-
-
-@alru_cache
-async def get_organization_from_organization_catalog(
-    uri: str, name: str
-) -> OrganizationReferencesObject:
-    try:
-        org_id = OrganizationReferencesObject.resolve_id(uri=uri)
-        if org_id and OrganizationReferencesObject.is_national_registry_uri(uri):
-            org = await fetch_organization_from_catalog(org_id, name)
-        else:
-            org = await attempt_fetch_organization_by_name_from_catalog(name)
-        parsed_org = (
-            OrganizationReferencesObject.from_organization_catalog_single_response(org)
-        )
-
-    except NotInNationalRegistryException:
-        orgpath = await fetch_generated_org_path_from_organization_catalog(name)
-        parsed_org = OrganizationReferencesObject(
-            name=name, org_uri=uri, org_path=orgpath
-        )
-    if parsed_org is not None:
-        OrganizationStore.get_instance().add_organization(parsed_org)
-    return parsed_org
-
-
-async def get_organization(
-    organization: OrganizationReferencesObject,
-) -> OrganizationReferencesObject:
-    if organization is None:
-        return None
-    try:
-        org_catalog = await get_organizations()
-        org_idx = org_catalog.index(organization)
-        cat_organization: OrganizationReferencesObject = org_catalog[org_idx]
-        if cat_organization.org_path is None:
-            return await get_organization_from_organization_catalog(
-                uri=cat_organization.org_uri, name=cat_organization.name
-            )
-        else:
-            return cat_organization
-    except ValueError:
-        org: OrganizationReferencesObject = (
-            await get_organization_from_organization_catalog(
-                uri=organization.org_uri, name=organization.name
-            )
-        )
-        return org
 
 
 def clean_uri(uri_from_sparql: str) -> str:
