@@ -13,75 +13,14 @@ from fdk_reports_bff.elasticsearch.queries import (
     EsMappings,
     TimeSeriesQuery,
 )
-from fdk_reports_bff.service.organization_parser import (
-    OrganizationReferencesObject,
-    OrganizationStore,
-    OrganizationStoreNotInitiatedException,
-)
 from fdk_reports_bff.service.rdf_namespaces import JsonRDF
-from fdk_reports_bff.service.referenced_data_store import (
-    get_los_path,
-    get_organization,
-    get_organizations,
-)
+from fdk_reports_bff.service.referenced_data_store import get_los_path
 from fdk_reports_bff.service.utils import ContentKeys, ServiceKey
 
 
 def add_key_as_node_uri(key: str, value: dict) -> dict:
     value[EsMappings.NODE_URI] = key
     return value
-
-
-async def get_all_organizations_with_publisher(publishers: dict) -> None:
-    await get_organizations()
-    OrganizationStore.get_instance().add_all_publishers(publishers)
-
-
-async def add_org_and_los_paths_to_document(
-    json_rdf_values: dict, los_themes: List[dict]
-) -> dict:
-    uri = (
-        json_rdf_values[JsonRDF.dct.publisher][0][ContentKeys.VALUE]
-        if JsonRDF.dct.publisher in json_rdf_values
-        else None
-    )
-    try:
-        ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
-        referenced_organization = await get_organization(ref_object)
-        if referenced_organization:
-            org_path = referenced_organization.org_path
-            org_id = OrganizationReferencesObject.resolve_id(
-                referenced_organization.org_uri
-            )
-            json_rdf_values[EsMappings.ORG_PATH] = org_path
-            json_rdf_values[EsMappings.ORGANIZATION_ID] = org_id
-        return add_los_path_to_document(json_rdf_values, los_themes)
-    except OrganizationStoreNotInitiatedException:
-        await get_organizations()
-        return await add_org_and_los_paths_to_document(json_rdf_values, los_themes)
-
-
-async def add_org_paths_to_document(rdf_values: dict) -> dict:
-    if ContentKeys.SAME_AS in rdf_values.keys():
-        uri = rdf_values[ContentKeys.SAME_AS][ContentKeys.VALUE]
-    elif ContentKeys.PUBLISHER in rdf_values.keys():
-        uri = rdf_values[ContentKeys.PUBLISHER][ContentKeys.VALUE]
-    else:
-        return rdf_values
-    try:
-        ref_object = OrganizationReferencesObject.from_dct_publisher(org_uri=uri)
-        referenced_organization = await get_organization(ref_object)
-        if referenced_organization:
-            org_path = referenced_organization.org_path
-            org_id = OrganizationReferencesObject.resolve_id(
-                referenced_organization.org_uri
-            )
-            rdf_values[EsMappings.ORG_PATH] = org_path
-            rdf_values[EsMappings.ORGANIZATION_ID] = org_id
-        return rdf_values
-    except OrganizationStoreNotInitiatedException:
-        await get_organizations()
-        return await add_org_paths_to_document(rdf_values)
 
 
 async def add_formats_to_document(rdf_values: dict) -> dict:

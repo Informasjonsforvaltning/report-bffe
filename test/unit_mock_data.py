@@ -1,7 +1,5 @@
 from typing import List, Optional
 
-from fdk_reports_bff.service.organization_parser import OrganizationReferencesObject
-
 informationmodels = {
     "head": {"vars": ["record", "issued", "publisher"]},
     "results": {
@@ -493,30 +491,6 @@ mocked_organization_catalog_response = [
 ]
 
 
-def single_parsed_org_mock(
-    uri: str, name=None, *args, **kvargs
-) -> OrganizationReferencesObject:
-    if uri == "https://data.brreg.no/enhetsregisteret/api/enheter/971040238":
-        return OrganizationReferencesObject.from_organization_catalog_single_response(
-            {
-                "organizationId": "971040238",
-                "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
-                "name": "STATENS KARTVERK",
-                "orgType": "ORGL",
-                "orgPath": "/STAT/972417858/971040238",
-                "subOrganizationOf": "972417858",
-                "issued": "1995-03-12",
-                "municipalityNumber": "3007",
-                "industryCode": "71.123",
-                "sectorCode": "6100",
-            }
-        )
-    else:
-        return OrganizationReferencesObject(
-            name=name, org_uri=uri, org_path=f"/ANNET/{name}"
-        )
-
-
 def mocked_access_rights(uri: str) -> Optional[str]:
     if (
         uri
@@ -721,102 +695,5 @@ def mock_los_path_reference_response():
             ],
             "relatedTerms": ["https://psi.norge.no/los/hendelse/fa-barn"],
             "tema": False,
-        },
-    ]
-
-
-parsed_brreg_org: OrganizationReferencesObject = OrganizationReferencesObject.from_organization_catalog_single_response(
-    {
-        "organizationId": "971040238",
-        "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
-        "name": "STATENS KARTVERK",
-        "orgType": "ORGL",
-        "orgPath": "/STAT/972417858/971040238",
-        "subOrganizationOf": "972417858",
-        "issued": "1995-03-12",
-        "municipalityNumber": "3007",
-        "industryCode": "71.123",
-        "sectorCode": "6100",
-    }
-)
-
-
-def parsed_org_catalog_mock():
-    return OrganizationReferencesObject.from_organization_catalog_list_response(
-        mocked_organization_catalog_response
-    )
-
-
-brreg_org = {
-    "organizationId": "971040238",
-    "norwegianRegistry": "https://data.brreg.no/enhetsregisteret/api/enheter/971040238",
-    "name": "STATENS KARTVERK",
-    "orgType": "ORGL",
-    "orgPath": "/STAT/972417858/971040238",
-    "subOrganizationOf": "972417858",
-    "issued": "1995-03-12",
-    "municipalityNumber": "3007",
-    "industryCode": "71.123",
-    "sectorCode": "6100",
-}
-
-
-def open_licenses_mock_reponse():
-    return [
-        {
-            "uri": "http://creativecommons.org/licenses/by/4.0/",
-            "code": "CC BY 4.0",
-            "prefLabel": {
-                "en": "Creative Commons Attribution 4.0 International",
-                "no": "Creative Commons Navngivelse 4.0 Internasjonal",
-            },
-        },
-        {
-            "uri": "http://creativecommons.org/licenses/by/4.0/deed.no",
-            "code": "CC BY 4.0 DEED",
-            "prefLabel": {
-                "en": "Creative Commons Attribution 4.0 International",
-                "no": "Creative Commons Navngivelse 4.0 Internasjonal",
-            },
-        },
-        {
-            "uri": "http://creativecommons.org/publicdomain/zero/1.0/",
-            "code": "CC0 1.0",
-            "prefLabel": {
-                "en": "Creative Commons Universal Public Domain Dedication",
-                "no": "Creative Commons Universal Fristatus-erklæring",
-            },
-        },
-        {
-            "uri": "http://data.norge.no/nlod/",
-            "code": "NLOD",
-            "prefLabel": {
-                "en": "Norwegian Licence for Open Government Data",
-                "no": "Norsk lisens for offentlige data",
-            },
-        },
-        {
-            "uri": "http://data.norge.no/nlod/no/",
-            "code": "NLOD",
-            "prefLabel": {
-                "en": "Norwegian Licence for Open Government Data",
-                "no": "Norsk lisens for offentlige data",
-            },
-        },
-        {
-            "uri": "http://data.norge.no/nlod/no/1.0",
-            "code": "NLOD10",
-            "prefLabel": {
-                "en": "Norwegian Licence for Open Government Data",
-                "no": "Norsk lisens for offentlige data",
-            },
-        },
-        {
-            "uri": "http://data.norge.no/nlod/no/2.0",
-            "code": "NLOD20",
-            "prefLabel": {
-                "en": "Norwegian Licence for Open Government Data",
-                "no": "Norsk lisens for offentlige data",
-            },
         },
     ]

@@ -12,8 +12,6 @@ from fdk_reports_bff import create_app
 from test.unit_mock_data import (
     mock_access_rights_catalog_response,
     mock_los_path_reference_response,
-    parsed_org_catalog_mock,
-    single_parsed_org_mock,
 )
 from .utils import wait_for_es
 
@@ -107,22 +105,6 @@ def wait_for_ready():
 def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
-
-
-@pytest.fixture
-def get_organization_from_service_mock(mocker):
-    mocker.patch(
-        "fdk_reports_bff.service.referenced_data_store.get_organization_from_organization_catalog",
-        side_effect=single_parsed_org_mock,
-    )
-
-
-@pytest.fixture
-def get_organizations_mock(mocker):
-    mocker.patch(
-        "fdk_reports_bff.service.referenced_data_store.get_organizations",
-        side_effect=parsed_org_catalog_mock,
-    )
 
 
 @pytest.fixture
