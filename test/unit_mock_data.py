@@ -31,7 +31,7 @@ informationmodels = {
                 },
                 "publisher": {
                     "type": "uri",
-                    "value": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/991825827",
+                    "value": "https://organization-catalog.fellesdatakatalog.digdir.no/organizations/991825827",
                 },
             },
             {
@@ -46,7 +46,7 @@ informationmodels = {
                 },
                 "publisher": {
                     "type": "uri",
-                    "value": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/991825827",
+                    "value": "https://organization-catalog.fellesdatakatalog.digdir.no/organizations/991825827",
                 },
             },
             {
@@ -61,7 +61,7 @@ informationmodels = {
                 },
                 "publisher": {
                     "type": "uri",
-                    "value": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/971040238",
+                    "value": "https://organization-catalog.fellesdatakatalog.digdir.no/organizations/971040238",
                 },
             },
             {
@@ -76,7 +76,7 @@ informationmodels = {
                 },
                 "publisher": {
                     "type": "uri",
-                    "value": "https://organization-catalogue.staging.fellesdatakatalog.digdir.no/organizations/910258028",
+                    "value": "https://organization-catalog.staging.fellesdatakatalog.digdir.no/organizations/910258028",
                 },
             },
             {
@@ -91,7 +91,7 @@ informationmodels = {
                 },
                 "publisher": {
                     "type": "uri",
-                    "value": "https://organization-catalogue.staging.fellesdatakatalog.digdir.no/organizations/910258028",
+                    "value": "https://organization-catalog.staging.fellesdatakatalog.digdir.no/organizations/910258028",
                 },
             },
             {
@@ -136,7 +136,7 @@ informationmodels = {
                 },
                 "publisher": {
                     "type": "uri",
-                    "value": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/971526920",
+                    "value": "https://organization-catalog.fellesdatakatalog.digdir.no/organizations/971526920",
                 },
             },
             {
@@ -151,7 +151,7 @@ informationmodels = {
                 },
                 "publisher": {
                     "type": "uri",
-                    "value": "https://organization-catalogue.fellesdatakatalog.digdir.no/organizations/915933149",
+                    "value": "https://organization-catalog.fellesdatakatalog.digdir.no/organizations/915933149",
                 },
             },
         ]
