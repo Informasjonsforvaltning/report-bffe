@@ -5,7 +5,7 @@ def get_datasets_query() -> str:
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/master/src/main/resources/ontology/fdk.owl#>
-        PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalogue/master/src/main/resources/ontology/organization-catalogue.owl#>
+        PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/master/src/main/resources/ontology/organization-catalog.owl#>
         SELECT DISTINCT ?catalog ?catalogTitle ?dataset ?record ?title ?issued ?theme ?accessRights ?provenance ?subject ?isOpenData ?mediaType ?format ?publisher ?orgId ?orgPath
         FROM <https://datasets.fellesdatakatalog.digdir.no>
         WHERE {
