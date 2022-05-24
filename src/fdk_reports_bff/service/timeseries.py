@@ -3,7 +3,6 @@ from typing import Any
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_time_series
 from fdk_reports_bff.responses import TimeSeriesResponse
-from fdk_reports_bff.service.rdf_namespaces import JsonRDF
 from fdk_reports_bff.service.utils import QueryParameter, ServiceKey
 
 
@@ -19,21 +18,18 @@ def get_time_series(content_type: str, args: Any) -> TimeSeriesResponse:
             theme=theme,
             theme_profile=theme_profile,
             organization_id=organization_id,
-            series_field=f"{EsMappings.RECORD}.{JsonRDF.dct.issued}.value",
+            series_field=f"{EsMappings.FIRST_HARVESTED}.value",
         )
-    elif content_type == ServiceKey.DATA_SERVICES:
+    elif content_type in [
+        ServiceKey.DATA_SERVICES,
+        ServiceKey.CONCEPTS,
+        ServiceKey.INFO_MODELS,
+    ]:
         return get_time_series_response(
             report_type=content_type,
             org_path=orgpath,
             organization_id=organization_id,
-            series_field=f"{EsMappings.ISSUED}.value",
-        )
-    elif content_type in [ServiceKey.CONCEPTS, ServiceKey.INFO_MODELS]:
-        return get_time_series_response(
-            report_type=content_type,
-            org_path=orgpath,
-            organization_id=organization_id,
-            series_field=f"{EsMappings.ISSUED}.value",
+            series_field=f"{EsMappings.FIRST_HARVESTED}.value",
         )
     else:
         raise KeyError()

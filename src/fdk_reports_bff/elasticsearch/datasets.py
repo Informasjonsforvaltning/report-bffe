@@ -115,7 +115,7 @@ def reduce_dataset(
         EsMappings.PART_OF_CATALOG: string_value_from_sparql_result(
             dataset.get("catalogTitle")
         ),
-        EsMappings.RECORD: {JsonRDF.dct.issued: [dataset["issued"]]},
+        EsMappings.FIRST_HARVESTED: dataset["firstHarvested"],
         JsonRDF.dct.provenance: dataset.get("provenance"),
         JsonRDF.dct.subject: dataset["subjects"],
         EsMappings.LOS: get_los_path(uri_list=dataset["themes"], los_themes=los_themes),
