@@ -10,7 +10,6 @@ from fdk_reports_bff.elasticsearch.utils import (
     map_formats_to_prefixed,
     strip_http_scheme,
 )
-from fdk_reports_bff.service.rdf_namespaces import JsonRDF
 from fdk_reports_bff.service.referenced_data_store import (
     get_file_types,
     get_los_path,
@@ -99,13 +98,13 @@ def reduce_dataset(
         EsMappings.ORGANIZATION_ID: string_value_from_sparql_result(
             dataset.get("orgId")
         ),
-        JsonRDF.dct.accessRights: (
+        EsMappings.ACCESS_RIGHTS: (
             [dataset["accessRights"]] if dataset.get("accessRights") else None
         ),
-        JsonRDF.dct.title: [
+        EsMappings.TITLE: [
             dataset["titles"][title_key] for title_key in dataset["titles"]
         ],
-        JsonRDF.dcat.theme: dataset["themes"],
+        EsMappings.THEME: dataset["themes"],
         EsMappings.FORMAT: map_formats_to_prefixed(
             dataset["formats"] + dataset["mediaTypes"], media_types, file_types
         ),
@@ -116,8 +115,8 @@ def reduce_dataset(
             dataset.get("catalogTitle")
         ),
         EsMappings.FIRST_HARVESTED: dataset["firstHarvested"],
-        JsonRDF.dct.provenance: dataset.get("provenance"),
-        JsonRDF.dct.subject: dataset["subjects"],
+        EsMappings.PROVENANCE: dataset.get("provenance"),
+        EsMappings.SUBJECT: dataset["subjects"],
         EsMappings.LOS: get_los_path(uri_list=dataset["themes"], los_themes=los_themes),
     }
 
