@@ -39,7 +39,7 @@ class ContentKeys:
     MOST_IN_USE = "most_in_use"
     INFO_MODELS = "informationmodels"
     TITLE = "title"
-    ISSUED = "issued"
+    FIRST_HARVESTED = "firstHarvested"
     HITS = "hits"
 
 

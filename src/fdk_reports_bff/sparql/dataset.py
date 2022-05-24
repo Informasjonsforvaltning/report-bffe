@@ -6,7 +6,7 @@ def get_datasets_query() -> str:
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/master/src/main/resources/ontology/fdk.owl#>
         PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/master/src/main/resources/ontology/organization-catalog.owl#>
-        SELECT DISTINCT ?catalog ?catalogTitle ?dataset ?record ?title ?issued ?theme ?accessRights ?provenance ?subject ?isOpenData ?mediaType ?format ?publisher ?orgId ?orgPath
+        SELECT DISTINCT ?catalog ?catalogTitle ?dataset ?record ?title ?firstHarvested ?theme ?accessRights ?provenance ?subject ?isOpenData ?mediaType ?format ?publisher ?orgId ?orgPath
         FROM <https://datasets.fellesdatakatalog.digdir.no>
         WHERE {
             ?catalog a dcat:Catalog .
@@ -14,7 +14,7 @@ def get_datasets_query() -> str:
             ?catalog dcat:dataset ?dataset .
 
             ?record foaf:primaryTopic ?dataset .
-            ?record dct:issued ?issued .
+            ?record dct:issued ?firstHarvested .
 
             OPTIONAL { ?dataset dct:title ?title . }
             OPTIONAL { ?dataset dcat:theme ?theme . }

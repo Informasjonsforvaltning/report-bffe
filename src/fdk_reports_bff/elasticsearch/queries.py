@@ -23,7 +23,7 @@ class EsMappings:
     OPEN_LICENSE = "OpenLicense"
     PUBLISHER = "publisher"
     URI = "uri"
-    FIRST_HARVESTED = "harvest.firstHarvested"
+    FIRST_HARVESTED = "firstHarvested"
     TITLE = ("title",)
     ISSUED = "issued"
     MEDIATYPE = "mediaType"
@@ -45,13 +45,14 @@ DATASET_AGGREGATION_FIELDS = [
     EsMappings.OPEN_LICENSE,
     EsMappings.FORMAT,
     EsMappings.PART_OF_CATALOG,
+    EsMappings.FIRST_HARVESTED,
 ]
 
 DATASERVICE_AGGREGATION_FIELDS = [
     EsMappings.ORG_PATH,
     EsMappings.ORGANIZATION_ID,
     EsMappings.TITLE,
-    EsMappings.ISSUED,
+    EsMappings.FIRST_HARVESTED,
     EsMappings.FORMAT,
 ]
 
@@ -59,7 +60,7 @@ INFORMATION_MODEL_AGGREGATION_FIELDS = [
     EsMappings.ORG_PATH,
     EsMappings.ORGANIZATION_ID,
     EsMappings.TITLE,
-    EsMappings.ISSUED,
+    EsMappings.FIRST_HARVESTED,
     EsMappings.HARVEST,
 ]
 
@@ -72,7 +73,7 @@ CATALOG_RECORD_AGGREGATION_FIELDS = [
 CONCEPT_AGGREGATION_FIELDS = [
     EsMappings.ORG_PATH,
     EsMappings.ORGANIZATION_ID,
-    EsMappings.ISSUED,
+    EsMappings.FIRST_HARVESTED,
 ]
 
 
@@ -118,10 +119,6 @@ class AggregationQuery(Query):
         organization_id: Any = None,
     ) -> None:
         super().__init__()
-        if report_type == ServiceKey.DATA_SETS:
-            issued_field = f"{EsMappings.RECORD}.{JsonRDF.dct.issued}.value"
-        else:
-            issued_field = f"{EsMappings.ISSUED}.value"
         self.aggregations = {
             EsMappings.ORG_PATH: {
                 "terms": {
@@ -130,7 +127,9 @@ class AggregationQuery(Query):
                     "size": 100000,
                 }
             },
-            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(key=issued_field, days=7),
+            ContentKeys.NEW_LAST_WEEK: get_last_x_days_filter(
+                key=f"{EsMappings.FIRST_HARVESTED}.value", days=7
+            ),
             ContentKeys.CATALOGS: {
                 "terms": {
                     "field": f"{EsMappings.PART_OF_CATALOG}.keyword",
