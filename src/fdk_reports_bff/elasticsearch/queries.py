@@ -1,7 +1,6 @@
 import abc
 from typing import Any, Optional
 
-from fdk_reports_bff.service.rdf_namespaces import JsonRDF
 from fdk_reports_bff.service.utils import ContentKeys, ServiceKey, ThemeProfile
 
 
@@ -14,34 +13,33 @@ class EsMappings:
     TIME_SERIES = "timeseries"
     FORMAT = "format"
     LOS = "los"
-    RECORD = "dcatRecord"
     VALUE_KEYWORD = ".value.keyword"
     NODE_URI = "nodeUri"
     ORG_PATH = "orgPath"
     LOS_PATH = "losPaths"
     MISSING = "MISSING"
     OPEN_LICENSE = "OpenLicense"
-    PUBLISHER = "publisher"
-    URI = "uri"
     FIRST_HARVESTED = "firstHarvested"
-    TITLE = ("title",)
-    ISSUED = "issued"
+    TITLE = "title"
     MEDIATYPE = "mediaType"
-    HARVEST = "harvest"
+    ACCESS_RIGHTS = "accessRights"
+    PROVENANCE = "provenance"
+    SUBJECT = "subject"
+    DISTRIBUTION = "distribution"
+    THEME = "theme"
 
 
 DATASET_AGGREGATION_FIELDS = [
     EsMappings.ORG_PATH,
     EsMappings.ORGANIZATION_ID,
     EsMappings.LOS,
-    JsonRDF.dct.accessRights,
-    JsonRDF.dct.provenance,
-    JsonRDF.dct.title,
-    JsonRDF.dct.subject,
-    JsonRDF.dcat.distribution,
-    JsonRDF.dcat.theme,
+    EsMappings.ACCESS_RIGHTS,
+    EsMappings.PROVENANCE,
+    EsMappings.TITLE,
+    EsMappings.SUBJECT,
+    EsMappings.DISTRIBUTION,
+    EsMappings.THEME,
     EsMappings.NODE_URI,
-    EsMappings.RECORD,
     EsMappings.OPEN_LICENSE,
     EsMappings.FORMAT,
     EsMappings.PART_OF_CATALOG,
@@ -61,13 +59,6 @@ INFORMATION_MODEL_AGGREGATION_FIELDS = [
     EsMappings.ORGANIZATION_ID,
     EsMappings.TITLE,
     EsMappings.FIRST_HARVESTED,
-    EsMappings.HARVEST,
-]
-
-CATALOG_RECORD_AGGREGATION_FIELDS = [
-    JsonRDF.dct.issued,
-    JsonRDF.dct.isPartOf,
-    JsonRDF.foaf.primaryTopic,
 ]
 
 CONCEPT_AGGREGATION_FIELDS = [
@@ -151,18 +142,18 @@ class AggregationQuery(Query):
     def __add_datasets_aggregation(self: Any) -> None:
         self.aggregations[
             ContentKeys.ACCESS_RIGHTS_CODE
-        ] = AggregationQuery.json_rdf_terms_aggregation(JsonRDF.dct.accessRights)
+        ] = AggregationQuery.json_rdf_terms_aggregation(EsMappings.ACCESS_RIGHTS)
         self.aggregations[ContentKeys.NATIONAL_COMPONENT] = {
             "filter": {
                 "term": {
                     AggregationQuery.es_keyword_key(
-                        JsonRDF.dct.provenance
+                        EsMappings.PROVENANCE
                     ): "http://data.brreg.no/datakatalog/provinens/nasjonal"
                 }
             }
         }
         self.aggregations[ContentKeys.WITH_SUBJECT] = {
-            "filter": {"exists": {"field": JsonRDF.dct.subject}}
+            "filter": {"exists": {"field": EsMappings.SUBJECT}}
         }
         self.aggregations[ContentKeys.LOS_PATH] = {
             "terms": {"field": EsMappings.LOS, "missing": "MISSING", "size": 100000}
@@ -236,7 +227,7 @@ def open_data_aggregation() -> dict:
                     {
                         "term": {
                             AggregationQuery.es_keyword_key(
-                                JsonRDF.dct.accessRights
+                                EsMappings.ACCESS_RIGHTS
                             ): "http://publications.europa.eu/resource/authority/access-right/PUBLIC"
                         }
                     },
@@ -285,7 +276,7 @@ def get_theme_profile_filter(profile: str) -> dict:
                     {
                         "term": {
                             AggregationQuery.es_keyword_key(
-                                JsonRDF.dct.accessRights
+                                EsMappings.ACCESS_RIGHTS
                             ): "http://publications.europa.eu/resource/authority/access"
                             "-right/PUBLIC"
                         }

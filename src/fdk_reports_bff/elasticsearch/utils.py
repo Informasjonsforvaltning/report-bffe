@@ -13,7 +13,6 @@ from fdk_reports_bff.elasticsearch.queries import (
     EsMappings,
     TimeSeriesQuery,
 )
-from fdk_reports_bff.service.rdf_namespaces import JsonRDF
 from fdk_reports_bff.service.referenced_data_store import get_los_path
 from fdk_reports_bff.service.utils import ContentKeys, ServiceKey
 
@@ -33,10 +32,10 @@ async def add_formats_to_document(rdf_values: dict) -> dict:
 
 
 def add_los_path_to_document(json_rdf_values: dict, los_themes: List[dict]) -> dict:
-    if JsonRDF.dcat.theme in json_rdf_values.keys():
+    if EsMappings.THEME in json_rdf_values.keys():
         themes = (
-            json_rdf_values[JsonRDF.dcat.theme]
-            if json_rdf_values.get(JsonRDF.dcat.theme)
+            json_rdf_values[EsMappings.THEME]
+            if json_rdf_values.get(EsMappings.THEME)
             else []
         )
         los_uris = [theme.get(ContentKeys.VALUE) for theme in themes]
@@ -112,13 +111,13 @@ def elasticsearch_get_concept_report_aggregations(
     query_array = [
         {"index": "datasets"},
         {
-            "_source": ["http://purl.org/dc/terms/subject"],
+            "_source": ["subject"],
             "size": 0,
-            "query": {"exists": {"field": "http://purl.org/dc/terms/subject"}},
+            "query": {"exists": {"field": "subject"}},
             "aggregations": {
                 "most_in_use": {
                     "terms": {
-                        "field": "http://purl.org/dc/terms/subject.keyword",
+                        "field": "subject.keyword",
                         "size": 5,
                     }
                 }
