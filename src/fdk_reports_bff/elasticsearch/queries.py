@@ -120,10 +120,8 @@ class AggregationQuery(Query):
         super().__init__()
         if report_type == ServiceKey.DATA_SETS:
             issued_field = f"{EsMappings.RECORD}.{JsonRDF.dct.issued}.value"
-        elif report_type == ServiceKey.DATA_SERVICES:
-            issued_field = f"{EsMappings.ISSUED}.value"
         else:
-            issued_field = "harvest.firstHarvested"
+            issued_field = f"{EsMappings.ISSUED}.value"
         self.aggregations = {
             EsMappings.ORG_PATH: {
                 "terms": {
