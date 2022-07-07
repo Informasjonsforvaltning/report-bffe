@@ -14,7 +14,6 @@ def test_get_key():
     assert ServiceKey.get_key("concepts") == ServiceKey.CONCEPTS
     assert ServiceKey.get_key("organizations") == ServiceKey.ORGANIZATIONS
     assert ServiceKey.get_key("dataservices") == ServiceKey.DATA_SERVICES
-    assert ServiceKey.get_key("reference_data") == ServiceKey.REFERENCE_DATA
     assert ServiceKey.get_key("new_reference_data") == ServiceKey.NEW_REFERENCE_DATA
     with pytest.raises(NotAServiceKeyException):
         ServiceKey.get_key("notakey")

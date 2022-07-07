@@ -1,0 +1,31 @@
+{
+  "id" : "3413cbf5-2f95-472c-a51f-0bbb2d66140e",
+  "name" : "new-reference-data_eu_access-rights",
+  "request" : {
+    "url" : "/new-reference-data/eu/access-rights",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"accessRights\":[{\"uri\":\"http://publications.europa.eu/resource/authority/access-right/CONFIDENTIAL\",\"code\":\"CONFIDENTIAL\",\"label\":{\"en\":\"confidential\"}},{\"uri\":\"http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC\",\"code\":\"NON_PUBLIC\",\"label\":{\"en\":\"non-public\"}},{\"uri\":\"http://publications.europa.eu/resource/authority/access-right/NORMAL\",\"code\":\"NORMAL\",\"label\":{\"en\":\"normal\"}},{\"uri\":\"http://publications.europa.eu/resource/authority/access-right/OP_DATPRO\",\"code\":\"OP_DATPRO\",\"label\":{\"en\":\"Provisional data\"}},{\"uri\":\"http://publications.europa.eu/resource/authority/access-right/PUBLIC\",\"code\":\"PUBLIC\",\"label\":{\"en\":\"public\"}},{\"uri\":\"http://publications.europa.eu/resource/authority/access-right/RESTRICTED\",\"code\":\"RESTRICTED\",\"label\":{\"en\":\"restricted\"}},{\"uri\":\"http://publications.europa.eu/resource/authority/access-right/SENSITIVE\",\"code\":\"SENSITIVE\",\"label\":{\"en\":\"sensitive\"}}]}",
+    "headers" : {
+      "Date" : "Thu, 07 Jul 2022 10:57:05 GMT",
+      "Content-Type" : "application/json",
+      "Vary" : [ "origin,access-control-request-method,access-control-request-headers,accept-encoding", "Accept, Accept-Encoding" ],
+      "X-Content-Type-Options" : "nosniff",
+      "X-XSS-Protection" : "1; mode=block",
+      "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma" : "no-cache",
+      "Expires" : "0",
+      "Strict-Transport-Security" : "max-age=31536000 ; includeSubDomains",
+      "X-Frame-Options" : "DENY",
+      "Via" : "1.1 google",
+      "Alt-Svc" : "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "Server" : "Gandalf",
+      "X-UA-Compatible" : "IE=Edge,chrome=1"
+    }
+  },
+  "uuid" : "3413cbf5-2f95-472c-a51f-0bbb2d66140e",
+  "persistent" : true,
+  "insertionIndex" : 8
+}

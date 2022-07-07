@@ -18,8 +18,6 @@ from fdk_reports_bff.sparql import (
 )
 
 service_urls = {
-    ServiceKey.REFERENCE_DATA: os.getenv("REFERENCE_DATA_URL")
-    or "http://localhost:8000/reference-data",
     ServiceKey.NEW_REFERENCE_DATA: os.getenv("NEW_REFERENCE_DATA_URL")
     or "http://localhost:8000/new-reference-data",
     ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8000",
@@ -43,12 +41,12 @@ async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
 
 
 async def fetch_access_rights_from_reference_data() -> list:
-    url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/codes/rightsstatement"
+    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/eu/access-rights"
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
             response.raise_for_status()
-            return response.json()
+            return response.json().get("accessRights")
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="reference-data get access rights", url=url
