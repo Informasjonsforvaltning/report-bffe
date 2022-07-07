@@ -71,7 +71,7 @@ def client(app: Flask) -> FlaskClient:
 
 @pytest.fixture(scope="session")
 def wait_for_ready():
-    timeout = time.time() + 60
+    timeout = time.time() + 90
     attempts = 0
     while True:
         try:
@@ -91,7 +91,7 @@ def wait_for_ready():
             MaxRetryError,
             NewConnectionError,
         ):
-            if attempts > 3:
+            if attempts > 6:
                 pytest.fail(
                     "Test function setup: could not contact fdk-organization-bff"
                 )
