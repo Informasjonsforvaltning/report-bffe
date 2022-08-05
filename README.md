@@ -45,8 +45,8 @@
 
 For other mock data issues see [mock_data.md in readme resources](readme_resources/mock_data.md)
 
-### ConnectionError etc when updating data
-1. Check if elasticsearch is running and avaiable `GET http://localhost:9200/`
+### ConnectionError etc. when updating data
+1. Check if elasticsearch is running and available `GET http://localhost:9200/`
 2. If no response restart containers
 
 ### ElasticSearch: no indexed data
