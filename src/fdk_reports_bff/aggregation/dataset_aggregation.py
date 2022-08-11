@@ -6,7 +6,10 @@ from fdk_reports_bff.aggregation.aggregation_utils import (
     get_es_cardinality_aggregation,
 )
 from fdk_reports_bff.elasticsearch.queries import EsMappings
-from fdk_reports_bff.elasticsearch.utils import elasticsearch_get_report_aggregations
+from fdk_reports_bff.elasticsearch.utils import (
+    elasticsearch_get_dataset_catalog_titles,
+    elasticsearch_get_report_aggregations,
+)
 from fdk_reports_bff.responses import DataSetResponse
 from fdk_reports_bff.service.referenced_data_store import get_access_rights_code
 from fdk_reports_bff.service.utils import ContentKeys, ServiceKey
@@ -26,6 +29,7 @@ def create_dataset_report(
     rdf_access_rights_bucket = get_es_aggregation(
         es_report, ContentKeys.ACCESS_RIGHTS_CODE
     )
+    rdf_catalog_bucket = get_es_aggregation(es_report, ContentKeys.CATALOGS)
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
@@ -40,6 +44,11 @@ def create_dataset_report(
     )
     mapped_access_rights = loop.run_until_complete(access_right_code_tasks)
 
+    catalog_tasks = asyncio.gather(
+        *[map_catalog_id_to_title(catalog_id) for catalog_id in rdf_catalog_bucket]
+    )
+    mapped_catalogs = loop.run_until_complete(catalog_tasks)
+
     return DataSetResponse(
         total=es_report["hits"][ContentKeys.TOTAL][ContentKeys.VALUE],
         new_last_week=get_es_aggregation(es_report, ContentKeys.NEW_LAST_WEEK),
@@ -52,7 +61,7 @@ def create_dataset_report(
         themes=get_es_aggregation(es_report, ContentKeys.LOS_PATH),
         with_subject=get_es_aggregation(es_report, ContentKeys.WITH_SUBJECT),
         access_rights=mapped_access_rights,
-        catalogs=get_es_aggregation(es_report, ContentKeys.CATALOGS),
+        catalogs=mapped_catalogs,
         theme_profile=theme_profile,
         organization_count=get_es_cardinality_aggregation(
             es_report, ContentKeys.ORGANIZATION_COUNT
@@ -70,4 +79,16 @@ async def map_access_rights_to_code(access_right: dict) -> dict:
     return {
         ContentKeys.KEY: code_key if code_key else EsMappings.MISSING,
         ContentKeys.COUNT: access_right[ContentKeys.COUNT],
+    }
+
+
+async def map_catalog_id_to_title(catalog: dict) -> dict:
+    catalog_id = catalog[ContentKeys.KEY]
+    if catalog_id == EsMappings.MISSING:
+        catalog_title = EsMappings.MISSING
+    else:
+        catalog_title = await elasticsearch_get_dataset_catalog_titles(catalog_id)
+    return {
+        ContentKeys.TITLE: catalog_title if catalog_title else EsMappings.MISSING,
+        ContentKeys.COUNT: catalog[ContentKeys.COUNT],
     }

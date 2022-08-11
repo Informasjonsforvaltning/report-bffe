@@ -92,6 +92,10 @@ def reduce_dataset(
     media_types: dict,
     file_types: dict,
 ) -> dict:
+    catalog = {
+        "id": string_value_from_sparql_result(dataset.get("catalog")),
+        "title": dataset.get("catalogTitles"),
+    }
     reduced_dict: Dict[str, Any] = {
         EsMappings.NODE_URI: string_value_from_sparql_result(dataset.get("dataset")),
         EsMappings.ORG_PATH: string_value_from_sparql_result(dataset.get("orgPath")),
@@ -111,9 +115,7 @@ def reduce_dataset(
         EsMappings.OPEN_LICENSE: bool_value_from_sparql_result(
             dataset.get("isOpenData")
         ),
-        EsMappings.PART_OF_CATALOG: string_value_from_sparql_result(
-            dataset.get("catalogTitle")
-        ),
+        EsMappings.PART_OF_CATALOG: catalog,
         EsMappings.FIRST_HARVESTED: dataset["firstHarvested"],
         EsMappings.PROVENANCE: dataset.get("provenance"),
         EsMappings.SUBJECT: dataset["subjects"],

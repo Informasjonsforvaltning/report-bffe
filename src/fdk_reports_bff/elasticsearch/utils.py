@@ -101,6 +101,15 @@ def elasticsearch_get_report_aggregations(
     return aggregations
 
 
+async def elasticsearch_get_dataset_catalog_titles(catalog_id: str) -> Any:
+    query = {
+        "query": {"match": {f"{EsMappings.PART_OF_CATALOG}.id.keyword": catalog_id}},
+        "size": 1,
+    }
+    catalogs = es_client.search(index="datasets", body=query)["hits"]["hits"]
+    return catalogs[0]["_source"]["partOfCatalog"].get("title")
+
+
 def elasticsearch_get_concept_report_aggregations(
     report_type: str,
     orgpath: Any = None,
@@ -166,6 +175,7 @@ def get_unique_records(items: List[dict]) -> List[dict]:
         obj["themes"] = []
         obj["subjects"] = []
         obj["titles"] = dict()
+        obj["catalogTitles"] = dict()
         if obj["record"]["value"] not in seen:
             unique_records.append(obj)
             seen.add(obj["record"]["value"])
@@ -187,6 +197,11 @@ def get_unique_records(items: List[dict]) -> List[dict]:
 
         if "title" in obj and rec:
             rec[0]["titles"][obj["title"].get("xml:lang")] = obj["title"]
+
+        if "catalogTitle" in obj and rec:
+            lang = obj["catalogTitle"].get("xml:lang")
+            lang = lang if lang is not None else "no"
+            rec[0]["catalogTitles"][lang] = obj["catalogTitle"].get("value")
 
     return unique_records
 

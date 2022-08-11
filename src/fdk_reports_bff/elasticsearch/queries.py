@@ -123,7 +123,7 @@ class AggregationQuery(Query):
             ),
             ContentKeys.CATALOGS: {
                 "terms": {
-                    "field": f"{EsMappings.PART_OF_CATALOG}.keyword",
+                    "field": f"{EsMappings.PART_OF_CATALOG}.id.keyword",
                     "missing": "MISSING",
                     "size": 100000,
                 }
