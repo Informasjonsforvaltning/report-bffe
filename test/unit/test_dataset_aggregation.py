@@ -6,7 +6,8 @@ from test.unit_mock_data import mock_access_rights_catalog_response
 
 
 @pytest.mark.unit
-def test_get_datasets(mock_es_report, get_access_rights_mock):
+@pytest.mark.asyncio
+def test_get_datasets(mock_es_report, mock_catalog_title, get_access_rights_mock):
     result: DataSetResponse = create_dataset_report(None, None, None, None)
     assert 6 == len(result.formats)
     assert 35 == int(result.withSubject)
@@ -194,4 +195,12 @@ def get_access_rights_mock(mocker):
     mocker.patch(
         "fdk_reports_bff.service.referenced_data_store.fetch_access_rights_from_reference_data",
         side_effect=mock_access_rights_catalog_response,
+    )
+
+
+@pytest.fixture
+def mock_catalog_title(mocker):
+    mocker.patch(
+        "fdk_reports_bff.aggregation.dataset_aggregation.elasticsearch_get_dataset_catalog_titles",
+        return_value={"nb": "Katalognavn"},
     )
