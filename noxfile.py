@@ -10,7 +10,6 @@ locations = "src", "test", "noxfile.py"
 nox.options.sessions = (
     "lint",
     "mypy",
-    "safety",
     "unit_tests",
     "contract_tests",
     "integration_tests",
@@ -142,4 +141,6 @@ def safety(session: Session) -> None:
             external=True,
         )
         session.install("safety")
-        session.run("safety", "check", f"--file={requirements.name}", "--full-report")
+        session.run(
+            "safety", "check", f"--file={requirements.name}", "--output", "text"
+        )
