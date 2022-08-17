@@ -55,7 +55,7 @@ class ServiceKey:
     DATA_SERVICES = "dataservices"
     DATA_SETS = "datasets"
     CONCEPTS = "concepts"
-    NEW_REFERENCE_DATA = "new_reference_data"
+    REFERENCE_DATA = "reference_data"
     FDK_BASE = "fdk_base"
     SPARQL_BASE = "sparql_base"
 
@@ -71,8 +71,8 @@ class ServiceKey:
             return ServiceKey.DATA_SETS
         if string_key == ServiceKey.CONCEPTS:
             return ServiceKey.CONCEPTS
-        if string_key == ServiceKey.NEW_REFERENCE_DATA:
-            return ServiceKey.NEW_REFERENCE_DATA
+        if string_key == ServiceKey.REFERENCE_DATA:
+            return ServiceKey.REFERENCE_DATA
         if string_key == ServiceKey.FDK_BASE:
             return ServiceKey.FDK_BASE
         if string_key == ServiceKey.SPARQL_BASE:

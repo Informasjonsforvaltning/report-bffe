@@ -18,8 +18,8 @@ from fdk_reports_bff.sparql import (
 )
 
 service_urls = {
-    ServiceKey.NEW_REFERENCE_DATA: os.getenv("NEW_REFERENCE_DATA_URL")
-    or "http://localhost:8000/new-reference-data",
+    ServiceKey.REFERENCE_DATA: os.getenv("FDK_REFERENCE_DATA_URL")
+    or "http://localhost:8000",
     ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8000",
 }
 
@@ -28,7 +28,7 @@ default_headers = {"accept": "application/json"}
 
 # from reference data (called seldom, not a crisis if they're slow) !important
 async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
-    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/los/themes-and-words"
+    url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/los/themes-and-words"
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
@@ -41,7 +41,9 @@ async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
 
 
 async def fetch_access_rights_from_reference_data() -> list:
-    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/eu/access-rights"
+    url = (
+        f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/eu/access-rights"
+    )
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
@@ -54,7 +56,9 @@ async def fetch_access_rights_from_reference_data() -> list:
 
 
 async def fetch_media_types_from_reference_data() -> list:
-    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/iana/media-types"
+    url = (
+        f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/iana/media-types"
+    )
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
@@ -67,7 +71,7 @@ async def fetch_media_types_from_reference_data() -> list:
 
 
 async def fetch_file_types_from_reference_data() -> list:
-    url = f"{service_urls.get(ServiceKey.NEW_REFERENCE_DATA)}/eu/file-types"
+    url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/eu/file-types"
     async with AsyncClient() as session:
         try:
             response = await session.get(url=url, timeout=5)
