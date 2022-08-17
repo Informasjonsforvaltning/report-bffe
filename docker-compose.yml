@@ -31,8 +31,7 @@ services:
         - DATASET_HARVESTER_URL=http://servicesmock:8080
         - INFORMATIONMODELS_HARVESTER_URL=http://servicesmock:8080
         - DATASERVICE_HARVESTER_URL=http://servicesmock:8080
-        - REFERENCE_DATA_URL=http://servicesmock:8080/reference-data
-        - NEW_REFERENCE_DATA_URL=http://servicesmock:8080/new-reference-data
+        - FDK_REFERENCE_DATA_URL=http://servicesmock:8080
         - FDK_BASE=http://servicesmock:8080
         - SPARQL_BASE=http://servicesmock:8080
         - ELASTIC_HOST=http://elasticsearch
