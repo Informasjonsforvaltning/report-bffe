@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
-from fdk_reports_bff.service.utils import ParsedDataPoint, ThemeProfile
+from fdk_reports_bff.service.utils import ParsedDataPoint, ServiceKey, ThemeProfile
 
 
 class Response:
@@ -203,8 +203,9 @@ class DataSetResponse(Response):
 
 
 class TimeSeriesResponse:
-    def __init__(self: Any, es_time_series: List[dict]) -> None:
+    def __init__(self: Any, es_time_series: List[dict], report_type: str) -> None:
         self.time_series: List = []
+        self.type = report_type
         self.last_data_point: ParsedDataPoint = None
         self.parse_es_time_series(es_time_series=es_time_series)
         self.add_months_from_last_data_point_to_now()
@@ -215,9 +216,14 @@ class TimeSeriesResponse:
             EsMappings.BUCKETS
         ]
         for time_bucket in time_buckets:
-            new_data_point = ParsedDataPoint(
-                es_bucket=time_bucket, last_month_count=last_count
-            )
+            if self.type == ServiceKey.DATA_SETS:
+                new_data_point = ParsedDataPoint(
+                    es_bucket=time_bucket, last_month_count=0
+                )
+            else:
+                new_data_point = ParsedDataPoint(
+                    es_bucket=time_bucket, last_month_count=last_count
+                )
             last_count = new_data_point.y_axis
             self.add(new_data_point)
 

@@ -28,6 +28,7 @@ class EsMappings:
     DISTRIBUTION = "distribution"
     THEME = "theme"
     TRANSPORTPORTAL = "transportportal"
+    TIMESTAMP = "timestamp"
 
 
 DATASET_AGGREGATION_FIELDS = [

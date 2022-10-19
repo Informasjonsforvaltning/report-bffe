@@ -74,7 +74,7 @@ def test_time_series_response():
             }
         }
     }
-    result = TimeSeriesResponse(parsed_series).json()
+    result = TimeSeriesResponse(parsed_series, "concepts").json()
     assert len(result) > len(
         parsed_series["aggregations"][EsMappings.TIME_SERIES]["buckets"]
     )

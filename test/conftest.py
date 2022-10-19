@@ -91,10 +91,8 @@ def wait_for_ready():
             MaxRetryError,
             NewConnectionError,
         ):
-            if attempts > 6:
-                pytest.fail(
-                    "Test function setup: could not contact fdk-organization-bff"
-                )
+            if attempts > 10:
+                pytest.fail("Test function setup: could not contact fdk-reports-bff")
             else:
                 time.sleep(10)
                 attempts += 1

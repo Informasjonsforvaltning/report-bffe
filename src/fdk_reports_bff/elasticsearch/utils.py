@@ -1,11 +1,13 @@
+from datetime import datetime
 import json
 import logging
 import os
 import traceback
-from typing import Any, List
+from typing import Any, List, Optional
 
 from elasticsearch import helpers
 from elasticsearch.helpers import BulkIndexError
+import pandas
 
 from fdk_reports_bff.elasticsearch import es_client
 from fdk_reports_bff.elasticsearch.queries import (
@@ -224,3 +226,29 @@ def map_formats_to_prefixed(
 
 def strip_http_scheme(uri: str) -> str:
     return uri.replace("https://", "").replace("http://", "")
+
+
+def first_of_month_timestamp_range(
+    start: Optional[str], end: Optional[str]
+) -> List[int]:
+    try:
+        if start is None:
+            return list()
+        else:
+            start_date = datetime.fromtimestamp(int(start))
+        end_date = datetime.today() if end is None else datetime.fromtimestamp(int(end))
+        return [
+            int(dt.timestamp())
+            for dt in pandas.date_range(
+                start=start_date,
+                end=end_date,
+                freq="MS",
+                normalize=True,
+                tz="UTC",
+            )
+        ]
+    except BaseException:
+        logging.error(
+            f"{traceback.format_exc()} error when attempting to create timestamp range"
+        )
+        return list()
