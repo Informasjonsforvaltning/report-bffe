@@ -1,0 +1,21 @@
+{
+  "id" : "cc9c75c9-d522-40c9-b748-73adbc9d1819",
+  "name" : "api_metadata",
+  "request" : {
+    "url" : "/api/metadata",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"empty\":false,\"start_time\":1658398583,\"end_time\":1665396610}",
+    "headers" : {
+      "Date" : "Thu, 20 Oct 2022 10:56:20 GMT",
+      "Content-Type" : "application/json",
+      "Via" : "1.1 google",
+      "Alt-Svc" : "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+    }
+  },
+  "uuid" : "cc9c75c9-d522-40c9-b748-73adbc9d1819",
+  "persistent" : true,
+  "insertionIndex" : 9
+}

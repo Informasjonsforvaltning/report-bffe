@@ -11,6 +11,7 @@ from fdk_reports_bff.service.utils import (
     ServiceKey,
 )
 from fdk_reports_bff.sparql import (
+    dataset_timeseries_datapoint_query,
     get_concepts_query,
     get_dataservice_query,
     get_datasets_query,
@@ -21,6 +22,8 @@ service_urls = {
     ServiceKey.REFERENCE_DATA: os.getenv("FDK_REFERENCE_DATA_URL")
     or "http://localhost:8000",
     ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8000",
+    ServiceKey.DATASET_QUERY_CACHE: os.getenv("DATASET_QUERY_CACHE_URL")
+    or "http://localhost:8000",
 }
 
 default_headers = {"accept": "application/json"}
@@ -155,4 +158,37 @@ async def fetch_dataservices() -> List[dict]:
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="fetching dataservices catalog", url=url
+            )
+
+
+async def fetch_diff_store_metadata() -> dict:
+    url = f"{service_urls.get(ServiceKey.DATASET_QUERY_CACHE)}/api/metadata"
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response.raise_for_status()
+            return response.json()
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="diff store metadata", url=url
+            )
+
+
+async def fetch_dataset_time_series_datapoint(timestamp: str) -> dict:
+    sparql_query = urllib.parse.quote_plus(dataset_timeseries_datapoint_query())
+    url = f"{service_urls.get(ServiceKey.DATASET_QUERY_CACHE)}/api/sparql/{timestamp}?query={sparql_query}"
+    async with AsyncClient() as session:
+        try:
+            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response.raise_for_status()
+            res_json = response.json()
+            return {
+                "timestamp": timestamp,
+                "results": res_json[ContentKeys.SPARQL_RESULTS][
+                    ContentKeys.SPARQL_BINDINGS
+                ],
+            }
+        except (ConnectError, HTTPError, ConnectTimeout):
+            raise FetchFromServiceException(
+                execution_point="dataset time series query", url=url
             )

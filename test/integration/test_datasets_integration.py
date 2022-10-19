@@ -41,8 +41,8 @@ class TestDatasetsReport:
         result = client.get("/timeseries/datasets")
         assert result.status_code == 200
         time_series = result.json
-        assert time_series[0]["xAxis"] == "2021-03-01T00:00:00.000Z"
-        assert time_series[0]["yAxis"] == 1491
+        assert time_series[0]["xAxis"] == "2022-08-01T00:00:00.000Z"
+        assert time_series[0]["yAxis"] == 1549
         last_date = time_series[len(time_series) - 1]["xAxis"]
         dt = parser.parse(last_date)
         now = datetime.now()
