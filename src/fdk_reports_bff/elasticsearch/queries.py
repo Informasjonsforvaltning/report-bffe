@@ -27,6 +27,7 @@ class EsMappings:
     SUBJECT = "subject"
     DISTRIBUTION = "distribution"
     THEME = "theme"
+    TRANSPORTPORTAL = "transportportal"
 
 
 DATASET_AGGREGATION_FIELDS = [
@@ -44,6 +45,7 @@ DATASET_AGGREGATION_FIELDS = [
     EsMappings.FORMAT,
     EsMappings.PART_OF_CATALOG,
     EsMappings.FIRST_HARVESTED,
+    EsMappings.TRANSPORTPORTAL,
 ]
 
 DATASERVICE_AGGREGATION_FIELDS = [
@@ -266,21 +268,10 @@ def get_org_path_filter(org_path: str) -> dict:
 
 def get_theme_profile_filter(profile: str) -> dict:
     if profile == ThemeProfile.TRANSPORT:
-        should_list = get_los_path_filter(
-            profile_themes_list=ThemeProfile.TRANSPORT_THEMES
-        )
         return {
             "bool": {
                 "must": [
-                    {"bool": {"should": should_list}},
-                    {
-                        "term": {
-                            AggregationQuery.es_keyword_key(
-                                EsMappings.ACCESS_RIGHTS
-                            ): "http://publications.europa.eu/resource/authority/access"
-                            "-right/PUBLIC"
-                        }
-                    },
+                    {"term": {EsMappings.TRANSPORTPORTAL: "true"}},
                 ]
             }
         }
