@@ -1,5 +1,5 @@
 [flake8]
 max-line-length = 125
 application-import-names = fdk_reports_bff, test
-per-file-ignores = test/*:S101,ANN,E501,src/fdk_reports_bff/sparql/__init__.py:F401,src/fdk_reports_bff/sparql/*.py:E501
+per-file-ignores = test/*:S101,ANN,E501,src/fdk_reports_bff/sparql/__init__.py:F401,src/fdk_reports_bff/sparql/*.py:E501,src/fdk_reports_bff/elasticsearch/queries.py:B024
 import-order-style = google
