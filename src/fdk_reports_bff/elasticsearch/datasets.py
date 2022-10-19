@@ -115,6 +115,9 @@ def reduce_dataset(
         EsMappings.OPEN_LICENSE: bool_value_from_sparql_result(
             dataset.get("isOpenData")
         ),
+        EsMappings.TRANSPORTPORTAL: bool_value_from_sparql_result(
+            dataset.get("transportportal")
+        ),
         EsMappings.PART_OF_CATALOG: catalog,
         EsMappings.FIRST_HARVESTED: dataset["firstHarvested"],
         EsMappings.PROVENANCE: dataset.get("provenance"),

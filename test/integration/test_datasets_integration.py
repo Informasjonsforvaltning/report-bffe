@@ -27,7 +27,7 @@ class TestDatasetsReport:
         assert content.get("organizationCount") < len(content.get("orgPaths"))
         assert content.get("organizationCount") > len(content.get("catalogs"))
         assert len(content.get("catalogs")) > 1
-        assert content.get("totalObjects") == 1548
+        assert content.get("totalObjects") == 1543
         assert content.get("nationalComponent") > 0
         assert content.get("opendata") > 0
         assert len(content.get("catalogs")) > 0
@@ -42,7 +42,7 @@ class TestDatasetsReport:
         assert result.status_code == 200
         time_series = result.json
         assert time_series[0]["xAxis"] == "2021-03-01T00:00:00.000Z"
-        assert time_series[0]["yAxis"] == 1515
+        assert time_series[0]["yAxis"] == 1491
         last_date = time_series[len(time_series) - 1]["xAxis"]
         dt = parser.parse(last_date)
         now = datetime.now()
@@ -54,7 +54,7 @@ class TestDatasetsReport:
         result = client.get("/report/datasets?orgPath=/STAT/972417858/971040238")
         assert result.status_code == 200
         content = result.json
-        assert content["totalObjects"] == 281
+        assert content["totalObjects"] == 282
         for org in content["orgPaths"]:
             exp_orgpath_parts = "/STAT/972417858/971040238".split("/")
             for orgpath_part in org.get("key").split("/"):
@@ -85,5 +85,5 @@ class TestDatasetsReport:
         assert len(result_paths) > 0
         for path in result_paths:
             assert path["key"] in accepted_paths
-        assert result.json.get("organizationCount") == 3
-        assert result.json.get("opendata") == 23
+        assert result.json.get("organizationCount") == 4
+        assert result.json.get("opendata") == 25
