@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List
+from typing import Any, List, Optional
 
 from dateutil import parser
 
@@ -177,7 +177,7 @@ class NotAServiceKeyException(Exception):
 
 
 class FetchFromServiceException(Exception):
-    def __init__(self: Any, execution_point: str, url: str = None) -> None:
+    def __init__(self: Any, execution_point: str, url: Optional[str] = None) -> None:
         self.status = 500
         self.reason = (
             f"Connection error when attempting to fetch {execution_point} from {url}"

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 
 from fdk_reports_bff.service.service_requests import (
@@ -57,7 +59,7 @@ def get_xhttp_mock(status_code, json=None):
 
 
 class MockResponse:
-    def __init__(self, status: int = 200, json_data: dict = None):
+    def __init__(self, status: int = 200, json_data: Optional[dict] = None):
         self.status = (status,)
         self.json_data = json_data
 

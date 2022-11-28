@@ -184,7 +184,9 @@ class AggregationQuery(Query):
         return f"{json_ld_key}{EsMappings.VALUE_KEYWORD}"
 
     @staticmethod
-    def json_rdf_terms_aggregation(json_ld_field: str, size: int = None) -> dict:
+    def json_rdf_terms_aggregation(
+        json_ld_field: str, size: Optional[int] = None
+    ) -> dict:
         return {
             "terms": {
                 "field": AggregationQuery.es_keyword_key(json_ld_field),

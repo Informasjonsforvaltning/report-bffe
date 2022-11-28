@@ -11,7 +11,7 @@ from fdk_reports_bff.service.service_requests import (
 
 
 class ParsedReferenceData:
-    def __init__(self: Any, uri: str, reference: str = None) -> None:
+    def __init__(self: Any, uri: str, reference: Optional[str] = None) -> None:
         self.uri = uri
         self.ref_value = reference
 
