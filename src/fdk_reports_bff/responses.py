@@ -62,12 +62,12 @@ class InformationModelResponse(Response):
 class DataServiceResponse(Response):
     def __init__(
         self: Any,
-        total_objects: int = None,
-        new_last_week: int = None,
-        catalogs: List[dict] = None,
-        org_paths: List[dict] = None,
+        total_objects: Optional[int] = None,
+        new_last_week: Optional[int] = None,
+        catalogs: Optional[List[dict]] = None,
+        org_paths: Optional[List[dict]] = None,
         organization_count: int = 0,
-        formats: List[dict] = None,
+        formats: Optional[List[dict]] = None,
     ) -> None:
         super().__init__(
             total_objects, organization_count, new_last_week, catalogs, org_paths
@@ -95,10 +95,10 @@ class ConceptResponse(Response):
     def __init__(
         self: Any,
         total_objects: int = 0,
-        new_last_week: int = None,
-        catalogs: list = None,
-        most_in_use: list = None,
-        org_paths: list = None,
+        new_last_week: Optional[int] = None,
+        catalogs: Optional[list] = None,
+        most_in_use: Optional[list] = None,
+        org_paths: Optional[list] = None,
         organization_count: int = 0,
     ) -> None:
         super().__init__(
