@@ -34,7 +34,7 @@ async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/los/themes-and-words"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, timeout=5)
+            response = await session.get(url=url, timeout=10.0)
             response.raise_for_status()
             return response.json().get("losNodes")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -49,7 +49,7 @@ async def fetch_access_rights_from_reference_data() -> list:
     )
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, timeout=5)
+            response = await session.get(url=url, timeout=10.0)
             response.raise_for_status()
             return response.json().get("accessRights")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -64,7 +64,7 @@ async def fetch_media_types_from_reference_data() -> list:
     )
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, timeout=5)
+            response = await session.get(url=url, timeout=10.0)
             response.raise_for_status()
             return response.json().get("mediaTypes")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -77,7 +77,7 @@ async def fetch_file_types_from_reference_data() -> list:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/eu/file-types"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, timeout=5)
+            response = await session.get(url=url, timeout=10.0)
             response.raise_for_status()
             return response.json().get("fileTypes")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -91,7 +91,9 @@ async def fetch_datasets() -> List[dict]:
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={datasets_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url, headers=default_headers, timeout=180.0
+            )
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -110,7 +112,9 @@ async def get_informationmodels_statistic() -> List[dict]:
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={models_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url, headers=default_headers, timeout=180.0
+            )
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -129,7 +133,9 @@ async def fetch_all_concepts() -> List[dict]:
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={concepts_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url, headers=default_headers, timeout=180.0
+            )
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -148,7 +154,9 @@ async def fetch_dataservices() -> List[dict]:
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={dataservice_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url, headers=default_headers, timeout=180.0
+            )
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -165,7 +173,9 @@ async def fetch_diff_store_metadata() -> dict:
     url = f"{service_urls.get(ServiceKey.DATASET_QUERY_CACHE)}/api/metadata"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url, headers=default_headers, timeout=180.0
+            )
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -179,7 +189,9 @@ async def fetch_dataset_time_series_datapoint(timestamp: str) -> dict:
     url = f"{service_urls.get(ServiceKey.DATASET_QUERY_CACHE)}/api/sparql/{timestamp}?query={sparql_query}"
     async with AsyncClient() as session:
         try:
-            response = await session.get(url=url, headers=default_headers, timeout=60)
+            response = await session.get(
+                url=url, headers=default_headers, timeout=180.0
+            )
             response.raise_for_status()
             res_json = response.json()
             return {

@@ -19,6 +19,8 @@ preload_app = True
 bind = ":" + PORT
 workers = multiprocessing.cpu_count() * 2 + 1
 threads = 2 * multiprocessing.cpu_count()
+timeout = 180
+graceful_timeout = 300
 loglevel = str(LOG_LEVEL)
 accesslog = "-"
 
