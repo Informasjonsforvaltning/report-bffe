@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 import logging
+import os
 import traceback
 from typing import Any, Dict, List, Optional
 
@@ -18,9 +19,9 @@ from fdk_reports_bff.service.referenced_data_store import (
     get_media_types,
 )
 from fdk_reports_bff.service.service_requests import (
-    fetch_dataset_time_series_datapoint,
     fetch_diff_store_metadata,
     fetch_themes_and_topics_from_reference_data,
+    query_time_series_datapoint,
     sparql_service_query,
 )
 from fdk_reports_bff.service.utils import (
@@ -28,11 +29,17 @@ from fdk_reports_bff.service.utils import (
     ServiceKey,
 )
 from fdk_reports_bff.sparql import (
+    dataset_timeseries_datapoint_query,
     get_dataset_catalogs_query,
     get_dataset_distributions_query,
     get_dataset_publishers_query,
     get_datasets_query,
 )
+
+env = {
+    ServiceKey.DATASET_QUERY_CACHE: os.getenv("DATASET_QUERY_CACHE_URL")
+    or "http://localhost:8000",
+}
 
 
 def insert_datasets(success_status: str, failed_status: str) -> str:
@@ -87,7 +94,9 @@ def insert_datasets_timeseries(success_status: str, failed_status: str) -> str:
         asyncio.set_event_loop(loop)
 
     try:
-        diff_store_metadata = loop.run_until_complete(fetch_diff_store_metadata())
+        diff_store_metadata = loop.run_until_complete(
+            fetch_diff_store_metadata(env.get(ServiceKey.DATASET_QUERY_CACHE))
+        )
         if diff_store_is_empty(diff_store_metadata):
             return failed_status
         else:
@@ -98,7 +107,11 @@ def insert_datasets_timeseries(success_status: str, failed_status: str) -> str:
             results = loop.run_until_complete(
                 asyncio.gather(
                     *[
-                        fetch_dataset_time_series_datapoint(timestamp)
+                        query_time_series_datapoint(
+                            diff_store_url=env.get(ServiceKey.DATASET_QUERY_CACHE),
+                            timestamp=str(timestamp),
+                            sparql_query=dataset_timeseries_datapoint_query(),
+                        )
                         for timestamp in date_range
                     ]
                 )

@@ -10,14 +10,11 @@ from fdk_reports_bff.service.utils import (
     FetchFromServiceException,
     ServiceKey,
 )
-from fdk_reports_bff.sparql import dataset_timeseries_datapoint_query
 
 service_urls = {
     ServiceKey.REFERENCE_DATA: os.getenv("FDK_REFERENCE_DATA_URL")
     or "http://localhost:8000",
     ServiceKey.SPARQL_BASE: os.getenv("SPARQL_BASE") or "http://localhost:8000",
-    ServiceKey.DATASET_QUERY_CACHE: os.getenv("DATASET_QUERY_CACHE_URL")
-    or "http://localhost:8000",
 }
 
 default_headers = {"accept": "application/json"}
@@ -99,9 +96,8 @@ async def sparql_service_query(query: str) -> List[dict]:
                 execution_point="fetching datasets catalog", url=url
             )
 
-
-async def fetch_diff_store_metadata() -> dict:
-    url = f"{service_urls.get(ServiceKey.DATASET_QUERY_CACHE)}/api/metadata"
+async def fetch_diff_store_metadata(diff_store_url: str) -> dict:
+    url = f"{diff_store_url}/api/metadata"
     async with AsyncClient() as session:
         try:
             response = await session.get(
@@ -115,9 +111,10 @@ async def fetch_diff_store_metadata() -> dict:
             )
 
 
-async def fetch_dataset_time_series_datapoint(timestamp: str) -> dict:
-    sparql_query = urllib.parse.quote_plus(dataset_timeseries_datapoint_query())
-    url = f"{service_urls.get(ServiceKey.DATASET_QUERY_CACHE)}/api/sparql/{timestamp}?query={sparql_query}"
+async def query_time_series_datapoint(
+    diff_store_url: str, timestamp: str, sparql_query: str
+) -> dict:
+    url = f"{diff_store_url}/api/sparql/{timestamp}?query={urllib.parse.quote_plus(sparql_query)}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
