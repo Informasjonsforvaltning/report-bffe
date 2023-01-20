@@ -57,10 +57,10 @@ def test_concept_response():
 @pytest.mark.unit
 def test_time_series_response():
     es_bucket_november = {"key_as_string": "2019-11-01T00:00:00.000Z", "doc_count": 8}
-    es_bucket_january = {"key_as_string": "2020-01-01T00:00:00.000Z", "doc_count": 2}
-    es_bucket_april = {"key_as_string": "2020-04-01T00:00:00.000Z", "doc_count": 1}
-    es_bucket_may = {"key_as_string": "2020-05-01T00:00:00.000Z", "doc_count": 1}
-    es_bucket_june = {"key_as_string": "2020-06-01T00:00:00.000Z", "doc_count": 3}
+    es_bucket_january = {"key_as_string": "2020-01-01T00:00:00.000Z", "doc_count": 10}
+    es_bucket_april = {"key_as_string": "2020-04-01T00:00:00.000Z", "doc_count": 11}
+    es_bucket_may = {"key_as_string": "2020-05-01T00:00:00.000Z", "doc_count": 12}
+    es_bucket_june = {"key_as_string": "2020-06-01T00:00:00.000Z", "doc_count": 15}
     parsed_series = {
         "aggregations": {
             EsMappings.TIME_SERIES: {

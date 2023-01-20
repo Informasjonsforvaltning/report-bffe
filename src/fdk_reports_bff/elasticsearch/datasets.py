@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.elasticsearch.utils import (
+    diff_store_is_empty,
     elasticsearch_ingest,
     first_of_month_timestamp_range,
     get_unique_records,
@@ -126,10 +127,6 @@ def insert_datasets_timeseries(success_status: str, failed_status: str) -> str:
     except FetchFromServiceException as err:
         logging.error(f"{traceback.format_exc()} {err.reason}")
         return failed_status
-
-
-def diff_store_is_empty(diff_store_metadata: dict) -> bool:
-    return diff_store_metadata.get("start_time") is None
 
 
 async def prepare_documents(

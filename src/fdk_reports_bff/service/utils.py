@@ -55,11 +55,13 @@ class ServiceKey:
     DATA_SERVICES = "dataservices"
     DATA_SETS = "datasets"
     DATASET_TIME_SERIES = "dataset_time_series"
+    CONCEPT_TIME_SERIES = "concept_time_series"
     CONCEPTS = "concepts"
     REFERENCE_DATA = "reference_data"
     FDK_BASE = "fdk_base"
     SPARQL_BASE = "sparql_base"
     DATASET_QUERY_CACHE = "dataset_query_cache"
+    CONCEPT_QUERY_CACHE = "concept_query_cache"
 
     @staticmethod
     def get_key(string_key: str) -> str:
@@ -73,6 +75,8 @@ class ServiceKey:
             return ServiceKey.DATA_SETS
         if string_key == ServiceKey.DATASET_TIME_SERIES:
             return ServiceKey.DATASET_TIME_SERIES
+        if string_key == ServiceKey.CONCEPT_TIME_SERIES:
+            return ServiceKey.CONCEPT_TIME_SERIES
         if string_key == ServiceKey.CONCEPTS:
             return ServiceKey.CONCEPTS
         if string_key == ServiceKey.REFERENCE_DATA:
@@ -83,6 +87,8 @@ class ServiceKey:
             return ServiceKey.SPARQL_BASE
         if string_key == ServiceKey.DATASET_QUERY_CACHE:
             return ServiceKey.DATASET_QUERY_CACHE
+        if string_key == ServiceKey.CONCEPT_QUERY_CACHE:
+            return ServiceKey.CONCEPT_QUERY_CACHE
         else:
             raise NotAServiceKeyException(string_key)
 

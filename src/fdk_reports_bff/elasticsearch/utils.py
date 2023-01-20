@@ -247,3 +247,7 @@ def first_of_month_timestamp_range(
             f"{traceback.format_exc()} error when attempting to create timestamp range"
         )
         return list()
+
+
+def diff_store_is_empty(diff_store_metadata: dict) -> bool:
+    return diff_store_metadata.get("start_time") is None
