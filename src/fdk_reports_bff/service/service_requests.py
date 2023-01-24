@@ -96,6 +96,7 @@ async def sparql_service_query(query: str) -> List[dict]:
                 execution_point="fetching datasets catalog", url=url
             )
 
+
 async def fetch_diff_store_metadata(diff_store_url: str) -> dict:
     url = f"{diff_store_url}/api/metadata"
     async with AsyncClient() as session:
