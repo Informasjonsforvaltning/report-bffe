@@ -6,7 +6,6 @@ from flask import Flask
 from flask.testing import FlaskClient
 import pytest
 import requests
-from urllib3.exceptions import MaxRetryError, NewConnectionError
 
 from fdk_reports_bff import create_app
 from test.unit_mock_data import (
@@ -30,6 +29,12 @@ def is_responsive(url):
         return False
 
 
+def start_update(url):
+    response = requests.post(f"{url}/updates")
+    if response.status_code != 200:
+        pytest.fail(f"Unable to update, status {response.status_code}")
+
+
 @pytest.fixture(scope="session")
 def docker_service(docker_ip, docker_services):
     """Ensure that HTTP service is up and responsive."""
@@ -39,6 +44,7 @@ def docker_service(docker_ip, docker_services):
     docker_services.wait_until_responsive(
         timeout=90.0, pause=0.5, check=lambda: is_responsive(url)
     )
+    start_update(url)
     return url
 
 
@@ -67,36 +73,6 @@ def app():
 def client(app: Flask) -> FlaskClient:
     """Returns a client for integration testing."""
     return app.test_client()
-
-
-@pytest.fixture(scope="session")
-def wait_for_ready():
-    timeout = time.time() + 90
-    attempts = 0
-    while True:
-        try:
-            response = requests.get("http://localhost:8000/ready")
-            if response.status_code == 200:
-                time.sleep(2)
-                break
-            if time.time() > timeout:
-                pytest.fail(
-                    "Test function setup: timed out while waiting for reports-bff ready response, last response "
-                    "was {0}".format(response.status_code)
-                )
-            time.sleep(1)
-        except (
-            requests.exceptions.ConnectionError,
-            ConnectionRefusedError,
-            MaxRetryError,
-            NewConnectionError,
-        ):
-            if attempts > 10:
-                pytest.fail("Test function setup: could not contact fdk-reports-bff")
-            else:
-                time.sleep(10)
-                attempts += 1
-                continue
 
 
 @pytest.fixture

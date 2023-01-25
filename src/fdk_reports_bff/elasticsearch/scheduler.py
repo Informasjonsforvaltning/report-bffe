@@ -45,7 +45,6 @@ def schedule_updates(connection_attempts: int = 0) -> bool:
         scheduler = BackgroundScheduler()
         sleep(5)
         if not Update.is_running():
-            Update.start_update()
             scheduler.add_job(
                 func=Update.start_update, trigger="interval", seconds=update_interval
             )
