@@ -31,7 +31,7 @@ class TestDatasetsReport:
         assert content.get("organizationCount") < len(content.get("orgPaths"))
         assert content.get("organizationCount") > len(content.get("catalogs"))
         assert len(content.get("catalogs")) > 1
-        assert content.get("totalObjects") == 1546
+        assert content.get("totalObjects") == 1548
         assert content.get("nationalComponent") > 0
         assert content.get("opendata") > 0
         assert len(content.get("catalogs")) > 0

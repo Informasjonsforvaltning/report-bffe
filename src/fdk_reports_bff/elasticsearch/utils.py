@@ -169,43 +169,38 @@ def elasticsearch_get_time_series(
 
 
 def get_unique_records(items: List[dict]) -> List[dict]:
-    seen = set()
-    unique_records = []
+    unique_records: dict = dict()
     for obj in items:
-        obj["mediaTypes"] = []
-        obj["formats"] = []
-        obj["themes"] = []
-        obj["subjects"] = []
-        obj["titles"] = dict()
-        obj["catalogTitles"] = dict()
-        if obj["record"]["value"] not in seen:
-            unique_records.append(obj)
-            seen.add(obj["record"]["value"])
+        key = obj["record"]["value"]
+        default_record: dict = {
+            "mediaTypes": list(),
+            "formats": list(),
+            "themes": list(),
+            "subjects": list(),
+            "catalogTitles": dict(),
+        }
+        unique_record = unique_records.get(key, default_record)
 
-        rec = [
-            x for x in unique_records if x["record"]["value"] == obj["record"]["value"]
-        ]
-        if "mediaType" in obj and rec:
-            rec[0]["mediaTypes"].append(obj["mediaType"]["value"])
+        for field_key in obj:
+            if field_key == "mediaType":
+                unique_record["mediaTypes"].append(obj["mediaType"]["value"])
+            if field_key == "format":
+                unique_record["formats"].append(obj["format"]["value"])
+            if field_key == "theme":
+                unique_record["themes"].append(obj["theme"]["value"])
+            if field_key == "subject":
+                unique_record["subjects"].append(obj["subject"]["value"])
+            elif field_key == "catalogTitle":
+                catalog_titles = unique_record["catalogTitles"]
+                lang_key = obj["catalogTitle"].get("xml:lang")
+                lang_key = lang_key if lang_key is not None else "no"
+                catalog_titles[lang_key] = obj["catalogTitle"].get("value")
+                unique_record["catalogTitles"] = catalog_titles
+            else:
+                unique_record[field_key] = obj[field_key]
+        unique_records[key] = unique_record
 
-        if "format" in obj and rec:
-            rec[0]["formats"].append(obj["format"]["value"])
-
-        if "theme" in obj and rec:
-            rec[0]["themes"].append(obj["theme"]["value"])
-
-        if "subject" in obj and rec:
-            rec[0]["subjects"].append(obj["subject"]["value"])
-
-        if "title" in obj and rec:
-            rec[0]["titles"][obj["title"].get("xml:lang")] = obj["title"]
-
-        if "catalogTitle" in obj and rec:
-            lang = obj["catalogTitle"].get("xml:lang")
-            lang = lang if lang is not None else "no"
-            rec[0]["catalogTitles"][lang] = obj["catalogTitle"].get("value")
-
-    return unique_records
+    return list(unique_records.values())
 
 
 def map_formats_to_prefixed(
