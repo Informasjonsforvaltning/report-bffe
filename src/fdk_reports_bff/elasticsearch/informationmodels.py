@@ -11,8 +11,9 @@ from fdk_reports_bff.elasticsearch.utils import (
     elasticsearch_ingest,
     get_unique_records,
 )
-from fdk_reports_bff.service.service_requests import get_informationmodels_statistic
+from fdk_reports_bff.service.service_requests import sparql_service_query
 from fdk_reports_bff.service.utils import FetchFromServiceException, ServiceKey
+from fdk_reports_bff.sparql import get_info_models_query
 
 
 def insert_informationmodels(success_status: str, failed_status: str) -> str:
@@ -22,7 +23,7 @@ def insert_informationmodels(success_status: str, failed_status: str) -> str:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        model_tasks = asyncio.gather(get_informationmodels_statistic())
+        model_tasks = asyncio.gather(sparql_service_query(get_info_models_query()))
         info_models = loop.run_until_complete(model_tasks)[0]
 
         prepared_docs = loop.run_until_complete(

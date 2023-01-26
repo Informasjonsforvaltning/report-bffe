@@ -10,13 +10,7 @@ from fdk_reports_bff.service.utils import (
     FetchFromServiceException,
     ServiceKey,
 )
-from fdk_reports_bff.sparql import (
-    dataset_timeseries_datapoint_query,
-    get_concepts_query,
-    get_dataservice_query,
-    get_datasets_query,
-    get_info_models_query,
-)
+from fdk_reports_bff.sparql import dataset_timeseries_datapoint_query
 
 service_urls = {
     ServiceKey.REFERENCE_DATA: os.getenv("FDK_REFERENCE_DATA_URL")
@@ -86,9 +80,9 @@ async def fetch_file_types_from_reference_data() -> list:
             )
 
 
-async def fetch_datasets() -> List[dict]:
-    datasets_query = urllib.parse.quote_plus(get_datasets_query())
-    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={datasets_query}"
+async def sparql_service_query(query: str) -> List[dict]:
+    sparql_query = urllib.parse.quote_plus(query)
+    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={sparql_query}"
     async with AsyncClient() as session:
         try:
             response = await session.get(
@@ -103,69 +97,6 @@ async def fetch_datasets() -> List[dict]:
         except (ConnectError, HTTPError, ConnectTimeout):
             raise FetchFromServiceException(
                 execution_point="fetching datasets catalog", url=url
-            )
-
-
-# informationmodels
-async def get_informationmodels_statistic() -> List[dict]:
-    models_query = urllib.parse.quote_plus(get_info_models_query())
-    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={models_query}"
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(
-                url=url, headers=default_headers, timeout=180.0
-            )
-            response.raise_for_status()
-            res_json = response.json()
-            sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
-                ContentKeys.SPARQL_BINDINGS
-            ]
-            return sparql_bindings
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="fetching information models catalog", url=url
-            )
-
-
-# concepts
-async def fetch_all_concepts() -> List[dict]:
-    concepts_query = urllib.parse.quote_plus(get_concepts_query())
-    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={concepts_query}"
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(
-                url=url, headers=default_headers, timeout=180.0
-            )
-            response.raise_for_status()
-            res_json = response.json()
-            sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
-                ContentKeys.SPARQL_BINDINGS
-            ]
-            return sparql_bindings
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="fetching dataservices catalog", url=url
-            )
-
-
-# dataservices
-async def fetch_dataservices() -> List[dict]:
-    dataservice_query = urllib.parse.quote_plus(get_dataservice_query())
-    url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={dataservice_query}"
-    async with AsyncClient() as session:
-        try:
-            response = await session.get(
-                url=url, headers=default_headers, timeout=180.0
-            )
-            response.raise_for_status()
-            res_json = response.json()
-            sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
-                ContentKeys.SPARQL_BINDINGS
-            ]
-            return sparql_bindings
-        except (ConnectError, HTTPError, ConnectTimeout):
-            raise FetchFromServiceException(
-                execution_point="fetching dataservices catalog", url=url
             )
 
 

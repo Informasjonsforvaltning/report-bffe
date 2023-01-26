@@ -19,14 +19,15 @@ from fdk_reports_bff.service.referenced_data_store import (
 )
 from fdk_reports_bff.service.service_requests import (
     fetch_dataset_time_series_datapoint,
-    fetch_datasets,
     fetch_diff_store_metadata,
     fetch_themes_and_topics_from_reference_data,
+    sparql_service_query,
 )
 from fdk_reports_bff.service.utils import (
     FetchFromServiceException,
     ServiceKey,
 )
+from fdk_reports_bff.sparql import get_datasets_query
 
 
 def insert_datasets(success_status: str, failed_status: str) -> str:
@@ -38,7 +39,7 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
 
     try:
         collection_tasks = asyncio.gather(
-            fetch_datasets(),
+            sparql_service_query(get_datasets_query()),
             fetch_themes_and_topics_from_reference_data(),
             get_media_types(),
             get_file_types(),
