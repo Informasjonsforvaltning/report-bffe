@@ -11,8 +11,9 @@ from fdk_reports_bff.elasticsearch.utils import (
     elasticsearch_ingest,
     get_unique_records,
 )
-from fdk_reports_bff.service.service_requests import fetch_all_concepts
+from fdk_reports_bff.service.service_requests import sparql_service_query
 from fdk_reports_bff.service.utils import FetchFromServiceException, ServiceKey
+from fdk_reports_bff.sparql import get_concepts_query
 
 
 def insert_concepts(success_status: str, failed_status: str) -> str:
@@ -22,7 +23,7 @@ def insert_concepts(success_status: str, failed_status: str) -> str:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
     try:
-        concept_tasks = asyncio.gather(fetch_all_concepts())
+        concept_tasks = asyncio.gather(sparql_service_query(get_concepts_query()))
         concepts = loop.run_until_complete(concept_tasks)[0]
 
         prepared_docs = loop.run_until_complete(prepare_documents(documents=concepts))

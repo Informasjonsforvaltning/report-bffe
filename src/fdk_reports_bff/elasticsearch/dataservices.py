@@ -19,8 +19,9 @@ from fdk_reports_bff.service.referenced_data_store import (
     get_media_types,
     MediaTypes,
 )
-from fdk_reports_bff.service.service_requests import fetch_dataservices
+from fdk_reports_bff.service.service_requests import sparql_service_query
 from fdk_reports_bff.service.utils import FetchFromServiceException, ServiceKey
+from fdk_reports_bff.sparql import get_dataservice_query
 
 
 def insert_dataservices(success_status: str, failed_status: str) -> str:
@@ -32,7 +33,7 @@ def insert_dataservices(success_status: str, failed_status: str) -> str:
 
     try:
         collection_tasks = asyncio.gather(
-            fetch_dataservices(),
+            sparql_service_query(get_dataservice_query()),
             get_media_types(),
             get_file_types(),
         )
