@@ -27,7 +27,12 @@ from fdk_reports_bff.service.utils import (
     FetchFromServiceException,
     ServiceKey,
 )
-from fdk_reports_bff.sparql import get_datasets_query
+from fdk_reports_bff.sparql import (
+    get_dataset_catalogs_query,
+    get_dataset_distributions_query,
+    get_dataset_publishers_query,
+    get_datasets_query,
+)
 
 
 def insert_datasets(success_status: str, failed_status: str) -> str:
@@ -40,19 +45,28 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
     try:
         collection_tasks = asyncio.gather(
             sparql_service_query(get_datasets_query()),
+            sparql_service_query(get_dataset_catalogs_query()),
+            sparql_service_query(get_dataset_distributions_query()),
+            sparql_service_query(get_dataset_publishers_query()),
             fetch_themes_and_topics_from_reference_data(),
             get_media_types(),
             get_file_types(),
         )
         (
             datasets,
+            dataset_catalogs,
+            dataset_distributions,
+            dataset_publishers,
             los_themes,
             media_types,
             file_types,
         ) = loop.run_until_complete(collection_tasks)
         prepared_docs = loop.run_until_complete(
             prepare_documents(
-                documents=datasets,
+                datasets=datasets,
+                dataset_catalogs=dataset_catalogs,
+                dataset_distributions=dataset_distributions,
+                dataset_publishers=dataset_publishers,
                 los_themes=los_themes,
                 media_types=media_types,
                 file_types=file_types,
@@ -106,11 +120,20 @@ def diff_store_is_empty(diff_store_metadata: dict) -> bool:
 
 
 async def prepare_documents(
-    documents: List[dict],
+    datasets: List[dict],
+    dataset_catalogs: List[dict],
+    dataset_distributions: List[dict],
+    dataset_publishers: List[dict],
     los_themes: List[dict],
     media_types: List,
     file_types: List,
 ) -> list:
+    all_dataset_data = list()
+    all_dataset_data.extend(datasets)
+    all_dataset_data.extend(dataset_catalogs)
+    all_dataset_data.extend(dataset_distributions)
+    all_dataset_data.extend(dataset_publishers)
+
     media_types_dict = {}
     for media_type in media_types:
         media_types_dict[strip_http_scheme(media_type.uri)] = media_type
@@ -119,7 +142,7 @@ async def prepare_documents(
     for file_type in file_types:
         file_types_dict[strip_http_scheme(file_type.uri)] = file_type
 
-    unique_datasets = get_unique_records(documents)
+    unique_datasets = get_unique_records(all_dataset_data)
     return [
         reduce_dataset(
             dataset=dataset,
@@ -175,9 +198,6 @@ def reduce_dataset(
         EsMappings.ACCESS_RIGHTS: (
             [dataset["accessRights"]] if dataset.get("accessRights") else None
         ),
-        EsMappings.TITLE: [
-            dataset["titles"][title_key] for title_key in dataset["titles"]
-        ],
         EsMappings.THEME: dataset["themes"],
         EsMappings.FORMAT: map_formats_to_prefixed(
             dataset["formats"] + dataset["mediaTypes"], media_types, file_types
@@ -189,7 +209,6 @@ def reduce_dataset(
             dataset.get("transportportal")
         ),
         EsMappings.PART_OF_CATALOG: catalog,
-        EsMappings.FIRST_HARVESTED: dataset["firstHarvested"],
         EsMappings.PROVENANCE: dataset.get("provenance"),
         EsMappings.SUBJECT: dataset["subjects"],
         EsMappings.LOS: get_los_path(uri_list=dataset["themes"], los_themes=los_themes),

@@ -27,7 +27,7 @@ class TestDatasetsReport:
         assert content.get("organizationCount") < len(content.get("orgPaths"))
         assert content.get("organizationCount") > len(content.get("catalogs"))
         assert len(content.get("catalogs")) > 1
-        assert content.get("totalObjects") == 1546
+        assert content.get("totalObjects") == 1548
         assert content.get("nationalComponent") > 0
         assert content.get("opendata") > 0
         assert len(content.get("catalogs")) > 0
@@ -54,7 +54,7 @@ class TestDatasetsReport:
         result = client.get("/report/datasets?orgPath=/STAT/972417858/971040238")
         assert result.status_code == 200
         content = result.json
-        assert content["totalObjects"] == 282
+        assert content["totalObjects"] == 283
         for org in content["orgPaths"]:
             exp_orgpath_parts = "/STAT/972417858/971040238".split("/")
             for orgpath_part in org.get("key").split("/"):
