@@ -55,12 +55,14 @@ class ServiceKey:
     DATA_SERVICES = "dataservices"
     DATA_SETS = "datasets"
     DATASET_TIME_SERIES = "dataset_time_series"
+    DATASERVICE_TIME_SERIES = "data_service_time_series"
     CONCEPT_TIME_SERIES = "concept_time_series"
     CONCEPTS = "concepts"
     REFERENCE_DATA = "reference_data"
     FDK_BASE = "fdk_base"
     SPARQL_BASE = "sparql_base"
     DATASET_QUERY_CACHE = "dataset_query_cache"
+    DATASERVICE_QUERY_CACHE = "data_service_query_cache"
     CONCEPT_QUERY_CACHE = "concept_query_cache"
 
     @staticmethod
@@ -75,6 +77,8 @@ class ServiceKey:
             return ServiceKey.DATA_SETS
         if string_key == ServiceKey.DATASET_TIME_SERIES:
             return ServiceKey.DATASET_TIME_SERIES
+        if string_key == ServiceKey.DATASERVICE_TIME_SERIES:
+            return ServiceKey.DATASERVICE_TIME_SERIES
         if string_key == ServiceKey.CONCEPT_TIME_SERIES:
             return ServiceKey.CONCEPT_TIME_SERIES
         if string_key == ServiceKey.CONCEPTS:
@@ -87,6 +91,8 @@ class ServiceKey:
             return ServiceKey.SPARQL_BASE
         if string_key == ServiceKey.DATASET_QUERY_CACHE:
             return ServiceKey.DATASET_QUERY_CACHE
+        if string_key == ServiceKey.DATASERVICE_QUERY_CACHE:
+            return ServiceKey.DATASERVICE_QUERY_CACHE
         if string_key == ServiceKey.CONCEPT_QUERY_CACHE:
             return ServiceKey.CONCEPT_QUERY_CACHE
         else:

@@ -33,6 +33,7 @@ services:
         - DATASERVICE_HARVESTER_URL=http://servicesmock:8080
         - FDK_REFERENCE_DATA_URL=http://servicesmock:8080
         - DATASET_QUERY_CACHE_URL=http://servicesmock:8080
+        - DATASERVICE_QUERY_CACHE_URL=http://servicesmock:8080
         - CONCEPT_QUERY_CACHE_URL=http://servicesmock:8080
         - FDK_BASE=http://servicesmock:8080
         - SPARQL_BASE=http://servicesmock:8080

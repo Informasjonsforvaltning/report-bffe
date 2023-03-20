@@ -216,7 +216,11 @@ class TimeSeriesResponse:
             EsMappings.BUCKETS
         ]
         for time_bucket in time_buckets:
-            if self.type == ServiceKey.DATA_SETS or self.type == ServiceKey.CONCEPTS:
+            if (
+                self.type == ServiceKey.DATA_SETS
+                or self.type == ServiceKey.CONCEPTS
+                or self.type == ServiceKey.DATA_SERVICES
+            ):
                 new_data_point = ParsedDataPoint(
                     es_bucket=time_bucket, last_month_count=0
                 )
