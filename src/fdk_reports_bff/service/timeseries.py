@@ -25,10 +25,14 @@ def get_time_series(content_type: str, args: Any) -> TimeSeriesResponse:
             org_path=orgpath,
             series_field=EsMappings.TIMESTAMP,
         )
-    elif content_type in [
-        ServiceKey.DATA_SERVICES,
-        ServiceKey.INFO_MODELS,
-    ]:
+    elif content_type == ServiceKey.DATA_SERVICES:
+        return get_time_series_response(
+            content_type=content_type,
+            elastic_type=ServiceKey.DATASERVICE_TIME_SERIES,
+            org_path=orgpath,
+            series_field=EsMappings.TIMESTAMP,
+        )
+    elif content_type == ServiceKey.INFO_MODELS:
         return get_time_series_response(
             content_type=content_type,
             elastic_type=content_type,
