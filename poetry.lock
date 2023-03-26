@@ -68,14 +68,14 @@ zookeeper = ["kazoo"]
 
 [[package]]
 name = "asyncstdlib"
-version = "3.10.5"
+version = "3.10.6"
 description = "The missing async toolbox"
 category = "main"
 optional = false
 python-versions = "~=3.6"
 files = [
-    {file = "asyncstdlib-3.10.5-py2.py3-none-any.whl", hash = "sha256:fcf828d1064f578e639728544717268e7a18500f7dfee3f80af3aa5609601037"},
-    {file = "asyncstdlib-3.10.5.tar.gz", hash = "sha256:e9fc35e811d5b51d8fe3d17b62234b5e8e1a2513364228081cd88637b3a3506a"},
+    {file = "asyncstdlib-3.10.6-py3-none-any.whl", hash = "sha256:d8fc12e720e1918e546e90c923e29d5b4728f5c1fccbd0aee47198e908125025"},
+    {file = "asyncstdlib-3.10.6.tar.gz", hash = "sha256:c9b42dab38c97957e3382db4238d2fd4dd632d5f10f178392ac29a434dc4407f"},
 ]
 
 [package.extras]
@@ -1703,4 +1703,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "b0d1a32a12271f000c2b06d369d0cb2acb569a5473c8367bc2d4c4c4902725f9"
+content-hash = "7c2d278efaf3c2d1ac8beda0c38dd921570e2f373d0377a32f38424fc8aba7cc"
