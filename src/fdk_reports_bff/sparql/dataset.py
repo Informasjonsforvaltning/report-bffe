@@ -87,17 +87,19 @@ WHERE {
 
 def dataset_timeseries_datapoint_query() -> str:
     return """
-        PREFIX dcat: <http://www.w3.org/ns/dcat#>
-        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        PREFIX dct: <http://purl.org/dc/terms/>
-        PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/main/src/main/resources/ontology/fdk.owl#>
-        PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/main/src/main/resources/ontology/organization-catalog.owl#>
-        SELECT ?dataset ?transportportal ?orgPath
-        WHERE {
-          ?dataset a dcat:Dataset .
-          ?record foaf:primaryTopic ?dataset .
-          ?record a dcat:CatalogRecord .
-          OPTIONAL { ?dataset fdk:isRelatedToTransportportal ?transportportal . }
-          OPTIONAL { ?dataset dct:publisher ?publisher . }
-          OPTIONAL { ?publisher br:orgPath ?orgPath . }
-        }"""
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/main/src/main/resources/ontology/fdk.owl#>
+PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/main/src/main/resources/ontology/organization-catalog.owl#>
+SELECT ?dataset ?transportportal ?orgPath
+WHERE {
+  ?dataset a dcat:Dataset .
+  ?record foaf:primaryTopic ?dataset .
+  ?record a dcat:CatalogRecord .
+  OPTIONAL { ?dataset fdk:isRelatedToTransportportal ?transportportal . }
+  OPTIONAL {
+    ?dataset dct:publisher ?publisher .
+    ?publisher br:orgPath ?orgPath .
+  }
+}"""
