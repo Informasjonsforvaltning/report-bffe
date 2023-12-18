@@ -18,7 +18,7 @@ class ParsedReferenceData:
     def __eq__(self: Any, other: Any) -> bool:
         if type(other) is str:
             return self.uri == other
-        elif type(other) == ParsedReferenceData:
+        elif type(other) is ParsedReferenceData:
             return self.uri == other.uri
         else:
             return False
