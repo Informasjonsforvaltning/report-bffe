@@ -9,9 +9,9 @@
 
 ### Install software:
 ```
-% pip install poetry==1.1.7
-% pip install nox==2021.6.12
-% pip install nox-poetry==0.8.6
+% pip install poetry==1.7.1
+% pip install nox==2023.4.22
+% pip install nox-poetry==1.0.3
 % poetry install
 ```
 
