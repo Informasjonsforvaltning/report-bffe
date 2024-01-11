@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from flask import request
@@ -25,6 +26,10 @@ class Updates(Resource):
         return get_all_update_entries()
 
     def post(self: Any) -> Any:
+        api_key = request.headers.get("X-API-KEY")
+        if not api_key or os.getenv("API_KEY", "test-key") != api_key:
+            abort(http_status_code=403, description="Forbidden")
+
         try:
             should_ignore = request.args["ignore_previous"]
         except KeyError:
