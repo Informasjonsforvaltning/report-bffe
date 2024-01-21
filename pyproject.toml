@@ -6,7 +6,7 @@ authors = ["NilsOveTen <nils.ove.tendenes@digdir.no>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-flask = "^3.0.0"
+flask = "^3.0.1"
 flask-cors = "^4.0.0"
 flask-restful = "^0.3.10"
 python-dotenv = "^1.0.0"
