@@ -34,7 +34,7 @@ flake8-bandit = "^4.1.1"
 flake8-bugbear = "^23.12.2"
 flake8-annotations = "^3.0.1"
 mypy = "^1.8.0"
-pytest-docker = "^2.0.1"
+pytest-docker = "^3.1.1"
 pytest-cov = "^4.1.0"
 
 [tool.coverage.paths]
