@@ -78,7 +78,7 @@ def recreate_index(index_key: str) -> None:
         try:
             es_client.indices.delete(index=index_key, ignore_unavailable="true")
             es_client.indices.create(index=index_key, body=json.load(mapping))
-        except BaseException:
+        except Exception:
             logging.error(
                 f"{traceback.format_exc()} error when attempting to update {index_key}"
             )
@@ -242,7 +242,7 @@ def first_of_month_timestamp_range(
                 tz="UTC",
             )
         ]
-    except BaseException:
+    except Exception:
         logging.error(
             f"{traceback.format_exc()} error when attempting to create timestamp range"
         )
