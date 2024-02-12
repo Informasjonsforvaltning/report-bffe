@@ -143,9 +143,9 @@ class AggregationQuery(Query):
         self.add_filters(orgpath, theme, theme_profile, organization_id)
 
     def __add_datasets_aggregation(self: Any) -> None:
-        self.aggregations[
-            ContentKeys.ACCESS_RIGHTS_CODE
-        ] = AggregationQuery.json_rdf_terms_aggregation(EsMappings.ACCESS_RIGHTS)
+        self.aggregations[ContentKeys.ACCESS_RIGHTS_CODE] = (
+            AggregationQuery.json_rdf_terms_aggregation(EsMappings.ACCESS_RIGHTS)
+        )
         self.aggregations[ContentKeys.NATIONAL_COMPONENT] = {
             "filter": {
                 "term": {
