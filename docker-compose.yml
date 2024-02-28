@@ -40,3 +40,4 @@ services:
         - ELASTIC_HOST=http://elasticsearch
         - ELASTIC_PORT=9200
         - ELASTIC_TCP_PORT=9300
+        - API_KEY=my-api-key

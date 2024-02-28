@@ -53,6 +53,7 @@ def tests(session: Session) -> None:
         "pytest",
         "-rA",
         *args,
+        env={"API_KEY": "my-api-key"},
     )
 
 
@@ -80,11 +81,13 @@ def integration_tests(session: Session) -> None:
         "requests-mock",
         "pytest-mock",
     )
+
     session.run(
         "pytest",
         "-m integration",
         "-rA",
         *args,
+        env={"API_KEY": "my-api-key"},
     )
 
 
