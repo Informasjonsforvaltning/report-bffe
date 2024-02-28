@@ -5,7 +5,7 @@ import pytest
 class TestConceptsReport:
     @pytest.mark.integration
     def test_get_all_update_entries(self, client: Flask, docker_service, api):
-        result = client.get("/updates")
+        result = client.get("/updates", headers={"X-API-KEY": "my-api-key"})
         assert result.status_code == 200
 
     @pytest.mark.integration
@@ -16,13 +16,13 @@ class TestConceptsReport:
     @pytest.mark.integration
     def test_updates(self, client: Flask, docker_service, api):
         result = client.post(
-            "/updates?ignore_previous=false", headers={"X-API-KEY": "test-key"}
+            "/updates?ignore_previous=false", headers={"X-API-KEY": "my-api-key"}
         )
         assert result.status_code == 200
 
     @pytest.mark.integration
     def test_updates_ignore_previous(self, client: Flask, docker_service, api):
         result = client.post(
-            "/updates?ignore_previous=true", headers={"X-API-KEY": "test-key"}
+            "/updates?ignore_previous=true", headers={"X-API-KEY": "my-api-key"}
         )
         assert result.status_code == 200

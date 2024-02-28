@@ -30,7 +30,7 @@ def is_responsive(url):
 
 
 def start_update(url):
-    response = requests.post(f"{url}/updates", headers={"X-API-KEY": "test-key"})
+    response = requests.post(f"{url}/updates", headers={"X-API-KEY": "my-api-key"})
     if response.status_code != 200:
         pytest.fail(f"Unable to update, status {response.status_code}")
 

@@ -64,6 +64,7 @@ class ServiceKey:
     DATASET_QUERY_CACHE = "dataset_query_cache"
     DATASERVICE_QUERY_CACHE = "data_service_query_cache"
     CONCEPT_QUERY_CACHE = "concept_query_cache"
+    API_KEY = "api_key"
 
     @staticmethod
     def get_key(string_key: str) -> str:

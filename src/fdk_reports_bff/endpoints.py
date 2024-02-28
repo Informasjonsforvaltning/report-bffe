@@ -15,6 +15,10 @@ from fdk_reports_bff.service.utils import (
     ServiceKey,
 )
 
+env = {
+    ServiceKey.API_KEY: os.getenv("API_KEY"),
+}
+
 
 class Ping(Resource):
     def get(self: Any) -> Any:
@@ -23,11 +27,17 @@ class Ping(Resource):
 
 class Updates(Resource):
     def get(self: Any) -> Any:
+        api_key_expected = env.get(ServiceKey.API_KEY)
+        api_key = request.headers.get("X-API-KEY")
+        if not (api_key and api_key_expected and api_key_expected == api_key):
+            abort(http_status_code=403, description="Forbidden")
+
         return get_all_update_entries()
 
     def post(self: Any) -> Any:
+        api_key_expected = env.get(ServiceKey.API_KEY)
         api_key = request.headers.get("X-API-KEY")
-        if not api_key or os.getenv("API_KEY", "test-key") != api_key:
+        if not (api_key and api_key_expected and api_key_expected == api_key):
             abort(http_status_code=403, description="Forbidden")
 
         try:
