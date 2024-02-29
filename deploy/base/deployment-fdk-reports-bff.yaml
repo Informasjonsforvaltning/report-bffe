@@ -1,0 +1,64 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    fdk.service: fdk-reports-bff
+  name: fdk-reports-bff
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      fdk.service: fdk-reports-bff
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        fdk.service: fdk-reports-bff
+    spec:
+      containers:
+      - env:
+        - name: DATASET_QUERY_CACHE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fdk-dataset-rdf-diff-store
+              key: QUERY_CACHE_URL
+        - name: CONCEPT_QUERY_CACHE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fdk-concept-rdf-diff-store
+              key: QUERY_CACHE_URL
+        - name: DATASERVICE_QUERY_CACHE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fdk-data-service-rdf-diff-store
+              key: QUERY_CACHE_URL
+        name: fdk-reports-bff
+        image: fdk-reports-bff
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 750Mi
+          limits:
+            memory: 750Mi
+      restartPolicy: Always

@@ -1,0 +1,18 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fdk-reports-bff
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: reports-bff.staging.fellesdatakatalog.digdir.no
+      http:
+        paths:
+          - backend:
+              service:
+                name: fdk-reports-bff
+                port:
+                  number: 8080
+            path: /
+            pathType: Prefix

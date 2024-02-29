@@ -1,4 +1,4 @@
-name: Deploy to staging
+name: Build and deploy to staging
 
 on:
   pull_request:
@@ -7,27 +7,30 @@ on:
       - main
 
 jobs:
-  build-and-deploy-staging:
+  build:
     name: Call reusable workflow when pull request is created
-    if: ${{ github.actor != 'dependabot[bot]' && github.event.pull_request.draft == false }}
-    uses: Informasjonsforvaltning/workflows/.github/workflows/build-deploy-nox.yaml@main
+    if: github.event.pull_request.draft == false
+    uses: Informasjonsforvaltning/workflows/.github/workflows/build-push-nox.yaml@main
     with:
       app_name: fdk-reports-bff
       python_version: '3.9'
       python_architecture: x64
       environment: staging
-      cluster: digdir-fdk-dev
-      nox_image: True
       run_safety: True
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GCP_SA_DIGDIR_FDK_GCR_KEY: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
-      DIGDIR_FDK_AUTODEPLOY: ${{ secrets.DIGDIR_FDK_DEV_AUTODEPLOY }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  dependabot-build:
-    name: Build image on PR from dependabot
-    if: ${{ github.actor == 'dependabot[bot]' }}
-    uses: Informasjonsforvaltning/workflows/.github/workflows/build.yaml@main
+  deploy:
+    name: Deploy to staging environment
+    if: ${{ github.actor != 'dependabot[bot]' && github.event.pull_request.draft == false }}
+    needs: build
+    uses: Informasjonsforvaltning/workflows/.github/workflows/kustomize-deploy.yaml@main
+    with:
+      app_name: fdk-reports-bff
+      environment: staging
+      cluster: digdir-fdk-dev
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DIGDIR_FDK_AUTODEPLOY: ${{ secrets.DIGDIR_FDK_DEV_AUTODEPLOY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

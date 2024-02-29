@@ -1,0 +1,10 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployment-fdk-reports-bff.yaml
+  - service-fdk-reports-bff.yaml
+images:
+  - name: fdk-reports-bff
+    newName: eu.gcr.io/digdir-fdk-infra/fdk-reports-bff
+    newTag: $(GIT_COMMIT_SHA)

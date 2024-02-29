@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    fdk.service: fdk-reports-bff
+  name: fdk-reports-bff
+spec:
+  selector:
+      fdk.service: fdk-reports-bff
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: NodePort
