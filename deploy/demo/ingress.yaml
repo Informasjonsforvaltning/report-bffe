@@ -3,12 +3,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: fdk-reports-bff
-  annotations:
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location ~* "^/updates" {
-        deny all;
-        return 403;
-      }
 spec:
   ingressClassName: nginx
   rules:
