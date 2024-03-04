@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: prod
 resources:
   - ../base
-  - ingress.yaml
 
 patchesStrategicMerge:
   - env.yaml
