@@ -3,19 +3,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    fdk.service: fdk-reports-bff
+    app: fdk-reports-bff
   name: fdk-reports-bff
 spec:
   replicas: 1
   selector:
     matchLabels:
-      fdk.service: fdk-reports-bff
+      app: fdk-reports-bff
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        fdk.service: fdk-reports-bff
+        app: fdk-reports-bff
     spec:
       containers:
       - env:
