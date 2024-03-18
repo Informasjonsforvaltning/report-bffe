@@ -7,7 +7,6 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/main/src/main/resources/ontology/fdk.owl#>
 PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/main/src/main/resources/ontology/organization-catalog.owl#>
 SELECT DISTINCT ?dataset ?record ?theme ?accessRights ?provenance ?subject ?isOpenData ?transportportal
-FROM <https://datasets.fellesdatakatalog.digdir.no>
 WHERE {
   ?dataset a dcat:Dataset .
   ?record foaf:primaryTopic ?dataset .
@@ -31,7 +30,6 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/main/src/main/resources/ontology/fdk.owl#>
 PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/main/src/main/resources/ontology/organization-catalog.owl#>
 SELECT DISTINCT ?dataset ?record ?catalog ?catalogTitle
-FROM <https://datasets.fellesdatakatalog.digdir.no>
 WHERE {
   ?dataset a dcat:Dataset .
   ?record foaf:primaryTopic ?dataset .
@@ -52,7 +50,6 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/main/src/main/resources/ontology/fdk.owl#>
 PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/main/src/main/resources/ontology/organization-catalog.owl#>
 SELECT DISTINCT ?dataset ?record ?mediaType ?format
-FROM <https://datasets.fellesdatakatalog.digdir.no>
 WHERE {
   ?dataset a dcat:Dataset .
   ?record foaf:primaryTopic ?dataset .
@@ -73,7 +70,6 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX fdk: <https://raw.githubusercontent.com/Informasjonsforvaltning/fdk-reasoning-service/main/src/main/resources/ontology/fdk.owl#>
 PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/main/src/main/resources/ontology/organization-catalog.owl#>
 SELECT DISTINCT ?dataset ?record ?publisher ?orgId ?orgPath
-FROM <https://datasets.fellesdatakatalog.digdir.no>
 WHERE {
   ?dataset a dcat:Dataset .
   ?record foaf:primaryTopic ?dataset .
