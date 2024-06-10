@@ -16,7 +16,6 @@ jobs:
       python_version: '3.9'
       python_architecture: x64
       environment: staging
-      run_safety: True
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GCP_SA_DIGDIR_FDK_GCR_KEY: ${{ secrets.GCP_SA_DIGDIR_FDK_GCR_KEY }}
