@@ -19,21 +19,3 @@ WHERE {
     ?publisher br:orgPath ?orgPath .
   }
 }"""
-
-
-def dataservice_timeseries_datapoint_query() -> str:
-    return """
-PREFIX dct: <http://purl.org/dc/terms/>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX br: <https://raw.githubusercontent.com/Informasjonsforvaltning/organization-catalog/main/src/main/resources/ontology/organization-catalog.owl#>
-SELECT DISTINCT ?service ?orgPath
-WHERE {
-  ?service a dcat:DataService .
-  ?record foaf:primaryTopic ?service .
-  ?record a dcat:CatalogRecord .
-  OPTIONAL {
-    ?service dct:publisher ?publisher .
-    ?publisher br:orgPath ?orgPath .
-  }
-}"""

@@ -1,6 +1,3 @@
-from datetime import datetime
-
-from dateutil import parser
 import pytest
 from requests import get
 
@@ -39,16 +36,3 @@ class TestDatasetsReport:
         assert len(content.get("accessRights")) == 5
         assert len(content.get("themesAndTopicsCount")) > 0
         assert len(content.get("formats")) > 0
-
-    @pytest.mark.contract
-    def test_time_series_has_correct_format(self, docker_service, api):
-        result = get(url=dataset_time_series_url)
-        assert result.status_code == 200
-        time_series = result.json()
-        assert time_series[0]["xAxis"] == "2022-08-01T00:00:00.000Z"
-        assert time_series[0]["yAxis"] == 1549
-        last_date = time_series[len(time_series) - 1]["xAxis"]
-        dt = parser.parse(last_date)
-        now = datetime.now()
-        assert dt.month == now.month
-        assert dt.year == now.year

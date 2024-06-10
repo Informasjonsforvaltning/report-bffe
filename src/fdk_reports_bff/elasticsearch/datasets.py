@@ -1,15 +1,11 @@
 import asyncio
-from datetime import datetime
 import logging
-import os
 import traceback
 from typing import Any, Dict, List, Optional
 
 from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.elasticsearch.utils import (
-    diff_store_is_empty,
     elasticsearch_ingest,
-    first_of_month_timestamp_range,
     get_unique_records,
     map_formats_to_prefixed,
     strip_http_scheme,
@@ -20,9 +16,7 @@ from fdk_reports_bff.service.referenced_data_store import (
     get_media_types,
 )
 from fdk_reports_bff.service.service_requests import (
-    fetch_diff_store_metadata,
     fetch_themes_and_topics_from_reference_data,
-    query_time_series_datapoint,
     sparql_service_query,
 )
 from fdk_reports_bff.service.utils import (
@@ -30,17 +24,11 @@ from fdk_reports_bff.service.utils import (
     ServiceKey,
 )
 from fdk_reports_bff.sparql import (
-    dataset_timeseries_datapoint_query,
     get_dataset_catalogs_query,
     get_dataset_distributions_query,
     get_dataset_publishers_query,
     get_datasets_query,
 )
-
-env = {
-    ServiceKey.DATASET_QUERY_CACHE: os.getenv("DATASET_QUERY_CACHE_URL")
-    or "http://localhost:8000",
-}
 
 
 def insert_datasets(success_status: str, failed_status: str) -> str:
@@ -87,48 +75,6 @@ def insert_datasets(success_status: str, failed_status: str) -> str:
         return failed_status
 
 
-def insert_datasets_timeseries(success_status: str, failed_status: str) -> str:
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-    try:
-        diff_store_metadata = loop.run_until_complete(
-            fetch_diff_store_metadata(env.get(ServiceKey.DATASET_QUERY_CACHE))
-        )
-        if diff_store_is_empty(diff_store_metadata):
-            return failed_status
-        else:
-            date_range = first_of_month_timestamp_range(
-                start=diff_store_metadata.get("start_time"),
-                end=diff_store_metadata.get("end_time"),
-            )
-            results = loop.run_until_complete(
-                asyncio.gather(
-                    *[
-                        query_time_series_datapoint(
-                            diff_store_url=env.get(ServiceKey.DATASET_QUERY_CACHE),
-                            timestamp=str(timestamp),
-                            sparql_query=dataset_timeseries_datapoint_query(),
-                        )
-                        for timestamp in date_range
-                    ]
-                )
-            )
-            prepared_docs = loop.run_until_complete(
-                prepare_time_series(documents=results)
-            )
-            elasticsearch_ingest(
-                index_key=ServiceKey.DATASET_TIME_SERIES, documents=prepared_docs
-            )
-            return success_status
-    except FetchFromServiceException as err:
-        logging.error(f"{traceback.format_exc()} {err.reason}")
-        return failed_status
-
-
 async def prepare_documents(
     datasets: List[dict],
     dataset_catalogs: List[dict],
@@ -161,31 +107,6 @@ async def prepare_documents(
             file_types=file_types_dict,
         )
         for dataset in unique_datasets
-    ]
-
-
-async def prepare_time_series(
-    documents: List[dict],
-) -> list:
-    datapoint_lists = [
-        reduce_dataset_time_series(datapoint=datapoint) for datapoint in documents
-    ]
-    return [dataset for datapoint in datapoint_lists for dataset in datapoint]
-
-
-def reduce_dataset_time_series(datapoint: dict) -> list:
-    return [
-        {
-            "uri": str(dataset["dataset"]["value"]),
-            "transportportal": bool(
-                dataset.get("transportportal", {}).get("value", False)
-            ),
-            "orgPath": str(dataset.get("orgPath", {}).get("value", "MISSING")),
-            "timestamp": datetime.fromtimestamp(int(datapoint["timestamp"])).strftime(
-                "%Y-%m-%dT%H:%M:%S.00Z"
-            ),
-        }
-        for dataset in datapoint["results"]
     ]
 
 

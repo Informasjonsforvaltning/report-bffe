@@ -17,8 +17,3 @@ class TestConceptsReport:
         assert "orgPaths" in keys
         assert "organizationCount" in keys
         assert "mostInUse" in keys
-
-    @pytest.mark.contract
-    def test_timeseries_has_correct_status(self, docker_service, api):
-        result = get(url=concepts_timeseries_url)
-        assert result.status_code == 200

@@ -1,13 +1,11 @@
 import pytest
 
-from fdk_reports_bff.elasticsearch.queries import EsMappings
 from fdk_reports_bff.responses import (
     ConceptResponse,
     DataSetResponse,
     InformationModelResponse,
-    TimeSeriesResponse,
 )
-from fdk_reports_bff.service.utils import ContentKeys, ThemeProfile
+from fdk_reports_bff.service.utils import ThemeProfile
 from test.unit_mock_data import concepts_aggregation, concepts_in_use
 
 
@@ -52,48 +50,6 @@ def test_concept_response():
     assert len(result.mostInUse) == 3
     assert result.newLastWeek == 10
     assert len(result.catalogs) == 11
-
-
-@pytest.mark.unit
-def test_time_series_response():
-    es_bucket_november = {"key_as_string": "2019-11-01T00:00:00.000Z", "doc_count": 8}
-    es_bucket_january = {"key_as_string": "2020-01-01T00:00:00.000Z", "doc_count": 10}
-    es_bucket_april = {"key_as_string": "2020-04-01T00:00:00.000Z", "doc_count": 11}
-    es_bucket_may = {"key_as_string": "2020-05-01T00:00:00.000Z", "doc_count": 12}
-    es_bucket_june = {"key_as_string": "2020-06-01T00:00:00.000Z", "doc_count": 15}
-    parsed_series = {
-        "aggregations": {
-            EsMappings.TIME_SERIES: {
-                "buckets": [
-                    es_bucket_november,
-                    es_bucket_january,
-                    es_bucket_april,
-                    es_bucket_may,
-                    es_bucket_june,
-                ]
-            }
-        }
-    }
-    result = TimeSeriesResponse(parsed_series, "concepts").json()
-    assert len(result) > len(
-        parsed_series["aggregations"][EsMappings.TIME_SERIES]["buckets"]
-    )
-    assert result[0][ContentKeys.TIME_SERIES_X_AXIS] == "2019-11-01T00:00:00.000Z"
-    assert result[1][ContentKeys.TIME_SERIES_X_AXIS] == "2019-12-01T00:00:00.000Z"
-    assert result[2][ContentKeys.TIME_SERIES_X_AXIS] == "2020-01-01T00:00:00.000Z"
-    assert result[3][ContentKeys.TIME_SERIES_X_AXIS] == "2020-02-01T00:00:00.000Z"
-    assert result[4][ContentKeys.TIME_SERIES_X_AXIS] == "2020-03-01T00:00:00.000Z"
-    assert result[5][ContentKeys.TIME_SERIES_X_AXIS] == "2020-04-01T00:00:00.000Z"
-    assert result[6][ContentKeys.TIME_SERIES_X_AXIS] == "2020-05-01T00:00:00.000Z"
-    assert result[7][ContentKeys.TIME_SERIES_X_AXIS] == "2020-06-01T00:00:00.000Z"
-    assert result[0][ContentKeys.TIME_SERIES_Y_AXIS] == 8
-    assert result[1][ContentKeys.TIME_SERIES_Y_AXIS] == 8
-    assert result[2][ContentKeys.TIME_SERIES_Y_AXIS] == 10
-    assert result[3][ContentKeys.TIME_SERIES_Y_AXIS] == 10
-    assert result[4][ContentKeys.TIME_SERIES_Y_AXIS] == 10
-    assert result[5][ContentKeys.TIME_SERIES_Y_AXIS] == 11
-    assert result[6][ContentKeys.TIME_SERIES_Y_AXIS] == 12
-    assert result[7][ContentKeys.TIME_SERIES_Y_AXIS] == 15
 
 
 @pytest.mark.unit
