@@ -13,8 +13,3 @@ class TestConceptsReport:
         assert "orgPaths" in keys
         assert "organizationCount" in keys
         assert "mostInUse" in keys
-
-    @pytest.mark.integration
-    def test_timeseries_has_correct_status(self, client: Flask, docker_service, api):
-        result = client.get("/timeseries/concepts")
-        assert result.status_code == 200

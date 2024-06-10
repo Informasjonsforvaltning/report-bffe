@@ -18,8 +18,3 @@ class TestDataServicesReport:
         assert len(content.get("orgPaths")) > 0
         assert content.get("organizationCount") < len(content.get("orgPaths"))
         assert len(content.get("formats")) > 0
-
-    @pytest.mark.integration
-    def test_timeseries_has_correct_status(self, client: Flask, docker_service, api):
-        result = client.get("/timeseries/dataservices")
-        assert result.status_code == 200

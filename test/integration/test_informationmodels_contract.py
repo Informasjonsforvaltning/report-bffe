@@ -12,8 +12,3 @@ class TestInformationModelsReport:
         assert "newLastWeek" in keys
         assert "orgPaths" in keys
         assert "organizationCount" in keys
-
-    @pytest.mark.integration
-    def test_timeseries_has_correct_status(self, client: Flask, docker_service, api):
-        result = client.get("/timeseries/informationmodels")
-        assert result.status_code == 200

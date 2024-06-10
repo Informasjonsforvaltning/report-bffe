@@ -1,8 +1,6 @@
-from datetime import datetime
 from typing import Any, List, Optional
 
-from fdk_reports_bff.elasticsearch.queries import EsMappings
-from fdk_reports_bff.service.utils import ParsedDataPoint, ServiceKey, ThemeProfile
+from fdk_reports_bff.service.utils import ThemeProfile
 
 
 class Response:
@@ -200,62 +198,3 @@ class DataSetResponse(Response):
             themes=None,
             access_rights=None,
         )
-
-
-class TimeSeriesResponse:
-    def __init__(self: Any, es_time_series: List[dict], report_type: str) -> None:
-        self.time_series: List = []
-        self.type = report_type
-        self.last_data_point: ParsedDataPoint = None
-        self.parse_es_time_series(es_time_series=es_time_series)
-        self.add_months_from_last_data_point_to_now()
-
-    def parse_es_time_series(self: Any, es_time_series: dict) -> None:
-        last_count = 0
-        time_buckets = es_time_series[EsMappings.AGGREGATIONS][EsMappings.TIME_SERIES][
-            EsMappings.BUCKETS
-        ]
-        for time_bucket in time_buckets:
-            if (
-                self.type == ServiceKey.DATA_SETS
-                or self.type == ServiceKey.CONCEPTS
-                or self.type == ServiceKey.DATA_SERVICES
-            ):
-                new_data_point = ParsedDataPoint(
-                    es_bucket=time_bucket, last_month_count=0
-                )
-            else:
-                new_data_point = ParsedDataPoint(
-                    es_bucket=time_bucket, last_month_count=last_count
-                )
-            last_count = new_data_point.y_axis
-            self.add(new_data_point)
-
-    def add(self: Any, parsed_entry: Any) -> None:
-        if len(self.time_series) == 0:
-            self.time_series.append(parsed_entry.response_dict())
-            self.last_data_point = parsed_entry
-        elif parsed_entry == self.last_data_point.get_next_month():
-            self.time_series.append(parsed_entry.response_dict())
-            self.last_data_point = parsed_entry
-        else:
-            while self.last_data_point.get_next_month() != parsed_entry:
-                next_month = self.last_data_point.get_next_month()
-                self.time_series.append(next_month.response_dict())
-                self.last_data_point = next_month
-            self.time_series.append(parsed_entry.response_dict())
-            self.last_data_point = parsed_entry
-
-    def add_months_from_last_data_point_to_now(self: Any) -> None:
-        if self.last_data_point is not None:
-            now_data_point = ParsedDataPoint.from_date_time(
-                datetime.now(), self.last_data_point
-            )
-
-            while self.last_data_point != now_data_point:
-                next_month = self.last_data_point.get_next_month()
-                self.time_series.append(next_month.response_dict())
-                self.last_data_point = next_month
-
-    def json(self: Any) -> List[dict]:
-        return self.time_series

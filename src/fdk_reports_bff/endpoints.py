@@ -7,8 +7,6 @@ from flask_restful import abort, Resource
 from fdk_reports_bff.aggregation.aggregation import get_report
 from fdk_reports_bff.elasticsearch import get_all_update_entries
 from fdk_reports_bff.elasticsearch.scheduler import Update
-from fdk_reports_bff.responses import TimeSeriesResponse
-from fdk_reports_bff.service.timeseries import get_time_series
 from fdk_reports_bff.service.utils import (
     FetchFromServiceException,
     NotAServiceKeyException,
@@ -66,18 +64,3 @@ class Report(Resource):
             abort(500, reason=err.reason)
         except KeyError:
             abort(501, reason=f"reports for {content_type} is not avaiable")
-
-
-class TimeSeries(Resource):
-    def get(self: Any, content_type: str) -> Any:
-        try:
-            result: TimeSeriesResponse = get_time_series(
-                ServiceKey.get_key(content_type), args=request.args
-            )
-            return result.json()
-        except NotAServiceKeyException:
-            abort(400)
-        except FetchFromServiceException as err:
-            abort(500, reason=err.reason)
-        except KeyError:
-            abort(501)

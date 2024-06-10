@@ -16,18 +16,9 @@ from elasticsearch import (
 )
 import pytz
 
-from fdk_reports_bff.elasticsearch.concepts import (
-    insert_concepts,
-    insert_concepts_timeseries,
-)
-from fdk_reports_bff.elasticsearch.dataservices import (
-    insert_data_service_timeseries,
-    insert_dataservices,
-)
-from fdk_reports_bff.elasticsearch.datasets import (
-    insert_datasets,
-    insert_datasets_timeseries,
-)
+from fdk_reports_bff.elasticsearch.concepts import insert_concepts
+from fdk_reports_bff.elasticsearch.dataservices import insert_dataservices
+from fdk_reports_bff.elasticsearch.datasets import insert_datasets
 from fdk_reports_bff.elasticsearch.informationmodels import insert_informationmodels
 from fdk_reports_bff.service.utils import StartSchedulerError
 
@@ -102,15 +93,7 @@ class Update:
             success_status=Update.COMPLETED, failed_status=Update.FAILED
         )
         if status == Update.COMPLETED:
-            status = insert_datasets_timeseries(
-                success_status=Update.COMPLETED, failed_status=Update.FAILED
-            )
-        if status == Update.COMPLETED:
             status = insert_concepts(
-                success_status=Update.COMPLETED, failed_status=Update.FAILED
-            )
-        if status == Update.COMPLETED:
-            status = insert_concepts_timeseries(
                 success_status=Update.COMPLETED, failed_status=Update.FAILED
             )
         if status == Update.COMPLETED:
@@ -119,10 +102,6 @@ class Update:
             )
         if status == Update.COMPLETED:
             status = insert_dataservices(
-                success_status=Update.COMPLETED, failed_status=Update.FAILED
-            )
-        if status == Update.COMPLETED:
-            status = insert_data_service_timeseries(
                 success_status=Update.COMPLETED, failed_status=Update.FAILED
             )
         Update.complete_update(doc_id, update, status)

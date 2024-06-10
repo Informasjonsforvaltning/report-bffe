@@ -16,8 +16,3 @@ class TestDataServicesReport:
         assert "newLastWeek" in keys
         assert "orgPaths" in keys
         assert "organizationCount" in keys
-
-    @pytest.mark.contract
-    def test_timeseries_has_correct_status(self, docker_service, api):
-        result = get(url=dataservices_timeseries_url)
-        assert result.status_code == 200
