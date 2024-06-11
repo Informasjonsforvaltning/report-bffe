@@ -208,7 +208,7 @@ def map_formats_to_prefixed(
     for fmt in formats:
         stripped_fmt = strip_http_scheme(fmt)
         if stripped_fmt in media_types:
-            formats_prefixed.append("MEDIA_TYPE " + media_types[stripped_fmt].name)
+            formats_prefixed.append("MEDIA_TYPE " + media_types[stripped_fmt].code)
         elif stripped_fmt in file_types:
             formats_prefixed.append("FILE_TYPE " + file_types[stripped_fmt].code)
         else:
