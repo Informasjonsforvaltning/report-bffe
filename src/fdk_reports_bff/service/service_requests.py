@@ -23,9 +23,9 @@ default_headers = {"accept": "application/json"}
 # from reference data (called seldom, not a crisis if they're slow) !important
 async def fetch_themes_and_topics_from_reference_data() -> List[dict]:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/los/themes-and-words"
-    async with AsyncClient() as session:
+    async with AsyncClient(timeout=10.0) as session:
         try:
-            response = await session.get(url=url, timeout=10.0)
+            response = await session.get(url=url)
             response.raise_for_status()
             return response.json().get("losNodes")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -38,9 +38,9 @@ async def fetch_access_rights_from_reference_data() -> list:
     url = (
         f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/eu/access-rights"
     )
-    async with AsyncClient() as session:
+    async with AsyncClient(timeout=10.0) as session:
         try:
-            response = await session.get(url=url, timeout=10.0)
+            response = await session.get(url=url)
             response.raise_for_status()
             return response.json().get("accessRights")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -53,9 +53,9 @@ async def fetch_media_types_from_reference_data() -> list:
     url = (
         f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/iana/media-types"
     )
-    async with AsyncClient() as session:
+    async with AsyncClient(timeout=10.0) as session:
         try:
-            response = await session.get(url=url, timeout=10.0)
+            response = await session.get(url=url)
             response.raise_for_status()
             return response.json().get("mediaTypes")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -66,9 +66,9 @@ async def fetch_media_types_from_reference_data() -> list:
 
 async def fetch_file_types_from_reference_data() -> list:
     url = f"{service_urls.get(ServiceKey.REFERENCE_DATA)}/reference-data/eu/file-types"
-    async with AsyncClient() as session:
+    async with AsyncClient(timeout=10.0) as session:
         try:
-            response = await session.get(url=url, timeout=10.0)
+            response = await session.get(url=url)
             response.raise_for_status()
             return response.json().get("fileTypes")
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -80,11 +80,9 @@ async def fetch_file_types_from_reference_data() -> list:
 async def sparql_service_query(query: str) -> List[dict]:
     sparql_query = urllib.parse.quote_plus(query)
     url = f"{service_urls.get(ServiceKey.SPARQL_BASE)}?query={sparql_query}"
-    async with AsyncClient() as session:
+    async with AsyncClient(timeout=180.0) as session:
         try:
-            response = await session.get(
-                url=url, headers=default_headers, timeout=180.0
-            )
+            response = await session.get(url=url, headers=default_headers)
             response.raise_for_status()
             res_json = response.json()
             sparql_bindings = res_json[ContentKeys.SPARQL_RESULTS][
@@ -99,11 +97,9 @@ async def sparql_service_query(query: str) -> List[dict]:
 
 async def fetch_diff_store_metadata(diff_store_url: str) -> dict:
     url = f"{diff_store_url}/api/metadata"
-    async with AsyncClient() as session:
+    async with AsyncClient(timeout=180.0) as session:
         try:
-            response = await session.get(
-                url=url, headers=default_headers, timeout=180.0
-            )
+            response = await session.get(url=url, headers=default_headers)
             response.raise_for_status()
             return response.json()
         except (ConnectError, HTTPError, ConnectTimeout):
@@ -116,11 +112,9 @@ async def query_time_series_datapoint(
     diff_store_url: str, timestamp: str, sparql_query: str
 ) -> dict:
     url = f"{diff_store_url}/api/sparql/{timestamp}?query={urllib.parse.quote_plus(sparql_query)}"
-    async with AsyncClient() as session:
+    async with AsyncClient(timeout=180.0) as session:
         try:
-            response = await session.get(
-                url=url, headers=default_headers, timeout=180.0
-            )
+            response = await session.get(url=url, headers=default_headers)
             response.raise_for_status()
             res_json = response.json()
             return {
