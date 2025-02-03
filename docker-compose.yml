@@ -18,7 +18,7 @@ services:
       - ES_JAVA_OPTS=-Xms2G -Xmx2G
       - discovery.type=single-node
   fdk-reports-bff:
-      image: eu.gcr.io/digdir-fdk-infra/fdk-reports-bff:test
+      image: ghcr.io/informasjonsforvaltning/fdk-reports-bff:test
       build: .
       ports:
         - "8080:8080"
